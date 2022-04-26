@@ -30,6 +30,7 @@ class PointProcess(object):
         ax = fig.add_subplot()
         ax.set_aspect('equal', adjustable='box')
         self.points.plot_2d(ax)
+        plt.show()
 
 
 class PoissonPointProcess(PointProcess):
