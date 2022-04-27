@@ -19,7 +19,7 @@ class ParticleProcess(object):
         self.number_of_particles = len(self.particles)
         self.grain_type = grain_type
         # compute the grains distance
-        self.grains_distance_matrix = self._compute_the_grains_distance_matrix()
+        self.germs_distance_matrix = self._compute_the_germs_distance_matrix()
         # compute particles distance (inf {||x_i - x_j||: x_i \in \Xi_i, x_j \in \Xi_j})
         self.particles_distance_matrix = self._compute_the_particles_distance_matrix()
         # particles distance == 0 -> intersected, otherwise not intersected
@@ -46,17 +46,20 @@ class ParticleProcess(object):
                     shared_areas_matrix[i, j] = 0
                     shared_areas_matrix[j, i] = 0
                 else:
-                    dist = self.grains_distance_matrix[i, j]
+                    dist = self.germs_distance_matrix[i, j]
                     rad_i_sq = self.particles[i].grain.radius ** 2
                     rad_j_sq = self.particles[j].grain.radius ** 2
                     x = (rad_i_sq - rad_j_sq + dist ** 2) / (2 * dist)
                     z = x ** 2
-                    y = np.sqrt(rad_i_sq - z)
+
+                    if rad_i_sq - z < 0 and dist > abs(self.particles[i].grain.radius - self.particles[j].grain.radius):
+                        a=1
 
                     if dist <= abs(self.particles[i].grain.radius - self.particles[j].grain.radius):
                         shared_areas_matrix[i, j] = np.pi * min(rad_i_sq, rad_j_sq)
                         shared_areas_matrix[j, i] = np.pi * min(rad_i_sq, rad_j_sq)
                     else:
+                        y = np.sqrt(rad_i_sq - z)
                         # return a * asin(y / A.r) + b * asin(y / B.r) - y * (x + sqrt(z + b - a))
                         _share = rad_i_sq * np.arcsin((y / self.particles[i].grain.radius)) + \
                                  rad_j_sq * np.arcsin((y / self.particles[j].grain.radius)) - \
@@ -65,7 +68,7 @@ class ParticleProcess(object):
                         shared_areas_matrix[j, i] = _share
         return shared_areas_matrix
 
-    def _compute_the_grains_distance_matrix(self):
+    def _compute_the_germs_distance_matrix(self):
         grains_distance_matrix = pairwise_distances(
                 [self.particles[k].germ for k in range(self.number_of_particles)]
             )
@@ -83,7 +86,7 @@ class ParticleProcess(object):
                 ] for k in range(self.number_of_particles)
             ])
             distance_matrix = np.where(
-                self.grains_distance_matrix < radii_to_subtract, 0, self.grains_distance_matrix - radii_to_subtract
+                self.germs_distance_matrix < radii_to_subtract, 0, self.germs_distance_matrix - radii_to_subtract
             )
             return distance_matrix
         else:

@@ -9,13 +9,13 @@ from Geometry.particle import Particle
 from Processes.particle_process import ParticleProcess
 from Processes.point_process import PoissonPointProcess
 
-POISSON_INTENSITY = 8
+POISSON_INTENSITY = 3000
 MARKED = False
 # everything right now for 2d and circle grains, soon to be added segment grains
 SPACE_DIMENSION = 2
 GRAIN_DIMENSION = 2
 GRAIN_TYPE = "circle"
-MAX_CIRC_RAD = 0.1
+MAX_CIRC_RAD = 0.2
 MIN_CIRC_RAD = 0.03
 
 
@@ -30,6 +30,6 @@ if __name__ == '__main__':
         ) for k in range(len(poisson_point_process.points))
     ]
     particle_process = ParticleProcess(particles=particles, grain_type=GRAIN_TYPE)
-    particle_process.plot_itself()
+    # particle_process.plot_itself()
     a=1
 
