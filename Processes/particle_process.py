@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from typing import List
 from itertools import product
 import numpy as np
+import random
 from sklearn.metrics import pairwise_distances
 
 from Geometry.particle import Particle
@@ -74,10 +75,23 @@ class ParticleProcess(object):
             )
         return grains_distance_matrix
 
+    def plot_itself(self, show_germs: bool = False):
+        fig = plt.figure()
+        ax = fig.add_subplot()
+        ax.set_aspect('equal', adjustable='box')
+        for particle in self.particles:
+            facecolor, alpha = self._choose_face_color()
+            edgecolor = self._choose_edge_color()
+            particle.grain.plot_2d(ax, facecolor=facecolor, linestyle="-", alpha=alpha, linewidth=1, edgecolor=edgecolor
+                                   # alpha=0.5,
+            )
+        if show_germs:
+            for particle in self.particles:
+                color, alpha = self._choose_germ_color()
+                particle.germ.plot_2d(ax, c=color, alpha=alpha)
+        plt.show()
+
     def _compute_the_particles_distance_matrix(self):
-        # distance_matrix = np.array([
-        #     [0 for i in range(self.number_of_particles)] for j in range(self.number_of_particles)
-        # ])
         if self.grain_type == "circle":
             radii_to_subtract = np.array([
                 [
@@ -92,16 +106,13 @@ class ParticleProcess(object):
         else:
             raise ValueError(f"Unknown value for Particle.grain_type: {self.grain_type}")
 
-    def plot_itself(self, show_germs: bool = True):
-        fig = plt.figure()
-        ax = fig.add_subplot()
-        ax.set_aspect('equal', adjustable='box')
-        for particle in self.particles:
-            particle.grain.plot_2d(ax, facecolor="#E0AC69", linestyle="-", alpha=0.5, linewidth=1, edgecolor="black"
-                                   # alpha=0.5,
-            )
-        if show_germs:
-            for particle in self.particles:
-                particle.germ.plot_2d(ax, c="red")
-        plt.show()
+    def _choose_edge_color(self):
+        return "#" + ''.join([random.choice('ABCDEF0123456789') for i in range(6)])
+
+    def _choose_face_color(self):
+        return "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)]), np.random.random(1)[0]
+
+    def _choose_germ_color(self):
+        return "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)]), np.random.random(1)[0]
+
 
