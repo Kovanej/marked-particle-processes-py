@@ -9,7 +9,7 @@ from Geometry.particle import Particle
 from Processes.particle_process import ParticleProcess
 from Processes.point_process import PoissonPointProcess
 
-POISSON_INTENSITY = 2
+POISSON_INTENSITY = 8
 MARKED = False
 # everything right now for 2d
 SPACE_DIMENSION = 2
@@ -29,7 +29,7 @@ if __name__ == '__main__':
                 (MAX_CIRC_RAD - MIN_CIRC_RAD) * (np.random.random(1)[0]) + MIN_CIRC_RAD)
         ) for k in range(len(poisson_point_process.points))
     ]
-    particle_process = ParticleProcess(particles=particles)
+    particle_process = ParticleProcess(particles=particles, grain_type=GRAIN_TYPE)
     particle_process.plot_itself()
     a=1
 
