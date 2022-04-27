@@ -10,7 +10,11 @@ class Particle(object):
             self,
             germ: Point,
             # TODO extend - now testing for circles
-            grain: Circle
+            grain: Circle,
+            mark=None
     ):
         self.germ = germ
         self.grain = grain
+        self.mark = mark
+
+

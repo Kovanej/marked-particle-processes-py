@@ -13,14 +13,14 @@ class ParticleProcess(object):
     def __init__(
             self,
             particles: List[Particle],
-            grain_type: str
+            grain_type: str,
     ):
         self.particles = particles
         self.number_of_particles = len(self.particles)
         self.grain_type = grain_type
         self.grains_distance_matrix = None
         self.particles_distance_matrix = self._compute_the_particles_distance_matrix()
-        self.intersection_matrix = self._compute_the_intersection_matrix()
+        self.intersection_matrix = np.where(self.particles_distance_matrix == 0, 1, 0)
 
     def _compute_the_particles_distance_matrix(self):
         # TODO now works only for circles - otherwise return 0 matrix
@@ -41,10 +41,6 @@ class ParticleProcess(object):
                 self.grains_distance_matrix < radii_to_subtract, 0, self.grains_distance_matrix - radii_to_subtract
             )
         return distance_matrix
-
-
-    def _compute_the_intersection_matrix(self):
-        pass
 
     def plot_itself(self, show_germs: bool = True):
         fig = plt.figure()

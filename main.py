@@ -11,9 +11,9 @@ from Processes.point_process import PoissonPointProcess
 
 POISSON_INTENSITY = 8
 MARKED = False
-# everything right now for 2d
+# everything right now for 2d and circle grains, soon to be added segment grains
 SPACE_DIMENSION = 2
-GRAIN_DIMENSION = 1
+GRAIN_DIMENSION = 2
 GRAIN_TYPE = "circle"
 MAX_CIRC_RAD = 0.1
 MIN_CIRC_RAD = 0.03
