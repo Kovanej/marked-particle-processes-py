@@ -10,12 +10,14 @@ class PointProcess(object):
     def __init__(
             self,
             intensity: int,
+            process_type: str,
             space_dimension: int = 2,
             points: Optional[Points] = None,
-            generate_itself: bool = True,
-            which: str = "Poisson"
+            generate_itself: bool = True
     ):
         self.intensity = intensity
+        self.space_dimension = space_dimension
+        self.process_type = process_type
         if generate_itself:
             self.points = self._generate_itself()
         else:
@@ -44,7 +46,10 @@ class PoissonPointProcess(PointProcess):
     ):
         super().__init__(
             intensity=intensity,
-            # points=points, generate_itself=generate_itself
+            process_type="Poisson",
+            space_dimension=space_dimension,
+            points=points,
+            generate_itself=generate_itself
         )
 
     def _generate_itself(self): # -> Any(List[Point], Points):
