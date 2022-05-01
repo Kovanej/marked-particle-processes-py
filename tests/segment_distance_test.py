@@ -8,13 +8,21 @@ from Processes.particle_process import ParticleProcess
 
 
 # ALL FOLLOWING CHECKED FOR CORRECT VALUES
+# START_AND_END_POINTS = [
+#     (Point([0, 0]), Point([1, 0])),
+#     (Point([0, 1/2]), Point([0, 1/4])),
+#     (Point([1, 1]), Point([2, 2])),
+#     (Point([0, 1]), Point([-1, 0])),
+#     (Point([0, 0]), Point([1, 1])),
+#     (Point([1, 0]), Point([2, 1]))
+# ]
+
+# ALSO TESTED FOR A COUPLE OF SEGMENTS IN R^3
 START_AND_END_POINTS = [
-    (Point([0, 0]), Point([1, 0])),
-    (Point([0, 1/2]), Point([0, 1/4])),
-    (Point([1, 1]), Point([2, 2])),
-    (Point([0, 1]), Point([-1, 0])),
-    (Point([0, 0]), Point([1, 1])),
-    (Point([1, 0]), Point([2, 1]))
+    (Point([0, 0, 0]), Point([0, 0, -1])),
+    (Point([-1, 2, 0]), Point([1, 2, 0])),
+    (Point([-1, 0, -2]), Point([2, 0, -2])),
+    (Point([-1, 0, 2]), Point([2, 0, 2])),
 ]
 
 particles = [
