@@ -7,17 +7,15 @@ from Plotting.plotting import plot_the_grains
 from Geometry.particle import Particle
 from Processes.particle_process import ParticleProcess
 from Processes.point_process import PoissonPointProcess
+import utils.const as const
 
-POISSON_INTENSITY = 1000
+POISSON_INTENSITY = 8000
 MARKED = False
 MARKS_MODEL = "Lisa"
-# everything right now for 2d and circle grains, soon to be added segment grains
 SPACE_DIMENSION = 2
 GRAIN_TYPE = "segment"
-MAX_CIRC_RAD = 0.2
-MIN_CIRC_RAD = 0.1
-MAX_SEGMENT_LENGTH = 0.15
-MIN_SEGMENT_LENGTH = 0.05
+MAX_CIRC_RAD = 0.15
+MIN_CIRC_RAD = 0.07
 
 
 if __name__ == '__main__':
@@ -26,8 +24,8 @@ if __name__ == '__main__':
     if GRAIN_TYPE == "segment":
         particles = []
         for k in range(len(poisson_point_process.points)):
-            angle = np.pi * np.random.random(size=1)[0]
-            length = (MAX_SEGMENT_LENGTH - MIN_SEGMENT_LENGTH) * np.random.random(size=1)[0]
+            angle = np.pi / 2 * np.random.random(size=1)[0]
+            length = (const.MAX_SEGMENT_LENGTH - const.MIN_SEGMENT_LENGTH) * np.random.random(size=1)[0]
             particles.append(
                 Particle(
                     germ=Point(poisson_point_process.points[k]),
@@ -54,3 +52,4 @@ if __name__ == '__main__':
     # ]
     particle_process = ParticleProcess(particles=particles, grain_type=GRAIN_TYPE)
     particle_process.plot_itself()
+    a=1

@@ -1,14 +1,15 @@
 
+from datetime import datetime
 import matplotlib.pyplot as plt
 from typing import List, Optional, Union
 import numpy as np
 import random
 from scipy.optimize import fsolve
 from sklearn.metrics import pairwise_distances
-from skspatial.objects import Point
+from skspatial.objects import Point, Vector
 
 from Geometry.particle import Particle
-
+import utils.const as const
 
 class ParticleProcess(object):
 
@@ -80,7 +81,7 @@ class ParticleProcess(object):
 
     def _plot_circle_particles(self, ax):
         for particle in self.particles:
-            facecolor, alpha = self._choose_face_color()
+            facecolor, alpha = self._choose_face_color(particle=particle)
             edgecolor = self._choose_edge_color()
             particle.grain.plot_2d(
                 ax, facecolor=facecolor, linestyle="-", alpha=alpha, linewidth=1, edgecolor=edgecolor,
@@ -89,7 +90,12 @@ class ParticleProcess(object):
 
     def _plot_segment_particles(self, ax):
         for particle in self.particles:
-            particle.grain.vector.plot_2d(ax_2d=ax, point=particle.grain.start_point, head_width=0)
+            col, alpha = self._choose_face_color(particle=particle)
+            # alpha = Vector(particle.grain.start_point).norm() / np.sqrt(2)
+            particle.grain.vector.plot_2d(
+                ax_2d=ax, point=particle.grain.start_point, head_width=0,
+                edgecolor=col, alpha=alpha
+            )
 
     def plot_itself(self, show_germs: bool = False):
         fig = plt.figure()
@@ -103,6 +109,8 @@ class ParticleProcess(object):
             for particle in self.particles:
                 color, alpha = self._choose_germ_color()
                 particle.germ.plot_2d(ax, c=color, alpha=alpha)
+        if const.SAVE_PLOTS:
+            plt.savefig(f"generated_pics/{str(datetime.now()).replace(':','-')}_plot.png", dpi=600)
         plt.show()
 
     def _compute_the_particles_distance_matrix(self):
@@ -118,7 +126,8 @@ class ParticleProcess(object):
             )
             return distance_matrix
         elif self.grain_type == "segment":
-            distance_matrix = self._compute_the_segment_distance()
+            # distance_matrix = self._compute_the_segment_distance()
+            distance_matrix = self.germs_distance_matrix
             return distance_matrix
         else:
             raise ValueError(f"Unknown value for Particle.grain_type: {self.grain_type}")
@@ -200,8 +209,25 @@ class ParticleProcess(object):
     def _choose_edge_color(self):
         return "#" + ''.join([random.choice('ABCDEF0123456789') for i in range(6)])
 
-    def _choose_face_color(self):
-        return "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)]), np.random.random(1)[0]
+    def _choose_face_color(self, particle=None):
+        # TODO later adjust for marks
+        alpha = np.random.random(1)[0]
+        if particle is None:
+            col = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
+        elif self.grain_type == "segment":
+            col = "#"
+            r = int(particle.grain.angle / np.pi * 255)
+            g = 255 - int(particle.grain.angle / np.pi * 255)
+            b = 255 - int(particle.grain.angle / np.pi * 255)
+            for col_part in [r, g, b]:
+                hex_col_part = hex(col_part)[2:]
+                if len(hex_col_part) == 1:
+                    hex_col_part = "0" + hex_col_part
+                col = col + hex_col_part
+        else:
+            # todo later
+            col = "#" + ''.join([random.choice('ABCDEF0123456789') for i in range(6)])
+        return col, alpha
 
     def _choose_germ_color(self):
         return "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)]), np.random.random(1)[0]

@@ -1,9 +1,10 @@
 
-from typing import Union
+from typing import Union, Optional
 from skspatial.objects import Point, Circle
 
 import utils.const as const
 from Geometry.grain import Segment
+from Processes.markings import Mark
 
 
 class Particle(object):
@@ -13,7 +14,7 @@ class Particle(object):
             germ: Point,
             grain: Union[Circle, Segment],
             grain_type: str = "circle",
-            mark=None
+            mark: Optional[Mark] = None
     ):
         if grain_type not in const.GRAIN_VALID_TYPES:
             raise ValueError(
@@ -32,5 +33,4 @@ class Particle(object):
             return self.grain.length
         else:
             raise ValueError(f"Unknown value for Particle.grain_type: {self.grain_type}")
-
 
