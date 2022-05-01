@@ -1,7 +1,6 @@
 
 import matplotlib.pyplot as plt
 from typing import List, Optional, Union
-from itertools import product
 import numpy as np
 import random
 from scipy.optimize import fsolve
@@ -89,7 +88,8 @@ class ParticleProcess(object):
             )
 
     def _plot_segment_particles(self, ax):
-        pass
+        for particle in self.particles:
+            particle.grain.vector.plot_2d(ax_2d=ax, point=particle.grain.start_point, head_width=0)
 
     def plot_itself(self, show_germs: bool = False):
         fig = plt.figure()
