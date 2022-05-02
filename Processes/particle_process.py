@@ -16,17 +16,19 @@ class ParticleProcess(object):
 
     def __init__(
             self,
+            germ_intensity: float,
             particles: List[Particle],
             grain_type: str,
     ):
+        self.germ_intensity = germ_intensity
         self.particles = particles
         self.number_of_particles = len(self.particles)
         self.grain_type = grain_type
         # compute the grains distance
         self.germs_distance_matrix = self._compute_the_germs_distance_matrix()
-        # compute particles distance (inf {||x_i - x_j||: x_i \in \Xi_i, x_j \in \Xi_j})
+        # compute particles_null_model distance (inf {||x_i - x_j||: x_i \in \Xi_i, x_j \in \Xi_j})
         self.particles_distance_matrix = self._compute_the_particles_distance_matrix()
-        # particles distance == 0 -> intersected, otherwise not intersected
+        # particles_null_model distance == 0 -> intersected, otherwise not intersected
         self.particles_intersection_matrix = np.where(self.particles_distance_matrix == 0, 1, 0)
         # compute the pairwise shared corresponding Lebesgue measure
         # ("circle": shared areas, "segment": same as intersection matrix ...)
@@ -122,7 +124,7 @@ class ParticleProcess(object):
                 if self.particles_intersection_matrix[i, j] == 1:
                     # TODO temporarily hardcoded f(M_1, M_2) = M_1 * M_2
                     f_intersection_nn += self.particles[i].mark.mark_value * self.particles[j].mark.mark_value
-        return f_intersection_nn / self.f_mark_normalization_constant
+        return f_intersection_nn / (self.f_mark_normalization_constant * self.germ_intensity)
 
     def _compute_the_f_mark_normalization_constant(self, f_type: str):
         pairs_count = (self.number_of_particles * (self.number_of_particles - 1)) / 2
@@ -233,7 +235,7 @@ class ParticleProcess(object):
                     possible_alphas_betas.append(alpha_1_beta_1)
                     possible_minimas = [
                         (
-                                a * self.particles[i].grain.start_point + (1-a) * self.particles[i].grain.end_point
+                            a * self.particles[i].grain.start_point + (1-a) * self.particles[i].grain.end_point
                         ).distance_point(
                             b * self.particles[j].grain.start_point + (1-b) * self.particles[j].grain.end_point
                         )
