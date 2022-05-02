@@ -81,7 +81,7 @@ class ParticleProcess(object):
 
     def _plot_circle_particles(self, ax):
         for particle in self.particles:
-            facecolor, alpha = self._choose_face_color(particle=particle)
+            facecolor, alpha = self._choose_face_color()
             edgecolor = self._choose_edge_color()
             particle.grain.plot_2d(
                 ax, facecolor=facecolor, linestyle="-", alpha=alpha, linewidth=1, edgecolor=edgecolor,
@@ -90,7 +90,7 @@ class ParticleProcess(object):
 
     def _plot_segment_particles(self, ax):
         for particle in self.particles:
-            col, alpha = self._choose_face_color(particle=particle)
+            col, alpha = self._choose_face_color()
             # alpha = Vector(particle.grain.start_point).norm() / np.sqrt(2)
             particle.grain.vector.plot_2d(
                 ax_2d=ax, point=particle.grain.start_point, head_width=0,
@@ -126,8 +126,8 @@ class ParticleProcess(object):
             )
             return distance_matrix
         elif self.grain_type == "segment":
-            # distance_matrix = self._compute_the_segment_distance()
-            distance_matrix = self.germs_distance_matrix
+            distance_matrix = self._compute_the_segment_distance()
+            # distance_matrix = self.germs_distance_matrix
             return distance_matrix
         else:
             raise ValueError(f"Unknown value for Particle.grain_type: {self.grain_type}")
