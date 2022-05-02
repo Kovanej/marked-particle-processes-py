@@ -11,6 +11,7 @@ from skspatial.objects import Point, Vector
 from Geometry.particle import Particle
 import utils.const as const
 
+
 class ParticleProcess(object):
 
     def __init__(
@@ -30,6 +31,9 @@ class ParticleProcess(object):
         # compute the pairwise shared corresponding Lebesgue measure
         # ("circle": shared areas, "segment": same as intersection matrix ...)
         self.shared_corresponding_measure_matrix = self._compute_the_shared_corresponding_measure_matrix()
+        # if needed following attributes are computed via executing ParticleProcess.compute_f_mark_statistics
+        self.f_mark_normalization_constant = None
+        self.f_mark_intersection_correlation = None
 
     def _compute_the_shared_corresponding_measure_matrix(self):
         if self.grain_type == "circle":
@@ -90,12 +94,45 @@ class ParticleProcess(object):
 
     def _plot_segment_particles(self, ax):
         for particle in self.particles:
-            col, alpha = self._choose_face_color()
+            # col, alpha = self._choose_face_color()
+            if particle.mark is not None:
+                if particle.mark.mark_value == 0:
+                    col, alpha = "#ff0000", 1
+                elif particle.mark.mark_value == 1:
+                    col, alpha = "#0000ff", 1
+            else:
+                col, alpha = "#000000", 1
             # alpha = Vector(particle.grain.start_point).norm() / np.sqrt(2)
             particle.grain.vector.plot_2d(
                 ax_2d=ax, point=particle.grain.start_point, head_width=0,
                 edgecolor=col, alpha=alpha
             )
+
+    def compute_the_f_mark_characteristics(
+            self,
+            f_type: str = "product"
+    ):
+        self.f_mark_normalization_constant = self._compute_the_f_mark_normalization_constant(f_type=f_type)
+        self.f_mark_intersection_correlation = self._compute_the_f_mark_intersection_correlation(f_type=f_type)
+
+    def _compute_the_f_mark_intersection_correlation(self, f_type: str):
+        f_intersection_nn = 0
+        for i in range(self.number_of_particles):
+            for j in range(i + 1, self.number_of_particles):
+                if self.particles_intersection_matrix[i, j] == 1:
+                    # TODO temporarily hardcoded f(M_1, M_2) = M_1 * M_2
+                    f_intersection_nn += self.particles[i].mark.mark_value * self.particles[j].mark.mark_value
+        return f_intersection_nn / self.f_mark_normalization_constant
+
+    def _compute_the_f_mark_normalization_constant(self, f_type: str):
+        pairs_count = (self.number_of_particles * (self.number_of_particles - 1)) / 2
+        c_f_nn = 0
+        for i in range(self.number_of_particles):
+            for j in range(i + 1, self.number_of_particles):
+                # TODO temporarily hardcoded f(M_1, M_2) = M_1 * M_2
+                c_f_nn += self.particles[i].mark.mark_value * self.particles[j].mark.mark_value
+        c_f = c_f_nn / pairs_count
+        return c_f
 
     def plot_itself(self, show_germs: bool = False):
         fig = plt.figure()
