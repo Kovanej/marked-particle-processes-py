@@ -1,4 +1,5 @@
 
+import numpy as np
 import os
 from skspatial.objects import Point
 
@@ -19,11 +20,19 @@ os.chdir("../")
 # ]
 
 # ALSO TESTED FOR A COUPLE OF SEGMENTS IN R^3
+# START_AND_END_POINTS = [
+#     (Point([0, 0, 0]), Point([0, 0, -1])),
+#     (Point([-1, 2, 0]), Point([1, 2, 0])),
+#     (Point([-1, 0, -2]), Point([2, 0, -2])),
+#     (Point([-1, 0, 2]), Point([2, 0, 2])),
+# ]
+
 START_AND_END_POINTS = [
-    (Point([0, 0, 0]), Point([0, 0, -1])),
-    (Point([-1, 2, 0]), Point([1, 2, 0])),
-    (Point([-1, 0, -2]), Point([2, 0, -2])),
-    (Point([-1, 0, 2]), Point([2, 0, 2])),
+    (
+        Point([np.random.random_sample(), np.random.random_sample()]),
+        Point([np.random.random_sample(), np.random.random_sample()])
+    )
+    for _ in range(100)
 ]
 
 particles = [

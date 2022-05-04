@@ -52,7 +52,7 @@ class ParticleProcess(object):
             )
         return grains_distance_matrix
 
-    def _plot_circle_particles(self, ax):
+    def _plot_ball_particles(self, ax):
         for particle in self.particles:
             facecolor, alpha = self._choose_face_color()
             edgecolor = self._choose_edge_color()
@@ -68,11 +68,11 @@ class ParticleProcess(object):
             # col, alpha = self._choose_face_color()
             if particle.mark is not None:
                 if particle.mark.mark_value == 0:
-                    col, alpha = "#ffa0ad", 1
+                    col, alpha = "#FEC500", 1
                 elif particle.mark.mark_value == 1:
-                    col, alpha = "#f0c1ff", 1
+                    col, alpha = "#003271", 1
             else:
-                col, alpha = "#000000", 1
+                col, alpha = np.random.choice(const.PARTICLE_COLORS_CHOICE), 1
             # alpha = Vector(particle.grain.start_point).norm() / np.sqrt(2)
             if self.space_dimension == 2:
                 particle.grain.vector.plot_2d(
@@ -124,7 +124,7 @@ class ParticleProcess(object):
         ax = fig.add_subplot()
         ax.set_aspect('equal', adjustable='box')
         if self.grain_type == "ball":
-            self._plot_circle_particles(ax=ax)
+            self._plot_ball_particles(ax=ax)
         if self.grain_type == "segment":
             self._plot_segment_particles(fig=fig, ax=ax)
         if show_germs:
@@ -132,7 +132,7 @@ class ParticleProcess(object):
                 color, alpha = self._choose_germ_color()
                 particle.germ.plot_2d(ax, c=color, alpha=alpha)
         if const.SAVE_PLOTS:
-            plt.savefig(f"generated_pics/{str(datetime.now()).replace(':','-')}_plot.png", dpi=600)
+            plt.savefig(f"generated_pics/{str(datetime.now()).replace(':','-')}_plot.png", dpi=1000)
         plt.show()
 
     def _compute_the_particles_distance_matrix(self):
@@ -142,27 +142,14 @@ class ParticleProcess(object):
         )
 
     def _choose_edge_color(self):
-        return "#" + ''.join([random.choice('ABCDEF0123456789') for i in range(6)])
+        return np.random.choice([
+                "#F9EFB4", "#F4BE9A", "#BA6191", "#40008C", "#000032"
+            ])
 
     def _choose_face_color(self, particle=None):
         # TODO later adjust for marks
-        alpha = 0.2
-        if particle is None:
-            col = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
-            col = "#00fffe"
-        elif self.grain_type == "segment":
-            col = "#"
-            r = int(particle.grain.angle / np.pi * 255)
-            g = 255 - int(particle.grain.angle / np.pi * 255)
-            b = 255 - int(particle.grain.angle / np.pi * 255)
-            for col_part in [r, g, b]:
-                hex_col_part = hex(col_part)[2:]
-                if len(hex_col_part) == 1:
-                    hex_col_part = "0" + hex_col_part
-                col = col + hex_col_part
-        else:
-            # todo later
-            col = "#" + ''.join([random.choice('ABCDEF0123456789') for i in range(6)])
+        alpha = 1
+        col = np.random.choice(const.PARTICLE_COLORS_CHOICE)
         return col, alpha
 
     def _choose_germ_color(self):

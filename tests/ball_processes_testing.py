@@ -9,21 +9,35 @@ from Processes.ball_process import BallProcess
 import utils.const as const
 
 
-CENTERS_AND_RADII = [
-    [
-        # (Point([0.5, 0.5]), 1 / dv),
-        # (Point([0.25, 0.75]), 1 / dv),
-        # (Point([0.25, 0.25]), 1 / dv),
-        # (Point([0.75, 0.75]), 1 / dv),
-        # (Point([0.75, 0.25]), 1 / dv)
-        (Point([1/4, 1/3]), 1 / dv),
-        (Point([1/4, 2/3]), 1 / dv),
-        (Point([2/4, 1/3]), 1 / dv),
-        (Point([2/4, 2/3]), 1 / dv),
-        (Point([3/4, 1/3]), 1 / dv),
-        (Point([3/4, 2/3]), 1 / dv),
-    ] for dv in range(1, 200)
+NO_OF_CIRCLES = 100
+NO_OF_INSIDE_CIRCLES = 20
+
+RANDOM_CENTERS = [
+    (np.random.random_sample(), np.random.random_sample())
+    for _ in range(NO_OF_CIRCLES)
 ]
+# [
+#     [
+#         # (Point([1/4, 1/3]), 1 / dv),
+#         # (Point([1/4, 2/3]), 1 / dv),
+#         # (Point([2/4, 1/3]), 1 / dv),
+#         # (Point([2/4, 2/3]), 1 / dv),
+#         # (Point([3/4, 1/3]), 1 / dv),
+#         # (Point([3/4, 2/3]), 1 / dv),
+#         (Point([0.5, 0.5]), 1 / dv),
+#         (Point([0.25, 0.75]), 1 / dv),
+#         (Point([0.25, 0.25]), 1 / dv),
+#         (Point([0.75, 0.75]), 1 / dv),
+#         (Point([0.75, 0.25]), 1 / dv),
+#     ]
+#     for dv in range(1, NO_OF_INSIDE_CIRCLES)
+# ] + \
+
+CENTERS_AND_RADII = [[
+    (Point([RANDOM_CENTERS[i][0], RANDOM_CENTERS[i][1]]), 1 / dv),
+    ] for dv in range(1, NO_OF_INSIDE_CIRCLES) for i in range(NO_OF_CIRCLES)
+]
+
 CENTERS_AND_RADII = [c_r for inside_list in CENTERS_AND_RADII for c_r in inside_list]
 os.chdir("../")
 

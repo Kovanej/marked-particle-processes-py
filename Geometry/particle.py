@@ -14,7 +14,8 @@ class Particle(object):
             germ: Point,
             grain: Union[Circle, Segment],
             grain_type: str = "ball",
-            mark: Optional[Mark] = None
+            mark: Optional[Mark] = None,
+            space_dimension: int = 2
     ):
         if grain_type not in const.GRAIN_VALID_TYPES:
             raise ValueError(
@@ -22,7 +23,7 @@ class Particle(object):
             )
         self.germ = germ
         self.grain = grain
-        self.space_dimension = self.grain.space_dimension
+        self.space_dimension = space_dimension
         self.mark = mark
         self.grain_type = grain_type
         self.lebesgue_measure = self._compute_the_corresponding_measure()
