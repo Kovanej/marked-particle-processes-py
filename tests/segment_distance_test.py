@@ -1,12 +1,14 @@
 
+import numpy as np
+import os
 from skspatial.objects import Point
 
 from Geometry.grain import Grain, Segment
 from Plotting.plotting import plot_the_grains
 from Geometry.particle import Particle
-from Processes.particle_process import ParticleProcess
+from Processes.segment_process import SegmentProcess
 
-
+os.chdir("../")
 # ALL FOLLOWING CHECKED FOR CORRECT VALUES
 # START_AND_END_POINTS = [
 #     (Point([0, 0]), Point([1, 0])),
@@ -18,11 +20,19 @@ from Processes.particle_process import ParticleProcess
 # ]
 
 # ALSO TESTED FOR A COUPLE OF SEGMENTS IN R^3
+# START_AND_END_POINTS = [
+#     (Point([0, 0, 0]), Point([0, 0, -1])),
+#     (Point([-1, 2, 0]), Point([1, 2, 0])),
+#     (Point([-1, 0, -2]), Point([2, 0, -2])),
+#     (Point([-1, 0, 2]), Point([2, 0, 2])),
+# ]
+
 START_AND_END_POINTS = [
-    (Point([0, 0, 0]), Point([0, 0, -1])),
-    (Point([-1, 2, 0]), Point([1, 2, 0])),
-    (Point([-1, 0, -2]), Point([2, 0, -2])),
-    (Point([-1, 0, 2]), Point([2, 0, 2])),
+    (
+        Point([np.random.random_sample(), np.random.random_sample()]),
+        Point([np.random.random_sample(), np.random.random_sample()])
+    )
+    for _ in range(100)
 ]
 
 particles = [
@@ -35,5 +45,8 @@ particles = [
             grain_type="segment"
         ) for point in START_AND_END_POINTS
     ]
-particle_process = ParticleProcess(particles=particles, grain_type="segment")
+particle_process = SegmentProcess(
+    particles=particles, germ_intensity=4, space_dimension=len(START_AND_END_POINTS[0][0])
+)
+particle_process.plot_itself()
 a=1

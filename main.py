@@ -6,7 +6,8 @@ from Geometry.grain import Grain, Segment
 from Processes.markings import Mark
 from Plotting.plotting import plot_the_grains
 from Geometry.particle import Particle
-from Processes.particle_process import ParticleProcess
+from Processes.segment_process import SegmentProcess
+from Processes.ball_process import BallProcess
 from Processes.point_process import PoissonPointProcess
 import utils.const as const
 
@@ -47,11 +48,11 @@ if __name__ == '__main__':
                 )
             )
 
-    particle_process_null_model = ParticleProcess(
-        particles=particles_null_model, grain_type=const.GRAIN_TYPE, germ_intensity=poisson_point_process.intensity
+    particle_process_null_model = SegmentProcess(
+        particles=particles_null_model, germ_intensity=poisson_point_process.intensity
     )
-    particle_process_angle_mark_model = ParticleProcess(
-        particles=particles_angle_mark_model, grain_type=const.GRAIN_TYPE, germ_intensity=poisson_point_process.intensity
+    particle_process_angle_mark_model = SegmentProcess(
+        particles=particles_angle_mark_model, germ_intensity=poisson_point_process.intensity
     )
 
     particle_process_null_model.compute_the_f_mark_characteristics()
