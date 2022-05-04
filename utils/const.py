@@ -1,7 +1,7 @@
 
-GRAIN_VALID_TYPES = ["segment", "circle"]
+GRAIN_VALID_TYPES = ["segment", "ball"]
 GRAIN_TYPES_DIMENSIONS = {
-    "circle": 2,
+    "ball": 2,
     "segment": 1
 }
 SAVE_PLOTS = True

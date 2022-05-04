@@ -13,7 +13,7 @@ class Particle(object):
             self,
             germ: Point,
             grain: Union[Circle, Segment],
-            grain_type: str = "circle",
+            grain_type: str = "ball",
             mark: Optional[Mark] = None
     ):
         if grain_type not in const.GRAIN_VALID_TYPES:
@@ -27,7 +27,7 @@ class Particle(object):
         self.lebesgue_measure = self._compute_the_corresponding_measure()
 
     def _compute_the_corresponding_measure(self):
-        if self.grain_type == "circle":
+        if self.grain_type == "ball":
             return self.grain.area()
         elif self.grain_type == "segment":
             return self.grain.length
