@@ -119,12 +119,20 @@ class ParticleProcess(object):
 
     def _compute_the_f_mark_intersection_correlation(self, f_type: str):
         f_intersection_nn = 0
+        # intersection_counter = 0
+        # pairs_count = (self.number_of_particles * (self.number_of_particles - 1)) / 2
         for i in range(self.number_of_particles):
             for j in range(i + 1, self.number_of_particles):
                 if self.particles_intersection_matrix[i, j] == 1:
                     # TODO temporarily hardcoded f(M_1, M_2) = M_1 * M_2
                     f_intersection_nn += self.particles[i].mark.mark_value * self.particles[j].mark.mark_value
-        return f_intersection_nn / (self.f_mark_normalization_constant * self.germ_intensity)
+                    # intersection_counter += 1
+        # if intersection_counter == 0:
+        #     intersection_counter = 1
+        # multiply by 2 since we count only for (i, j) j > i
+        # TODO fix this^^, since not all f(M_i, M_j) are symmetrical
+        self.f_intersection_nn = f_intersection_nn
+        return (2 * f_intersection_nn) / (self.f_mark_normalization_constant * (self.germ_intensity ** 2))
 
     def _compute_the_f_mark_normalization_constant(self, f_type: str):
         pairs_count = (self.number_of_particles * (self.number_of_particles - 1)) / 2
@@ -166,8 +174,9 @@ class ParticleProcess(object):
             return distance_matrix
         elif self.grain_type == "segment":
             distance_matrix = self._compute_the_segment_distance()
+            distance_matrix_round = np.around(distance_matrix, decimals=8)
             # distance_matrix = self.germs_distance_matrix
-            return distance_matrix
+            return distance_matrix_round
         else:
             raise ValueError(f"Unknown value for Particle.grain_type: {self.grain_type}")
 
