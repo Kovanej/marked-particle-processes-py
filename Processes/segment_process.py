@@ -14,8 +14,11 @@ import utils.const as const
 
 class SegmentProcess(ParticleProcess):
 
-    def __init__(self, germ_intensity: float, particles: List[Particle]):
-        super().__init__(germ_intensity=germ_intensity, grain_type="segment", particles=particles)
+    def __init__(self, germ_intensity: float, particles: List[Particle], space_dimension: int = 2):
+        # space_dimension = particles[0].space_dimension
+        super().__init__(
+            germ_intensity=germ_intensity, grain_type="segment", particles=particles, space_dimension=space_dimension
+        )
 
     def _compute_the_shared_corresponding_measure_matrix(self):
         return self.particles_intersection_matrix

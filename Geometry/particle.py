@@ -22,6 +22,7 @@ class Particle(object):
             )
         self.germ = germ
         self.grain = grain
+        self.space_dimension = self.grain.space_dimension
         self.mark = mark
         self.grain_type = grain_type
         self.lebesgue_measure = self._compute_the_corresponding_measure()

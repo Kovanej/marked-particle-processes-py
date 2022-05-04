@@ -19,11 +19,13 @@ class ParticleProcess(object):
             germ_intensity: float,
             particles: List[Particle],
             grain_type: str,
+            space_dimension: int
     ):
         self.germ_intensity = germ_intensity
         self.particles = particles
         self.number_of_particles = len(self.particles)
         self.grain_type = grain_type
+        self.space_dimension = space_dimension
         # compute the grains distance
         self.germs_distance_matrix = self._compute_the_germs_distance_matrix()
         # compute particles_null_model distance (inf {||x_i - x_j||: x_i \in \Xi_i, x_j \in \Xi_j})
@@ -59,7 +61,9 @@ class ParticleProcess(object):
                 # alpha=0.5,
             )
 
-    def _plot_segment_particles(self, ax):
+    def _plot_segment_particles(self, fig, ax):
+        if self.space_dimension == 3:
+            ax = fig.add_subplot(111, projection='3d')
         for particle in self.particles:
             # col, alpha = self._choose_face_color()
             if particle.mark is not None:
@@ -70,10 +74,16 @@ class ParticleProcess(object):
             else:
                 col, alpha = "#000000", 1
             # alpha = Vector(particle.grain.start_point).norm() / np.sqrt(2)
-            particle.grain.vector.plot_2d(
-                ax_2d=ax, point=particle.grain.start_point, head_width=0,
-                edgecolor=col, alpha=alpha
-            )
+            if self.space_dimension == 2:
+                particle.grain.vector.plot_2d(
+                    ax_2d=ax, point=particle.grain.start_point, head_width=0,
+                    edgecolor=col, alpha=alpha
+                )
+            elif self.space_dimension == 3:
+                particle.grain.vector.plot_3d(
+                    ax_3d=ax, point=particle.grain.start_point,
+                    #  edgecolor=col, alpha=alpha
+                )
 
     def compute_the_f_mark_characteristics(
             self,
@@ -116,7 +126,7 @@ class ParticleProcess(object):
         if self.grain_type == "ball":
             self._plot_circle_particles(ax=ax)
         if self.grain_type == "segment":
-            self._plot_segment_particles(ax=ax)
+            self._plot_segment_particles(fig=fig, ax=ax)
         if show_germs:
             for particle in self.particles:
                 color, alpha = self._choose_germ_color()

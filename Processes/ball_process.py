@@ -12,10 +12,11 @@ from Processes.particle_process import ParticleProcess
 import utils.const as const
 
 
+# TODO extend ball processes to in R^d, current state is for d = 2
 class BallProcess(ParticleProcess):
 
     def __init__(self, germ_intensity: float, particles: List[Particle]):
-        super().__init__(germ_intensity=germ_intensity, grain_type="ball", particles=particles)
+        super().__init__(germ_intensity=germ_intensity, grain_type="ball", particles=particles, space_dimension=2)
 
     def _compute_the_shared_corresponding_measure_matrix(self):
         # TODO subtract the area of circles outside the observational window
