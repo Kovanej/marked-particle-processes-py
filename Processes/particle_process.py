@@ -136,9 +136,10 @@ class ParticleProcess(object):
 
     def _choose_face_color(self, particle=None):
         # TODO later adjust for marks
-        alpha = np.random.random(1)[0]
+        alpha = 0.2
         if particle is None:
             col = "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)])
+            col = "#00fffe"
         elif self.grain_type == "segment":
             col = "#"
             r = int(particle.grain.angle / np.pi * 255)
