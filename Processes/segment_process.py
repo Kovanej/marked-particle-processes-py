@@ -19,12 +19,24 @@ class SegmentProcess(ParticleProcess):
         super().__init__(
             germ_intensity=germ_intensity, grain_type="segment", particles=particles, space_dimension=space_dimension
         )
+        self.angles_matrix = self.germs_distance_matrix
+
+    def _compute_the_angles_matrix(self):
+        angle_matrix = np.zeros(shape=self.germs_distance_matrix.shape)
+        for i in range(self.number_of_particles):
+            for j in range(self.number_of_particles):
+                angle = self.particles[i].grain.vector.angle_between(self.particles[j].grain.vector)
+                angle_matrix[i, j] = angle
+                angle_matrix[j, i] = angle
+        return angle_matrix
 
     def _compute_the_shared_corresponding_measure_matrix(self):
         return self.particles_intersection_matrix
 
     def _compute_the_particles_distance_matrix(self):
         distance_matrix = np.zeros(shape=self.germs_distance_matrix.shape)
+        if not const.COMPUTE_SEGMENT_DISTANCES:
+            return distance_matrix
         for i in range(self.number_of_particles):
             for j in range(i, self.number_of_particles):
                 if j != i:
