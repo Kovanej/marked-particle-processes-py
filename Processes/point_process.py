@@ -9,7 +9,7 @@ class PointProcess(object):
 
     def __init__(
             self,
-            intensity: int,
+            intensity: float,
             process_type: str,
             space_dimension: int = 2,
             points: Optional[Points] = None,
