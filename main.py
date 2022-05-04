@@ -6,7 +6,8 @@ from Geometry.grain import Grain, Segment
 from Processes.markings import Mark
 from Plotting.plotting import plot_the_grains
 from Geometry.particle import Particle
-from Processes.particle_process import ParticleProcess, SegmentProcess, BallProcess
+from Processes.segment_process import SegmentProcess
+from Processes.ball_process import BallProcess
 from Processes.point_process import PoissonPointProcess
 import utils.const as const
 
