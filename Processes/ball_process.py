@@ -35,9 +35,6 @@ class BallProcess(ParticleProcess):
                     x = (rad_i_sq - rad_j_sq + dist ** 2) / (2 * dist)
                     z = x ** 2
 
-                    if rad_i_sq - z < 0 and dist > abs(self.particles[i].grain.radius - self.particles[j].grain.radius):
-                        a = 1
-
                     if dist <= abs(self.particles[i].grain.radius - self.particles[j].grain.radius):
                         shared_areas_matrix[i, j] = np.pi * min(rad_i_sq, rad_j_sq)
                         shared_areas_matrix[j, i] = np.pi * min(rad_i_sq, rad_j_sq)

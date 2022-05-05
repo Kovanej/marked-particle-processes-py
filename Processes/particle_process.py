@@ -68,9 +68,9 @@ class ParticleProcess(object):
             # col, alpha = self._choose_face_color()
             if particle.mark is not None:
                 if particle.mark.mark_value == 0:
-                    col, alpha = "#FEC500", 1
-                elif particle.mark.mark_value == 1:
                     col, alpha = "#003271", 1
+                elif particle.mark.mark_value == 1:
+                    col, alpha = "#FEC500", 1
             else:
                 col, alpha = np.random.choice(const.PARTICLE_COLORS_CHOICE), 1
             # alpha = Vector(particle.grain.start_point).norm() / np.sqrt(2)
@@ -148,7 +148,7 @@ class ParticleProcess(object):
 
     def _choose_face_color(self, particle=None):
         # TODO later adjust for marks
-        alpha = 1
+        alpha = const.ALPHA
         col = np.random.choice(const.PARTICLE_COLORS_CHOICE)
         return col, alpha
 
