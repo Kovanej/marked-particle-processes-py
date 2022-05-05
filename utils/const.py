@@ -28,6 +28,18 @@ COMPUTE_SEGMENT_DISTANCES = False
 # PARTICLE_COLORS_CHOICE = [
 #                 "#E0ADDD", "#FFF4D9", "#87D7D7", "#7488BB"
 #             ]
+# PARTICLE_COLORS_CHOICE = [
+#                 "#0075C2", "#FDE152", "#EEB336", "#017C81", "#254479", "#F87203"
+#             ]
+# PARTICLE_COLORS_CHOICE = [
+#                 "#22A7D9", "#2B2B2B", "#FCCF1C", "#FC6499"
+#             ]
 PARTICLE_COLORS_CHOICE = [
-                "#0075C2", "#FDE152", "#EEB336", "#017C81", "#254479", "#F87203"
-            ]
+                "#FC6499", "#9FF4DF", "#F6F0A3", "#6BCEEE"
+            ] + ["#22A7D9", "#2B2B2B", "#FCCF1C", "#FC6499"
+                 ] + ["#0075C2", "#FDE152", "#EEB336", "#017C81", "#254479", "#F87203"
+                      ] + ["#E0ADDD", "#FFF4D9", "#87D7D7", "#7488BB"]
+
+
+# PARTICLE_COLORS_CHOICE = ["#FC6499", "#6BCEEE", "#87D7D7"]
+ALPHA = 0.8
