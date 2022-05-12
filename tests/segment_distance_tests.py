@@ -32,7 +32,7 @@ START_AND_END_POINTS = [
         Point([np.random.random_sample(), np.random.random_sample()]),
         Point([np.random.random_sample(), np.random.random_sample()])
     )
-    for _ in range(100)
+    for _ in range(2000)
 ]
 
 particles = [
@@ -49,4 +49,7 @@ particle_process = SegmentProcess(
     particles=particles, germ_intensity=4, space_dimension=len(START_AND_END_POINTS[0][0])
 )
 particle_process.plot_itself()
+# comparison = particle_process.angles_matrix == particle_process.angles_matrix_vectorized
+# equal_arrays = comparison.all()
+# print(equal_arrays)
 a=1
