@@ -40,7 +40,7 @@ class ParticleProcess(object):
         self.f_mark_intersection_correlation = None
 
     def _compute_the_shared_corresponding_measure_matrix(self):
-        # overridden for each subclasses - if not specified, it cannot be computed
+        # overridden for each subclass - if not specified, it cannot be computed
         raise NotImplementedError(
             f"Method called from the instance of general ParticleProcess class. "
             f"Please use the instance of some of the ParticleProcess subclasses (SegmentProcess, BallProcess)."
