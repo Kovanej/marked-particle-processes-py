@@ -23,6 +23,8 @@ class SegmentProcess(ParticleProcess):
         # this is older computation via for cycles - save for later performance comparison
         # self.angles_matrix = self._compute_the_angles_matrix()
         self.angles_matrix = self._compute_the_angles_matrix_vectorized()
+        # todo later move to actual "non_vectorized"-named function
+        self.particles_distance_matrix_vectorized = self._compute_the_particles_distance_matrix_vectorized()
 
     @staticmethod
     def _dot_pairwise(a, b):
@@ -54,6 +56,31 @@ class SegmentProcess(ParticleProcess):
 
     def _compute_the_shared_corresponding_measure_matrix(self):
         return self.particles_intersection_matrix
+
+    def _compute_the_particles_distance_matrix_vectorized(self):
+        start_points_1_pre = np.array([particle.grain.start_point for particle in self.particles])
+        start_points_2_pre = np.array([particle.grain.start_point for particle in self.particles])
+        end_points_1_pre = np.array([particle.grain.end_point for particle in self.particles])
+        end_points_2_pre = np.array([particle.grain.end_point for particle in self.particles])
+        start_points_1 = start_points_1_pre[:, None, :]
+        end_points_1 = end_points_1_pre[:, None, :]
+        start_points_2 = start_points_2_pre[None, ...]
+        end_points_2 = end_points_2_pre[None, ...]
+        A_11 = ((start_points_1 - end_points_1) ** 2).sum(axis=-1)
+        A_12 = ((start_points_1 - end_points_1) * (end_points_2 - start_points_2)).sum(axis=2)
+        A_21 = ((start_points_1 - end_points_1) * (end_points_2 - start_points_2)).sum(axis=2)
+        A_22 = ((start_points_2 - end_points_2) ** 2).sum(axis=-1)
+        A_11 = np.repeat(A_11, repeats=self.number_of_particles, axis=1)
+        A_22 = np.repeat(A_22, repeats=self.number_of_particles, axis=0)
+        A = np.array([A_11, A_21, A_12, A_22]).reshape([self.number_of_particles, self.number_of_particles, 2, 2])
+        y_1 = ((end_points_2 - end_points_1) * (end_points_1 - start_points_1)).sum(axis=-1)
+        y_2 = ((end_points_2 - end_points_1) * (end_points_2 - start_points_2)).sum(axis=-1)
+        y = np.array([y_1, y_2]).transpose((1, 2, 0))
+        idx = np.array(range(self.number_of_particles))
+        A[idx, idx, ...] = np.eye(2)
+        y[idx, idx, :] = 0
+        solution = np.linalg.solve(A, y)
+        return solution
 
     def _compute_the_particles_distance_matrix(self):
         distance_matrix = np.zeros(shape=self.germs_distance_matrix.shape)
