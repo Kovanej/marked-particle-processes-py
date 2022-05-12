@@ -16,11 +16,33 @@ class SegmentProcess(ParticleProcess):
 
     def __init__(self, germ_intensity: float, particles: List[Particle], space_dimension: int = 2):
         # space_dimension = particles[0].space_dimension
+
         super().__init__(
             germ_intensity=germ_intensity, grain_type="segment", particles=particles, space_dimension=space_dimension
         )
-        self.angles_matrix = self.germs_distance_matrix
+        # this is older computation via for cycles - save for later performance comparison
+        # self.angles_matrix = self._compute_the_angles_matrix()
+        self.angles_matrix = self._compute_the_angles_matrix_vectorized()
 
+    @staticmethod
+    def _dot_pairwise(a, b):
+        return (a[:, None, :] * b[None, ...]).sum(axis=-1)
+
+    @staticmethod
+    def _norm(a):
+        return np.sqrt((a * a).sum(axis=-1))
+
+    def _compute_the_angles_matrix_vectorized(self):
+        a = np.array([particle.grain.vector for particle in self.particles])
+        coss = self._dot_pairwise(a, a) / (self._norm(a)[:, None] * self._norm(a))
+        coss_clipped = np.clip(coss, -1, 1)
+        angles_matrix = np.arccos(
+            coss_clipped
+        )
+        print(np.count_nonzero(np.isnan(angles_matrix)))
+        return angles_matrix
+
+    # TODO delete later, right now saved for performance comparison with vectorized version
     def _compute_the_angles_matrix(self):
         angle_matrix = np.zeros(shape=self.germs_distance_matrix.shape)
         for i in range(self.number_of_particles):
