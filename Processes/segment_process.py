@@ -58,6 +58,9 @@ class SegmentProcess(ParticleProcess):
         return self.particles_intersection_matrix
 
     def _compute_the_particles_distance_matrix_vectorized(self):
+        alpha_beta_solution = self._find_the_alphas_betas()
+
+    def _find_the_alphas_betas(self):
         start_points_1_pre = np.array([particle.grain.start_point for particle in self.particles])
         start_points_2_pre = np.array([particle.grain.start_point for particle in self.particles])
         end_points_1_pre = np.array([particle.grain.end_point for particle in self.particles])
@@ -72,13 +75,15 @@ class SegmentProcess(ParticleProcess):
         A_22 = ((start_points_2 - end_points_2) ** 2).sum(axis=-1)
         A_11 = np.repeat(A_11, repeats=self.number_of_particles, axis=1)
         A_22 = np.repeat(A_22, repeats=self.number_of_particles, axis=0)
-        A = np.array([A_11, A_21, A_12, A_22]).reshape([self.number_of_particles, self.number_of_particles, 2, 2])
-        y_1 = ((end_points_2 - end_points_1) * (end_points_1 - start_points_1)).sum(axis=-1)
+        A = np.array(
+            [A_22, A_21, A_12, A_11]
+        ).ravel().reshape([self.number_of_particles, self.number_of_particles, 2, 2], order="F")
+        y_1 = ((end_points_2 - end_points_1) * (start_points_1 - end_points_1)).sum(axis=-1)
         y_2 = ((end_points_2 - end_points_1) * (end_points_2 - start_points_2)).sum(axis=-1)
         y = np.array([y_1, y_2]).transpose((1, 2, 0))
         idx = np.array(range(self.number_of_particles))
         A[idx, idx, ...] = np.eye(2)
-        y[idx, idx, :] = 0
+        y[idx, idx, :] = -10000
         solution = np.linalg.solve(A, y)
         return solution
 
