@@ -2,7 +2,6 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from typing import List, Optional, Union
 import numpy as np
-import random
 from scipy.optimize import fsolve
 from sklearn.metrics import pairwise_distances
 from skspatial.objects import Point, Vector
@@ -15,16 +14,14 @@ import utils.const as const
 class SegmentProcess(ParticleProcess):
 
     def __init__(self, germ_intensity: float, particles: List[Particle], space_dimension: int = 2):
-        # space_dimension = particles[0].space_dimension
-
+        print(f"{datetime.now()} Segment process init start.")
         super().__init__(
             germ_intensity=germ_intensity, grain_type="segment", particles=particles, space_dimension=space_dimension
         )
-        # this is older computation via for cycles - save for later performance comparison
-        # self.angles_matrix = self._compute_the_angles_matrix()
-        self.angles_matrix = self._compute_the_angles_matrix_vectorized()
-        # todo later move to actual "non_vectorized"-named function
-        self.particles_distance_matrix_vectorized = self._compute_the_particles_distance_matrix_vectorized()
+        print(f"{datetime.now()} Segment process angles matrix computation start.")
+        self.angles_matrix = self._compute_the_angles_matrix()
+        print(f"{datetime.now()} Segment process angles matrix computation end.")
+        print(f"{datetime.now()} Segment process init end.")
 
     @staticmethod
     def _dot_pairwise(a, b):
@@ -34,18 +31,17 @@ class SegmentProcess(ParticleProcess):
     def _norm(a):
         return np.sqrt((a * a).sum(axis=-1))
 
-    def _compute_the_angles_matrix_vectorized(self):
+    def _compute_the_angles_matrix(self):
         a = np.array([particle.grain.vector for particle in self.particles])
         coss = self._dot_pairwise(a, a) / (self._norm(a)[:, None] * self._norm(a))
         coss_clipped = np.clip(coss, -1, 1)
         angles_matrix = np.arccos(
             coss_clipped
         )
-        print(np.count_nonzero(np.isnan(angles_matrix)))
         return angles_matrix
 
     # TODO delete later, right now saved for performance comparison with vectorized version
-    def _compute_the_angles_matrix(self):
+    def _compute_the_angles_matrix_non_vectorized(self):
         angle_matrix = np.zeros(shape=self.germs_distance_matrix.shape)
         for i in range(self.number_of_particles):
             for j in range(self.number_of_particles):
@@ -55,42 +51,127 @@ class SegmentProcess(ParticleProcess):
         return angle_matrix
 
     def _compute_the_shared_corresponding_measure_matrix(self):
+        # todo this generally doesn't hold for segments on the same line
         return self.particles_intersection_matrix
 
-    def _compute_the_particles_distance_matrix_vectorized(self):
-        alpha_beta_solution = self._find_the_alphas_betas()
-
-    def _find_the_alphas_betas(self):
-        start_points_1_pre = np.array([particle.grain.start_point for particle in self.particles])
-        start_points_2_pre = np.array([particle.grain.start_point for particle in self.particles])
-        end_points_1_pre = np.array([particle.grain.end_point for particle in self.particles])
-        end_points_2_pre = np.array([particle.grain.end_point for particle in self.particles])
-        start_points_1 = start_points_1_pre[:, None, :]
-        end_points_1 = end_points_1_pre[:, None, :]
-        start_points_2 = start_points_2_pre[None, ...]
-        end_points_2 = end_points_2_pre[None, ...]
+    def _compute_the_particles_distance_matrix(self):
+        timer_start = datetime.now()
+        print(f"{datetime.now()} DISTANCE - Setup of needed values start.")
+        start_points_pre = np.array([particle.grain.start_point for particle in self.particles])
+        end_points_pre = np.array([particle.grain.end_point for particle in self.particles])
+        start_points_1 = start_points_pre[:, None, :]
+        end_points_1 = end_points_pre[:, None, :]
+        start_points_2 = start_points_pre[None, ...]
+        end_points_2 = end_points_pre[None, ...]
         A_11 = ((start_points_1 - end_points_1) ** 2).sum(axis=-1)
         A_12 = ((start_points_1 - end_points_1) * (end_points_2 - start_points_2)).sum(axis=2)
         A_21 = ((start_points_1 - end_points_1) * (end_points_2 - start_points_2)).sum(axis=2)
         A_22 = ((start_points_2 - end_points_2) ** 2).sum(axis=-1)
         A_11 = np.repeat(A_11, repeats=self.number_of_particles, axis=1)
         A_22 = np.repeat(A_22, repeats=self.number_of_particles, axis=0)
-        A = np.array(
-            [A_22, A_21, A_12, A_11]
-        ).ravel().reshape([self.number_of_particles, self.number_of_particles, 2, 2], order="F")
+        A = np.array([
+            np.array([A_22[i, j], A_12[i, j], A_21[i, j], A_11[i, j]]).reshape((2, 2))
+            for j in range(self.number_of_particles) for i in range(self.number_of_particles)
+        ]).reshape((self.number_of_particles, self.number_of_particles, 2, 2))
         y_1 = ((end_points_2 - end_points_1) * (start_points_1 - end_points_1)).sum(axis=-1)
         y_2 = ((end_points_2 - end_points_1) * (end_points_2 - start_points_2)).sum(axis=-1)
         y = np.array([y_1, y_2]).transpose((1, 2, 0))
         idx = np.array(range(self.number_of_particles))
+        # we want to skip computations for two identical segments - we can take arbitrary alpha, beta from [0, 1]
         A[idx, idx, ...] = np.eye(2)
-        y[idx, idx, :] = -10000
+        y[idx, idx, :] = 0
+        print(f"{datetime.now()} DISTANCE - Setup of needed values end.")
+        print(f"{datetime.now()} DISTANCE - Linalg.solve start.")
         solution = np.linalg.solve(A, y)
-        return solution
+        print(f"{datetime.now()} DISTANCE - Linalg.solve end.")
+        print(f"{datetime.now()} DISTANCE - Simpler solution computation start.")
+        alpha_0_solution = np.array([
+            np.zeros(shape=(self.number_of_particles, self.number_of_particles)), (y_2 / A_22)
+        ]).T.reshape(self.number_of_particles, self.number_of_particles, 2)
+        alpha_1_solution = np.array([
+            np.ones(shape=(self.number_of_particles, self.number_of_particles)), ((y_2 - A_21) / A_22)
+        ]).T.reshape(self.number_of_particles, self.number_of_particles, 2)
+        beta_0_solution = np.array([
+            (y_1 / A_11), np.zeros(shape=(self.number_of_particles, self.number_of_particles))
+        ]).T.reshape(self.number_of_particles, self.number_of_particles, 2)
+        beta_1_solution = np.array([
+            ((y_1 - A_12) / A_11), np.ones(shape=(self.number_of_particles, self.number_of_particles))
+        ]).T.reshape(self.number_of_particles, self.number_of_particles, 2)
+        alpha_0_beta_0 = np.zeros(shape=(self.number_of_particles, self.number_of_particles, 2))
+        alpha_1_beta_1 = np.ones(shape=(self.number_of_particles, self.number_of_particles, 2))
+        alpha_0_beta_1 = np.array([
+            np.zeros(shape=(self.number_of_particles, self.number_of_particles)),
+            np.ones(shape=(self.number_of_particles, self.number_of_particles))
+        ]).T.reshape(self.number_of_particles, self.number_of_particles, 2)
+        alpha_1_beta_0 = np.array([
+            np.ones(shape=(self.number_of_particles, self.number_of_particles)),
+            np.zeros(shape=(self.number_of_particles, self.number_of_particles))
+        ]).T.reshape(self.number_of_particles, self.number_of_particles, 2)
+        print(f"{datetime.now()} DISTANCE - Simpler solution computation end.")
+        print(f"{datetime.now()} DISTANCE - Possible distances computation start.")
+        # TODO this is a slow performance part for some reason - fix this
+        possible_distances = np.array([
+            self._segments_vectorized_pairwise_distance(
+                np.clip(solution[..., 0], 0, 1).T, np.clip(solution[..., 1], 0, 1).T, start_points_pre, end_points_pre
+            ),
+            self._segments_vectorized_pairwise_distance(
+                np.clip(alpha_0_solution[..., 0], 0, 1), np.clip(alpha_0_solution[..., 1], 0, 1), start_points_pre, end_points_pre
+            ),
+            self._segments_vectorized_pairwise_distance(
+                np.clip(alpha_1_solution[..., 0], 0, 1), np.clip(alpha_1_solution[..., 1], 0, 1), start_points_pre, end_points_pre
+            ),
+            self._segments_vectorized_pairwise_distance(
+                np.clip(beta_0_solution[..., 0], 0, 1), np.clip(beta_0_solution[..., 1], 0, 1), start_points_pre, end_points_pre
+            ),
+            self._segments_vectorized_pairwise_distance(
+                np.clip(beta_1_solution[..., 0], 0, 1), np.clip(beta_1_solution[..., 1], 0, 1), start_points_pre, end_points_pre
+            ),
+            self._segments_vectorized_pairwise_distance(
+                np.clip(alpha_0_beta_0[..., 0], 0, 1), np.clip(alpha_0_beta_0[..., 1], 0, 1), start_points_pre, end_points_pre
+            ),
+            self._segments_vectorized_pairwise_distance(
+                np.clip(alpha_0_beta_1[..., 0], 0, 1), np.clip(alpha_0_beta_1[..., 1], 0, 1), start_points_pre, end_points_pre
+            ),
+            self._segments_vectorized_pairwise_distance(
+                np.clip(alpha_1_beta_0[..., 0], 0, 1), np.clip(alpha_1_beta_0[..., 1], 0, 1), start_points_pre, end_points_pre
+            ),
+            self._segments_vectorized_pairwise_distance(
+                np.clip(alpha_1_beta_1[..., 0], 0, 1), np.clip(alpha_1_beta_1[..., 1], 0, 1), start_points_pre, end_points_pre
+            ),
+        ]).T
+        print(f"{datetime.now()} DISTANCE - Possible distances computation end.")
+        distances = np.round(possible_distances.min(axis=-1), decimals=8)
+        timer_end = datetime.now()
+        print(f"SEGMENT DISTANCE COMPUTATION LENGTH: {timer_end - timer_start}")
+        return distances
 
-    def _compute_the_particles_distance_matrix(self):
+    @staticmethod
+    def _segments_vectorized_pairwise_distance(alpha, beta, start_points, end_points):
+        alpha = alpha[..., None]
+        beta = beta[..., None]
+        left = alpha * start_points[:, None, None, :] + (1 - alpha) * end_points[:, None, None, :]
+        right = beta * start_points[None, :, None, :] + (1 - beta) * end_points[None, :, None, :]
+        res = left - right
+        final = np.sqrt(np.power(res, 2).sum(axis=-1)).min(axis=-1)
+        return final
+
+    def _return_distance_vector(
+            self, start_point_1: Point, end_point_1: Point, start_point_2: Point, end_point_2: Point,
+            alpha: float, beta: float
+    ):
+        return self._return_convex_combination(
+            start_point=start_point_1, end_point=end_point_1, alpha=alpha
+        ) - self._return_convex_combination(
+            start_point=start_point_2, end_point=end_point_2, alpha=beta
+        )
+
+    @staticmethod
+    def _return_convex_combination(start_point: Point, end_point: Point, alpha: float):
+        return alpha * start_point + (1 - alpha) * end_point
+
+    def _compute_the_particles_distance_matrix_non_vectorized(self):
+        timer_start = datetime.now()
         distance_matrix = np.zeros(shape=self.germs_distance_matrix.shape)
-        if not const.COMPUTE_SEGMENT_DISTANCES:
-            return distance_matrix
         for i in range(self.number_of_particles):
             for j in range(i, self.number_of_particles):
                 if j != i:
@@ -162,7 +243,8 @@ class SegmentProcess(ParticleProcess):
                     distance_matrix[i, j] = min(possible_minimas)
                     distance_matrix[j, i] = min(possible_minimas)
         distance_matrix_round = np.around(distance_matrix, decimals=8)
-        # distance_matrix = self.germs_distance_matrix
+        timer_end = datetime.now()
+        print(f"SEGMENT DISTANCE PREVIOUS LENGTH: {timer_end - timer_start}")
         return distance_matrix_round
 
     def _compute_the_pairwise_angle_matrix(self):
