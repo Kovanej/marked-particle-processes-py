@@ -15,7 +15,8 @@ import utils.const as const
 
 
 if __name__ == '__main__':
-    logging.basicConfig(filename='example.log', filemode='w', encoding='utf-8', level=logging.INFO)
+    # TODO resolve trouble with encoding
+    # logging.basicConfig(filename='example.log', filemode='w', encoding='utf-8', level=logging.INFO)
     logging.info(f"{datetime.now()}: MAIN SCRIPT RUN STARTED & LOGGER INITIALIZED")
     poisson_point_process = PoissonPointProcess(intensity=const.POISSON_INTENSITY)
     # TODO move to different script
@@ -23,7 +24,7 @@ if __name__ == '__main__':
         particles_null_model = []
         particles_angle_mark_model = []
         for k in range(len(poisson_point_process.points)):
-            angle = np.pi / 4 * np.random.random(size=1)[0]
+            angle = np.pi * np.random.random(size=1)[0]
             length = (const.MAX_SEGMENT_LENGTH - const.MIN_SEGMENT_LENGTH) * np.random.random(size=1)[0] + const.MIN_SEGMENT_LENGTH
             angle = np.pi * np.random.random_sample()
             length = (const.MAX_SEGMENT_LENGTH - const.MIN_SEGMENT_LENGTH

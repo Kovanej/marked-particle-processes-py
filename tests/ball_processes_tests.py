@@ -10,7 +10,7 @@ import utils.const as const
 
 
 NO_OF_CIRCLES = 300
-NO_OF_INSIDE_CIRCLES = 400
+NO_OF_INSIDE_CIRCLES = 40
 
 RANDOM_CENTERS = [
     (np.random.random_sample(), np.random.random_sample())
@@ -33,27 +33,25 @@ RANDOM_CENTERS = [
 #     for dv in range(1, NO_OF_INSIDE_CIRCLES)
 # ] + \
 
-CENTERS_AND_RADII = [[
-    (Point([RANDOM_CENTERS[i][0], RANDOM_CENTERS[i][1]]), 1 / (dv + 1)),
-    ] for dv in range(1, NO_OF_INSIDE_CIRCLES) for i in range(NO_OF_CIRCLES)
-]
+# CENTERS_AND_RADII = [[
+#     (Point([RANDOM_CENTERS[i][0], RANDOM_CENTERS[i][1]]), 1 / (dv + 1)),
+#     ] for dv in range(1, NO_OF_INSIDE_CIRCLES) for i in range(NO_OF_CIRCLES)
+# ]
 
 os.chdir("../")
 
-EPICENTER_COUNT = 1
+EPICENTER_COUNT = 40
 
-# CENTERS_AND_RADII = [[
-#     (Point([i / EPICENTER_COUNT, j / EPICENTER_COUNT]), 1 / (1 + np.sqrt(dv))),
-#     ] for dv in range(1, 1000) for i in range(1, 4) for j in range(1, EPICENTER_COUNT)
-# ]
 CENTERS_AND_RADII = [[
-    (Point([1/4, 1/3]), 1 / (dv)),
-    (Point([3/4, 1/3]), 1 / (dv)),
-    (Point([1/4, 2/3]), 1 / (dv)),
-    (Point([3/4, 2/3]), 1 / (dv)),
-    (Point([0.5, 1/3]), 1 / (dv)),
-    (Point([0.5, 2/3]), 1 / (dv)),
-] for dv in range(1, NO_OF_INSIDE_CIRCLES)]
+    (Point([1/k, 1 - 1/k]), 1 / (2 * k * np.sqrt(dv))),
+    (Point([1/k, 1/k]), 1 / (2 * k * np.sqrt(dv))),
+    (Point([1 - 1/k, 1 - 1/k]), 1 / (2 * k * np.sqrt(dv))),
+    (Point([1 - 1/k, 1/k]), 1 / (2 * k * np.sqrt(dv))),
+    # (Point([1/2, 1 - 1/k]), 1 / (k * np.sqrt(dv))),
+    # (Point([1/2, 1/k]), 1 / (k * np.sqrt(dv))),
+    # (Point([1 - 1/k, 1/2]), 1 / (k * np.sqrt(dv))),
+    # (Point([1/k, 1/2]), 1 / (k * np.sqrt(dv))),
+] for dv in range(1, NO_OF_INSIDE_CIRCLES) for k in range(1, EPICENTER_COUNT)]
 CENTERS_AND_RADII = [c_r for inside_list in CENTERS_AND_RADII for c_r in inside_list]
 
 particles = [

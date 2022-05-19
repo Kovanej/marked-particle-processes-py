@@ -10,14 +10,15 @@ from Processes.segment_process import SegmentProcess
 
 os.chdir("../")
 # ALL FOLLOWING CHECKED FOR CORRECT VALUES
-# START_AND_END_POINTS = [
-#     (Point([0, 0]), Point([1, 0])),
-#     (Point([0, 1/2]), Point([0, 1/4])),
-#     (Point([1, 1]), Point([2, 2])),
-#     (Point([0, 1]), Point([-1, 0])),
-#     (Point([0, 0]), Point([1, 1])),
-#     (Point([1, 0]), Point([2, 1]))
-# ]
+np.random.seed(69)
+START_AND_END_POINTS = [
+    (Point([- 1/2, 0]), Point([1, 0])),
+    # (Point([1, 1]), Point([2, 2])),
+    # (Point([0, 1]), Point([-1, 0])),
+    (Point([-1, -1]), Point([1, 1])),
+    # (Point([0, -2]), Point([0, 1])),
+    (Point([0, 10]), Point([0, 15])),
+]
 
 # ALSO TESTED FOR A COUPLE OF SEGMENTS IN R^3
 # START_AND_END_POINTS = [
@@ -32,7 +33,7 @@ START_AND_END_POINTS = [
         Point([np.random.random_sample(), np.random.random_sample()]),
         Point([np.random.random_sample(), np.random.random_sample()])
     )
-    for _ in range(100)
+    for _ in range(200)
 ]
 
 particles = [
@@ -49,4 +50,7 @@ particle_process = SegmentProcess(
     particles=particles, germ_intensity=4, space_dimension=len(START_AND_END_POINTS[0][0])
 )
 particle_process.plot_itself()
+# comparison = particle_process.particles_distance_matrix == particle_process.particles_distance_matrix_vectorized
+# equal_arrays = comparison.all()
+# print(equal_arrays)
 a=1

@@ -21,26 +21,35 @@ class ParticleProcess(object):
             grain_type: str,
             space_dimension: int
     ):
+        print(f"Particle process class initialized.")
         self.germ_intensity = germ_intensity
         self.particles = particles
         self.number_of_particles = len(self.particles)
         self.grain_type = grain_type
         self.space_dimension = space_dimension
         # compute the grains distance
+        print(f"{datetime.now()} :Germs distance computation start.")
         self.germs_distance_matrix = self._compute_the_germs_distance_matrix()
+        print(f"{datetime.now()} :Germs distance computation end.")
         # compute particles_null_model distance (inf {||x_i - x_j||: x_i \in \Xi_i, x_j \in \Xi_j})
+        print(f"{datetime.now()} :Particle distance computation start.")
         self.particles_distance_matrix = self._compute_the_particles_distance_matrix()
+        print(f"{datetime.now()} :Particle distance computation end.")
         # particles_null_model distance == 0 -> intersected, otherwise not intersected
+        print(f"{datetime.now()} :Particle intersection matrix computation start.")
         self.particles_intersection_matrix = np.where(self.particles_distance_matrix == 0, 1, 0)
+        print(f"{datetime.now()} :Particle intersection matrix computation end at {datetime.now()}.")
         # compute the pairwise shared corresponding Lebesgue measure
         # ("ball": shared areas, "segment": same as intersection matrix ...)
+        print(f"{datetime.now()} :Particle shared measure matrix computation start.")
         self.shared_corresponding_measure_matrix = self._compute_the_shared_corresponding_measure_matrix()
+        print(f"{datetime.now()} :Particle shared measure matrix computation end.")
         # if needed following attributes are computed via executing ParticleProcess.compute_f_mark_statistics
         self.f_mark_normalization_constant = None
         self.f_mark_intersection_correlation = None
 
     def _compute_the_shared_corresponding_measure_matrix(self):
-        # overridden for each subclasses - if not specified, it cannot be computed
+        # overridden for each subclass - if not specified, it cannot be computed
         raise NotImplementedError(
             f"Method called from the instance of general ParticleProcess class. "
             f"Please use the instance of some of the ParticleProcess subclasses (SegmentProcess, BallProcess)."

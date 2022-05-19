@@ -13,11 +13,15 @@ class PointProcess(object):
             process_type: str,
             space_dimension: int = 2,
             points: Optional[Points] = None,
-            generate_itself: bool = True
+            generate_itself: bool = True,
+            window_edge_start_point: float = 0,
+            window_edge_end_point: float = 1,
     ):
         self.intensity = intensity
         self.space_dimension = space_dimension
         self.process_type = process_type
+        self.window_edge_start_point = window_edge_start_point
+        self.window_edge_end_point = window_edge_end_point
         if generate_itself:
             self.points = self._generate_itself()
         else:
@@ -39,7 +43,9 @@ class PoissonPointProcess(PointProcess):
 
     def __init__(
             self,
-            intensity: int,
+            intensity: float,
+            window_edge_start_point: float = 0,
+            window_edge_end_point: float = 1,
             space_dimension: int = 2,
             points: Optional[List] = None,
             generate_itself: bool = True
@@ -49,11 +55,20 @@ class PoissonPointProcess(PointProcess):
             process_type="Poisson",
             space_dimension=space_dimension,
             points=points,
-            generate_itself=generate_itself
+            generate_itself=generate_itself,
+            window_edge_start_point=window_edge_start_point,
+            window_edge_end_point=window_edge_end_point
         )
 
-    def _generate_itself(self): # -> Any(List[Point], Points):
-        _number_of_points = np.random.poisson(lam=self.intensity)
-        _pts = [[np.random.random(1)[0], np.random.random(1)[0]] for _ in range(_number_of_points)]
+    def _generate_itself(self):  # -> Any(List[Point], Points):
+        # how many points to generate in square [window_edge_start_point, window_edge_end_point]^(space_dimension)
+        _number_of_points = np.random.poisson(
+            lam=self.intensity * (self.window_edge_end_point - self.window_edge_start_point) ** self.space_dimension
+        )
+        _pts = [
+            [np.random.random_sample() * (
+                    self.window_edge_end_point - self.window_edge_start_point
+            ) + self.window_edge_start_point for _ in range(self.space_dimension)] for _ in range(_number_of_points)
+        ]
         return Points(_pts)
 
