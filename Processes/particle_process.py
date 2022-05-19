@@ -27,6 +27,8 @@ class ParticleProcess(object):
         self.number_of_particles = len(self.particles)
         self.grain_type = grain_type
         self.space_dimension = space_dimension
+        self.marks = np.array([p.mark.mark_value for p in self.particles])
+        self.marks_product = self.marks[..., None] * self.marks[None, ...]
         # compute the grains distance
         print(f"{datetime.now()} :Germs distance computation start.")
         self.germs_distance_matrix = self._compute_the_germs_distance_matrix()
@@ -102,29 +104,18 @@ class ParticleProcess(object):
         self.f_mark_intersection_correlation = self._compute_the_f_mark_intersection_correlation(f_type=f_type)
 
     def _compute_the_f_mark_intersection_correlation(self, f_type: str):
-        f_intersection_nn = 0
-        # intersection_counter = 0
-        # pairs_count = (self.number_of_particles * (self.number_of_particles - 1)) / 2
-        for i in range(self.number_of_particles):
-            for j in range(i + 1, self.number_of_particles):
-                if self.particles_intersection_matrix[i, j] == 1:
-                    # TODO temporarily hardcoded f(M_1, M_2) = M_1 * M_2
-                    f_intersection_nn += self.particles[i].mark.mark_value * self.particles[j].mark.mark_value
-                    # intersection_counter += 1
-        # if intersection_counter == 0:
-        #     intersection_counter = 1
-        # multiply by 2 since we count only for (i, j) j > i
-        # TODO fix this^^, since not all f(M_i, M_j) are symmetrical
+        idx = np.array(range(self.number_of_particles))
+        intersection_zero_diagonal = self.particles_intersection_matrix.copy()
+        intersection_zero_diagonal[idx, idx] = 0
+        f_intersection_nn = (self.marks_product * intersection_zero_diagonal).sum() / 2
         self.f_intersection_nn = f_intersection_nn
         return (2 * f_intersection_nn) / (self.f_mark_normalization_constant * (self.germ_intensity ** 2))
 
     def _compute_the_f_mark_normalization_constant(self, f_type: str):
         pairs_count = (self.number_of_particles * (self.number_of_particles - 1)) / 2
-        c_f_nn = 0
-        for i in range(self.number_of_particles):
-            for j in range(i + 1, self.number_of_particles):
-                # TODO temporarily hardcoded f(M_1, M_2) = M_1 * M_2
-                c_f_nn += self.particles[i].mark.mark_value * self.particles[j].mark.mark_value
+        marks_product_zero_diagonal = self.marks_product.copy()
+        marks_product_zero_diagonal[np.diag_indices(self.number_of_particles)] = 0
+        c_f_nn = marks_product_zero_diagonal.sum() / 2
         c_f = c_f_nn / pairs_count
         return c_f
 
