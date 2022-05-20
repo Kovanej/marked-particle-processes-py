@@ -1,5 +1,6 @@
 
 from datetime import datetime
+import logging
 import matplotlib.pyplot as plt
 from typing import List, Optional, Union
 import numpy as np
@@ -21,7 +22,7 @@ class ParticleProcess(object):
             grain_type: str,
             space_dimension: int
     ):
-        print(f"Particle process class initialized.")
+        logging.info(f"Particle process class initialized.")
         self.germ_intensity = germ_intensity
         self.particles = particles
         self.number_of_particles = len(self.particles)
@@ -30,25 +31,25 @@ class ParticleProcess(object):
         self.marks = np.array([p.mark.mark_value for p in self.particles])
         self.marks_product = self.marks[..., None] * self.marks[None, ...]
         # compute the grains distance
-        print(f"{datetime.now()} :Germs distance computation start.")
         self.germs_distance_matrix = self._compute_the_germs_distance_matrix()
-        print(f"{datetime.now()} :Germs distance computation end.")
         # compute particles_null_model distance (inf {||x_i - x_j||: x_i \in \Xi_i, x_j \in \Xi_j})
-        print(f"{datetime.now()} :Particle distance computation start.")
         self.particles_distance_matrix = self._compute_the_particles_distance_matrix()
-        print(f"{datetime.now()} :Particle distance computation end.")
         # particles_null_model distance == 0 -> intersected, otherwise not intersected
-        print(f"{datetime.now()} :Particle intersection matrix computation start.")
-        self.particles_intersection_matrix = np.where(self.particles_distance_matrix == 0, 1, 0)
-        print(f"{datetime.now()} :Particle intersection matrix computation end at {datetime.now()}.")
+        self.particles_intersection_matrix = self._compute_the_particles_intersection_matrix()
         # compute the pairwise shared corresponding Lebesgue measure
         # ("ball": shared areas, "segment": same as intersection matrix ...)
-        print(f"{datetime.now()} :Particle shared measure matrix computation start.")
+        logging.info(f"{datetime.now()} :Particle shared measure matrix computation start.")
+        logging.info(f"{datetime.now()} :Particle shared measure matrix computation end.")
         self.shared_corresponding_measure_matrix = self._compute_the_shared_corresponding_measure_matrix()
-        print(f"{datetime.now()} :Particle shared measure matrix computation end.")
         # if needed following attributes are computed via executing ParticleProcess.compute_f_mark_statistics
         self.f_mark_normalization_constant = None
         self.f_mark_intersection_correlation = None
+
+    def _compute_the_particles_intersection_matrix(self):
+        logging.info(f"{datetime.now()} :Particle intersection matrix computation start.")
+        intersection_matrix = np.where(self.particles_distance_matrix == 0, 1, 0)
+        logging.info(f"{datetime.now()} :Particle intersection matrix computation end.")
+        return intersection_matrix
 
     def _compute_the_shared_corresponding_measure_matrix(self):
         # overridden for each subclass - if not specified, it cannot be computed
@@ -58,9 +59,11 @@ class ParticleProcess(object):
         )
 
     def _compute_the_germs_distance_matrix(self):
+        logging.info(f"{datetime.now()} :Germs distance computation start.")
         grains_distance_matrix = pairwise_distances(
                 [self.particles[k].germ for k in range(self.number_of_particles)]
             )
+        logging.info(f"{datetime.now()} :Germs distance computation end.")
         return grains_distance_matrix
 
     def _plot_ball_particles(self, ax):
@@ -104,14 +107,14 @@ class ParticleProcess(object):
         self.f_mark_intersection_correlation = self._compute_the_f_mark_intersection_correlation(f_type=f_type)
 
     def _compute_the_f_mark_intersection_correlation(self, f_type: str):
-        idx = np.array(range(self.number_of_particles))
         intersection_zero_diagonal = self.particles_intersection_matrix.copy()
-        intersection_zero_diagonal[idx, idx] = 0
+        intersection_zero_diagonal[np.diag_indices(self.number_of_particles)] = 0
         f_intersection_nn = (self.marks_product * intersection_zero_diagonal).sum() / 2
         self.f_intersection_nn = f_intersection_nn
         return (2 * f_intersection_nn) / (self.f_mark_normalization_constant * (self.germ_intensity ** 2))
 
     def _compute_the_f_mark_normalization_constant(self, f_type: str):
+        # estimate the E[f(M_i, M_j)] - evaluate it on each pair of n points and divide by (n choose 2)
         pairs_count = (self.number_of_particles * (self.number_of_particles - 1)) / 2
         marks_product_zero_diagonal = self.marks_product.copy()
         marks_product_zero_diagonal[np.diag_indices(self.number_of_particles)] = 0

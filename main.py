@@ -15,8 +15,7 @@ import utils.const as const
 
 
 if __name__ == '__main__':
-    # TODO resolve trouble with encoding
-    # logging.basicConfig(filename='example.log', filemode='w', encoding='utf-8', level=logging.INFO)
+    logging.basicConfig(filename='example.log', filemode='w', level=logging.INFO)
     logging.info(f"{datetime.now()}: MAIN SCRIPT RUN STARTED & LOGGER INITIALIZED")
     poisson_point_process = PoissonPointProcess(intensity=const.POISSON_INTENSITY)
     particles_null_model = []

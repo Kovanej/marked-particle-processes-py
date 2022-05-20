@@ -1,4 +1,5 @@
 from datetime import datetime
+import logging
 import matplotlib.pyplot as plt
 from typing import List, Optional, Union
 import numpy as np
@@ -20,6 +21,8 @@ class BallProcess(ParticleProcess):
 
     def _compute_the_shared_corresponding_measure_matrix(self):
         # TODO subtract the area of circles outside the observational window
+        # TODO vectorize
+        logging.info(f"{datetime.now()} :Circles shared measure matrix computation start.")
         shared_areas_matrix = np.zeros(shape=self.particles_intersection_matrix.shape)
         for i in range(self.number_of_particles):
             for j in range(i, self.number_of_particles):
@@ -45,9 +48,11 @@ class BallProcess(ParticleProcess):
                                  y * (x + np.sqrt(z + rad_j_sq - rad_i_sq))
                         shared_areas_matrix[i, j] = _share
                         shared_areas_matrix[j, i] = _share
+        logging.info(f"{datetime.now()} :Circles shared measure matrix computation end.")
         return shared_areas_matrix
 
     def _compute_the_particles_distance_matrix(self):
+        logging.info(f"{datetime.now()} :Circles distance computation start.")
         radii_to_subtract = np.array([
             [
                 self.particles[k].grain.radius + self.particles[j].grain.radius
@@ -57,4 +62,5 @@ class BallProcess(ParticleProcess):
         distance_matrix = np.where(
             self.germs_distance_matrix < radii_to_subtract, 0, self.germs_distance_matrix - radii_to_subtract
         )
+        logging.info(f"{datetime.now()} :Circles distance computation end.")
         return distance_matrix

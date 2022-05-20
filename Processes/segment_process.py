@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 import matplotlib.pyplot as plt
 from typing import List, Optional, Union
@@ -14,14 +15,14 @@ import utils.const as const
 class SegmentProcess(ParticleProcess):
 
     def __init__(self, germ_intensity: float, particles: List[Particle], space_dimension: int = 2):
-        print(f"{datetime.now()} Segment process init start.")
+        logging.info(f"{datetime.now()} Segment process init start.")
         super().__init__(
             germ_intensity=germ_intensity, grain_type="segment", particles=particles, space_dimension=space_dimension
         )
-        print(f"{datetime.now()} Segment process angles matrix computation start.")
+        logging.info(f"{datetime.now()} Segment process angles matrix computation start.")
         self.angles_matrix = self._compute_the_angles_matrix()
-        print(f"{datetime.now()} Segment process angles matrix computation end.")
-        print(f"{datetime.now()} Segment process init end.")
+        logging.info(f"{datetime.now()} Segment process angles matrix computation end.")
+        logging.info(f"{datetime.now()} Segment process init end.")
 
     @staticmethod
     def _dot_pairwise(a, b):
@@ -51,12 +52,16 @@ class SegmentProcess(ParticleProcess):
         return angle_matrix
 
     def _compute_the_shared_corresponding_measure_matrix(self):
-        # todo this generally doesn't hold for segments on the same line
-        return self.particles_intersection_matrix
+        # TODO this generally doesn't hold for segments on the same line - fix
+        logging.info(f"{datetime.now()} :Segments shared measure matrix computation start.")
+        shared_measure_matrix = self.particles_intersection_matrix
+        logging.info(f"{datetime.now()} :Segments shared measure matrix computation end.")
+        return shared_measure_matrix
 
     def _compute_the_particles_distance_matrix(self):
+        logging.info(f"{datetime.now()} :Segments distance computation start.")
         timer_start = datetime.now()
-        print(f"{datetime.now()} DISTANCE - Setup of needed values start.")
+        logging.info(f"{datetime.now()} DISTANCE - Setup of needed values start.")
         start_points_pre = np.array([particle.grain.start_point for particle in self.particles])
         end_points_pre = np.array([particle.grain.end_point for particle in self.particles])
         start_points_1 = start_points_pre[:, None, :]
@@ -80,11 +85,11 @@ class SegmentProcess(ParticleProcess):
         # we want to skip computations for two identical segments - we can take arbitrary alpha, beta from [0, 1]
         A[idx, idx, ...] = np.eye(2)
         y[idx, idx, :] = 0
-        print(f"{datetime.now()} DISTANCE - Setup of needed values end.")
-        print(f"{datetime.now()} DISTANCE - Linalg.solve start.")
+        logging.info(f"{datetime.now()} DISTANCE - Setup of needed values end.")
+        logging.info(f"{datetime.now()} DISTANCE - Linalg.solve start.")
         solution = np.linalg.solve(A, y)
-        print(f"{datetime.now()} DISTANCE - Linalg.solve end.")
-        print(f"{datetime.now()} DISTANCE - Simpler solution computation start.")
+        logging.info(f"{datetime.now()} DISTANCE - Linalg.solve end.")
+        logging.info(f"{datetime.now()} DISTANCE - Simpler solution computation start.")
         alpha_0_solution = np.array([
             np.zeros(shape=(self.number_of_particles, self.number_of_particles)), (y_2 / A_22)
         ]).T.reshape(self.number_of_particles, self.number_of_particles, 2)
@@ -107,8 +112,8 @@ class SegmentProcess(ParticleProcess):
             np.ones(shape=(self.number_of_particles, self.number_of_particles)),
             np.zeros(shape=(self.number_of_particles, self.number_of_particles))
         ]).T.reshape(self.number_of_particles, self.number_of_particles, 2)
-        print(f"{datetime.now()} DISTANCE - Simpler solution computation end.")
-        print(f"{datetime.now()} DISTANCE - Possible distances computation start.")
+        logging.info(f"{datetime.now()} DISTANCE - Simpler solution computation end.")
+        logging.info(f"{datetime.now()} DISTANCE - Possible distances computation start.")
         # TODO this is a slow performance part for some reason - fix this
         possible_distances = np.array([
             self._segments_vectorized_pairwise_distance(
@@ -139,10 +144,11 @@ class SegmentProcess(ParticleProcess):
                 np.clip(alpha_1_beta_1[..., 0], 0, 1), np.clip(alpha_1_beta_1[..., 1], 0, 1), start_points_pre, end_points_pre
             ),
         ]).T
-        print(f"{datetime.now()} DISTANCE - Possible distances computation end.")
+        logging.info(f"{datetime.now()} DISTANCE - Possible distances computation end.")
         distances = np.round(possible_distances.min(axis=-1), decimals=8)
         timer_end = datetime.now()
-        print(f"SEGMENT DISTANCE COMPUTATION LENGTH: {timer_end - timer_start}")
+        logging.info(f"SEGMENT DISTANCE COMPUTATION LENGTH: {timer_end - timer_start}")
+        logging.info(f"{datetime.now()} :Particle distance computation end.")
         return distances
 
     @staticmethod
@@ -244,7 +250,7 @@ class SegmentProcess(ParticleProcess):
                     distance_matrix[j, i] = min(possible_minimas)
         distance_matrix_round = np.around(distance_matrix, decimals=8)
         timer_end = datetime.now()
-        print(f"SEGMENT DISTANCE PREVIOUS LENGTH: {timer_end - timer_start}")
+        logging.info(f"SEGMENT DISTANCE PREVIOUS LENGTH: {timer_end - timer_start}")
         return distance_matrix_round
 
     def _compute_the_pairwise_angle_matrix(self):
