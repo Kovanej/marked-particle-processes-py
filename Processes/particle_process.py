@@ -44,6 +44,15 @@ class ParticleProcess(object):
         self.f_mark_normalization_constants: Dict[str, float] = {}
         self.f_mark_statistics: Dict[Tuple[str, str], float] = {}
 
+
+    @staticmethod
+    def _dot_pairwise(a, b):
+        return (a[:, None, :] * b[None, ...]).sum(axis=-1)
+
+    @staticmethod
+    def _norm(a):
+        return np.sqrt((a * a).sum(axis=-1))
+
     def _compute_the_particles_intersection_matrix(self):
         logging.info(f"{datetime.now()} :Particle intersection matrix computation start.")
         intersection_matrix = np.where(self.particles_distance_matrix == 0, 1, 0)
