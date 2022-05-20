@@ -13,7 +13,7 @@ from Processes.ball_process import BallProcess
 from Processes.point_process import PoissonPointProcess
 import utils.const as const
 
-TESTED_GRAIN_TYPE = "ball"
+TESTED_GRAIN_TYPE = "segment"
 
 
 logging.basicConfig(filename='example.log', filemode='w', level=logging.INFO)
@@ -67,7 +67,7 @@ if TESTED_GRAIN_TYPE == "segment":
 
     particle_process_null_model.plot_itself()
     particle_process_angle_mark_model.plot_itself()
-    
+
 if TESTED_GRAIN_TYPE == "ball":
     particles_null_model = []
     particles_radius_mark_model = []

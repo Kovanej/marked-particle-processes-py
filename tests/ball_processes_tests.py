@@ -1,3 +1,4 @@
+import logging
 import os
 import numpy as np
 from skspatial.objects import Point, Circle
@@ -6,11 +7,14 @@ from Geometry.grain import Grain, Segment
 from Plotting.plotting import plot_the_grains
 from Geometry.particle import Particle
 from Processes.ball_process import BallProcess
+from Processes.markings import Mark
 import utils.const as const
 
 
+logging.basicConfig(filename='example.log', filemode='w', level=logging.INFO)
+
 NO_OF_CIRCLES = 300
-NO_OF_INSIDE_CIRCLES = 40
+NO_OF_INSIDE_CIRCLES = 12
 
 RANDOM_CENTERS = [
     (np.random.random_sample(), np.random.random_sample())
@@ -40,25 +44,26 @@ RANDOM_CENTERS = [
 
 os.chdir("../")
 
-EPICENTER_COUNT = 40
+EPICENTER_COUNT = 100
 
-CENTERS_AND_RADII = [[
-    (Point([1/k, 1 - 1/k]), 1 / (2 * k * np.sqrt(dv))),
-    (Point([1/k, 1/k]), 1 / (2 * k * np.sqrt(dv))),
-    (Point([1 - 1/k, 1 - 1/k]), 1 / (2 * k * np.sqrt(dv))),
-    (Point([1 - 1/k, 1/k]), 1 / (2 * k * np.sqrt(dv))),
+CENTERS_AND_RADII_LISTS = [[
+    (Point([1/np.sqrt(k), 1 - 1/np.sqrt(k)]), 1 / (2 * k * np.sqrt(dv))),
+    (Point([1/np.sqrt(k), 1/np.sqrt(k)]), 1 / (2 * k * np.sqrt(dv))),
+    (Point([1 - 1/np.sqrt(k), 1 - 1/np.sqrt(k)]), 1 / (2 * k * np.sqrt(dv))),
+    (Point([1 - 1/np.sqrt(k), 1/np.sqrt(k)]), 1 / (2 * k * np.sqrt(dv))),
     # (Point([1/2, 1 - 1/k]), 1 / (k * np.sqrt(dv))),
     # (Point([1/2, 1/k]), 1 / (k * np.sqrt(dv))),
     # (Point([1 - 1/k, 1/2]), 1 / (k * np.sqrt(dv))),
     # (Point([1/k, 1/2]), 1 / (k * np.sqrt(dv))),
 ] for dv in range(1, NO_OF_INSIDE_CIRCLES) for k in range(1, EPICENTER_COUNT)]
-CENTERS_AND_RADII = [c_r for inside_list in CENTERS_AND_RADII for c_r in inside_list]
+CENTERS_AND_RADII = [c_r for inside_list in CENTERS_AND_RADII_LISTS for c_r in inside_list]
 
 particles = [
     Particle(
         germ=center,
         grain_type="ball",
-        grain=Circle(point=center, radius=radius)
+        grain=Circle(point=center, radius=radius),
+        mark=Mark(mark_type="continuous", mark_value=radius)
     )
     for center, radius in CENTERS_AND_RADII
 ]
