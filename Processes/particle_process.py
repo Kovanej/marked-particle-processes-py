@@ -38,8 +38,6 @@ class ParticleProcess(object):
         self.particles_intersection_matrix = self._compute_the_particles_intersection_matrix()
         # compute the pairwise shared corresponding Lebesgue measure
         # ("ball": shared areas, "segment": same as intersection matrix ...)
-        logging.info(f"{datetime.now()} :Particle shared measure matrix computation start.")
-        logging.info(f"{datetime.now()} :Particle shared measure matrix computation end.")
         self.shared_corresponding_measure_matrix = self._compute_the_shared_corresponding_measure_matrix()
         # if needed following attributes are computed via executing ParticleProcess.compute_f_mark_statistics
         self.f_mark_normalization_constant = None
