@@ -2,7 +2,7 @@
 from datetime import datetime
 import logging
 import matplotlib.pyplot as plt
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Tuple, Dict
 import numpy as np
 import random
 from scipy.optimize import fsolve
@@ -30,6 +30,7 @@ class ParticleProcess(object):
         self.space_dimension = space_dimension
         self.marks = np.array([p.mark.mark_value for p in self.particles])
         self.marks_product = self.marks[..., None] * self.marks[None, ...]
+        self.marks_square = (self.marks[..., None] - self.marks[None, ...]) ** 2 / 2
         # compute the grains distance
         self.germs_distance_matrix = self._compute_the_germs_distance_matrix()
         # compute particles_null_model distance (inf {||x_i - x_j||: x_i \in \Xi_i, x_j \in \Xi_j})
@@ -40,8 +41,8 @@ class ParticleProcess(object):
         # ("ball": shared areas, "segment": same as intersection matrix ...)
         self.shared_corresponding_measure_matrix = self._compute_the_shared_corresponding_measure_matrix()
         # if needed following attributes are computed via executing ParticleProcess.compute_f_mark_statistics
-        self.f_mark_normalization_constant = None
-        self.f_mark_intersection_correlation = None
+        self.f_mark_normalization_constants: Dict[str, float] = {}
+        self.f_mark_statistics: Dict[Tuple[str, str], float] = {}
 
     def _compute_the_particles_intersection_matrix(self):
         logging.info(f"{datetime.now()} :Particle intersection matrix computation start.")
@@ -64,70 +65,76 @@ class ParticleProcess(object):
         logging.info(f"{datetime.now()} :Germs distance computation end.")
         return grains_distance_matrix
 
-    def _plot_ball_particles(self, ax):
-        for particle in self.particles:
-            facecolor, alpha = self._choose_face_color()
-            edgecolor = self._choose_edge_color()
-            particle.grain.plot_2d(
-                ax, facecolor=facecolor, linestyle="-", alpha=alpha, linewidth=1, edgecolor=edgecolor,
-                # alpha=0.5,
+    def compute_the_f_mark_characteristics(
+            self
+    ):
+        for f_type in const.F_MARK_TYPES:
+            self._compute_the_f_mark_normalization_constants(f_type=f_type)
+        for (f_type, weight_type) in const.F_MARK_COMBINATIONS:
+            self.f_mark_statistics[f_type, weight_type] = self._compute_the_f_mark_statistic(
+                f_type=f_type, weight_type=weight_type
             )
 
-    def _plot_segment_particles(self, fig, ax):
-        if self.space_dimension == 3:
-            ax = fig.add_subplot(111, projection='3d')
-        for particle in self.particles:
-            # col, alpha = self._choose_face_color()
-            if particle.mark is not None:
-                if particle.mark.mark_value == 0:
-                    col, alpha = "#003271", 1
-                elif particle.mark.mark_value == 1:
-                    col, alpha = "#FEC500", 1
-            else:
-                col, alpha = np.random.choice(const.PARTICLE_COLORS_CHOICE), 1
-            # alpha = Vector(particle.grain.start_point).norm() / np.sqrt(2)
-            if self.space_dimension == 2:
-                particle.grain.vector.plot_2d(
-                    ax_2d=ax, point=particle.grain.start_point, head_width=0,
-                    edgecolor=col, alpha=alpha
-                )
-            elif self.space_dimension == 3:
-                particle.grain.vector.plot_3d(
-                    ax_3d=ax, point=particle.grain.start_point,
-                    #  edgecolor=col, alpha=alpha
-                )
+    def _compute_the_f_mark_statistic(self, f_type: str, weight_type: str):
+        f_mark_statistic = {
+            ("product", "intersection"): self._compute_the_f_mark_intersection_correlation(f_type=f_type),
+            ("product", "shared_area"): self._compute_the_f_mark_shared_area_correlation(f_type=f_type),
+            ("square", "intersection"): self._compute_the_f_mark_intersection_correlation(f_type=f_type),
+            ("square", "shared_area"): self._compute_the_f_mark_shared_area_correlation(f_type=f_type),
+        }.get((f_type, weight_type))
+        return f_mark_statistic
 
-    def compute_the_f_mark_characteristics(
-            self,
-            f_type: str = "product"
-    ):
-        self.f_mark_normalization_constant = self._compute_the_f_mark_normalization_constant(f_type=f_type)
-        self.f_mark_intersection_correlation = self._compute_the_f_mark_intersection_correlation(f_type=f_type)
+    def _compute_the_f_mark_shared_area_correlation(self, f_type: str):
+        shared_area_zero_diagonal = self.shared_corresponding_measure_matrix.copy()
+        shared_area_zero_diagonal[np.diag_indices(self.number_of_particles)] = 0
+        if f_type == "product":
+            f_shared_nn = (self.marks_product * shared_area_zero_diagonal).sum() / 2
+            norm_by = (self.f_mark_normalization_constants[f_type] * (self.germ_intensity ** 2)) / 2
+        elif f_type == "square":
+            f_shared_nn = (self.marks_square * shared_area_zero_diagonal).sum() / 2
+            norm_by = (self.f_mark_normalization_constants[f_type] * (self.germ_intensity ** 2)) / 2
+        else:
+            raise NotImplementedError(f"f-mark shared area correlation cannot be obtained for unknown f_type={f_type}")
+        return f_shared_nn / norm_by
 
     def _compute_the_f_mark_intersection_correlation(self, f_type: str):
         intersection_zero_diagonal = self.particles_intersection_matrix.copy()
         intersection_zero_diagonal[np.diag_indices(self.number_of_particles)] = 0
-        f_intersection_nn = (self.marks_product * intersection_zero_diagonal).sum() / 2
+        if f_type == "product":
+            f_intersection_nn = (self.marks_product * intersection_zero_diagonal).sum() / 2
+            norm_by = (self.f_mark_normalization_constants[f_type] * (self.germ_intensity ** 2)) / 2
+        elif f_type == "square":
+            f_intersection_nn = (self.marks_square * intersection_zero_diagonal).sum() / 2
+            norm_by = (self.f_mark_normalization_constants[f_type] * (self.germ_intensity ** 2)) / 2
+        else:
+            raise NotImplementedError(f"f-mark intersection correlation cannot be obtained for unknown f_type={f_type}")
         self.f_intersection_nn = f_intersection_nn
-        return (2 * f_intersection_nn) / (self.f_mark_normalization_constant * (self.germ_intensity ** 2))
+        return f_intersection_nn / norm_by
 
-    def _compute_the_f_mark_normalization_constant(self, f_type: str):
+    def _compute_the_f_mark_normalization_constants(self, f_type: str):
         # estimate the E[f(M_i, M_j)] - evaluate it on each pair of n points and divide by (n choose 2)
         pairs_count = (self.number_of_particles * (self.number_of_particles - 1)) / 2
-        marks_product_zero_diagonal = self.marks_product.copy()
-        marks_product_zero_diagonal[np.diag_indices(self.number_of_particles)] = 0
-        c_f_nn = marks_product_zero_diagonal.sum() / 2
-        c_f = c_f_nn / pairs_count
-        return c_f
+        if f_type == "product":
+            marks_product_zero_diagonal = self.marks_product.copy()
+            marks_product_zero_diagonal[np.diag_indices(self.number_of_particles)] = 0
+            c_f_nn = marks_product_zero_diagonal.sum() / 2
+            c_f = c_f_nn / pairs_count
+        elif f_type == "square":
+            # zero_diagonal by default - no need to "hardcode"
+            c_f_nn = self.marks_square.sum() / 2
+            c_f = c_f_nn / pairs_count
+        else:
+            raise NotImplementedError(f"f-mark normalization constant cannot be obtained for unknown f_type={f_type}")
+        self.f_mark_normalization_constants[f_type] = c_f
+
+    def _plot_particles(self, ax, fig):
+        pass
 
     def plot_itself(self, show_germs: bool = False):
         fig = plt.figure()
         ax = fig.add_subplot()
         ax.set_aspect('equal', adjustable='box')
-        if self.grain_type == "ball":
-            self._plot_ball_particles(ax=ax)
-        if self.grain_type == "segment":
-            self._plot_segment_particles(fig=fig, ax=ax)
+        self._plot_particles(ax=ax, fig=fig)
         if show_germs:
             for particle in self.particles:
                 color, alpha = self._choose_germ_color()

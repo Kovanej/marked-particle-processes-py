@@ -4,21 +4,34 @@ GRAIN_TYPES_DIMENSIONS = {
     "ball": 2,
     "segment": 1
 }
-SAVE_PLOTS = True
+SAVE_PLOTS = False
 
-MAX_SEGMENT_LENGTH = 0.2
-MIN_SEGMENT_LENGTH = 0.05
+MAX_SEGMENT_LENGTH = 1
+MIN_SEGMENT_LENGTH = 0
 
-MAX_CIRC_RAD = 0.3
-MIN_CIRC_RAD = 0.2
+MAX_CIRC_RAD = 0.15
+MIN_CIRC_RAD = 0.05
 
-POISSON_INTENSITY = 200
+POISSON_INTENSITY = 100
 MARKED = True
 MARKS_MODEL = "Lisa"
 SPACE_DIMENSION = 2
 GRAIN_TYPE = "segment"
 
 COMPUTE_SEGMENT_DISTANCES = False
+
+F_MARK_TYPES = [
+    "product", "square",
+    # "first_mark",
+]
+WEIGHT_TYPES = [
+    "intersection", "shared_area",
+    # "distance"
+]
+
+F_MARK_COMBINATIONS = [
+    (f, w) for f in F_MARK_TYPES for w in WEIGHT_TYPES
+]
 
 # COLORS
 
@@ -42,4 +55,4 @@ PARTICLE_COLORS_CHOICE = [
 
 
 # PARTICLE_COLORS_CHOICE = ["#FC6499", "#6BCEEE", "#87D7D7"]
-ALPHA = 0.8
+ALPHA = 0.65

@@ -64,3 +64,13 @@ class BallProcess(ParticleProcess):
         )
         logging.info(f"{datetime.now()} :Circles distance computation end.")
         return distance_matrix
+
+    def _plot_particles(self, ax, fig):
+        for particle in self.particles:
+            facecolor, alpha = self._choose_face_color()
+            edgecolor = self._choose_edge_color()
+            particle.grain.plot_2d(
+                ax, facecolor=facecolor, linestyle="-", alpha=alpha, linewidth=1, edgecolor=edgecolor,
+                # alpha=0.5,
+            )
+

@@ -338,3 +338,26 @@ class SegmentProcess(ParticleProcess):
             start_point_1=start_point_1, end_point_1=end_point_1, start_point_2=start_point_2, end_point_2=end_point_2
         )
 
+    def _plot_particles(self, ax, fig):
+        if self.space_dimension == 3:
+            ax = fig.add_subplot(111, projection='3d')
+        for particle in self.particles:
+            # col, alpha = self._choose_face_color()
+            if particle.mark is not None:
+                if particle.mark.mark_value == 0:
+                    col, alpha = "#003271", 1
+                elif particle.mark.mark_value == 1:
+                    col, alpha = "#FEC500", 1
+            else:
+                col, alpha = np.random.choice(const.PARTICLE_COLORS_CHOICE), 1
+            # alpha = Vector(particle.grain.start_point).norm() / np.sqrt(2)
+            if self.space_dimension == 2:
+                particle.grain.vector.plot_2d(
+                    ax_2d=ax, point=particle.grain.start_point, head_width=0,
+                    edgecolor=col, alpha=alpha
+                )
+            elif self.space_dimension == 3:
+                particle.grain.vector.plot_3d(
+                    ax_3d=ax, point=particle.grain.start_point,
+                    #  edgecolor=col, alpha=alpha
+                )
