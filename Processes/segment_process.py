@@ -14,10 +14,13 @@ import utils.const as const
 
 class SegmentProcess(ParticleProcess):
 
-    def __init__(self, germ_intensity: float, particles: List[Particle], space_dimension: int = 2):
+    def __init__(
+            self, germ_intensity: float, particles: List[Particle], marked: bool = False, space_dimension: int = 2
+    ):
         logging.info(f"{datetime.now()} Segment process init start.")
         super().__init__(
-            germ_intensity=germ_intensity, grain_type="segment", particles=particles, space_dimension=space_dimension
+            germ_intensity=germ_intensity, grain_type="segment", particles=particles, space_dimension=space_dimension,
+            marked=marked
         )
         logging.info(f"{datetime.now()} Segment process angles matrix computation start.")
         self.angles_matrix = self._compute_the_angles_matrix()
@@ -33,7 +36,7 @@ class SegmentProcess(ParticleProcess):
         )
         return angles_matrix
 
-    def _compute_the_shared_corresponding_measure_matrix(self):
+    def _compute_the_pairwise_shared_measure_matrix(self):
         # TODO this generally doesn't hold for segments on the same line - fix
         logging.info(f"{datetime.now()} :Segments shared measure matrix computation start.")
         shared_measure_matrix = self.particles_intersection_matrix
@@ -99,31 +102,31 @@ class SegmentProcess(ParticleProcess):
         # TODO this is a slow performance part for some reason - fix this
         possible_distances = np.array([
             self._segments_vectorized_pairwise_distance(
-                np.clip(solution[..., 0], 0, 1).T, np.clip(solution[..., 1], 0, 1).T, start_points_pre, end_points_pre
+                np.clip(solution[..., 0], 0, 1), np.clip(solution[..., 1], 0, 1), start_points_pre, end_points_pre
             ),
             self._segments_vectorized_pairwise_distance(
-                np.clip(alpha_0_solution[..., 0], 0, 1), np.clip(alpha_0_solution[..., 1], 0, 1), start_points_pre, end_points_pre
+                np.clip(alpha_0_solution[..., 0], 0, 1).T, np.clip(alpha_0_solution[..., 1], 0, 1).T, start_points_pre, end_points_pre
             ),
             self._segments_vectorized_pairwise_distance(
-                np.clip(alpha_1_solution[..., 0], 0, 1), np.clip(alpha_1_solution[..., 1], 0, 1), start_points_pre, end_points_pre
+                np.clip(alpha_1_solution[..., 0], 0, 1).T, np.clip(alpha_1_solution[..., 1], 0, 1).T, start_points_pre, end_points_pre
             ),
             self._segments_vectorized_pairwise_distance(
-                np.clip(beta_0_solution[..., 0], 0, 1), np.clip(beta_0_solution[..., 1], 0, 1), start_points_pre, end_points_pre
+                np.clip(beta_0_solution[..., 0], 0, 1).T, np.clip(beta_0_solution[..., 1], 0, 1).T, start_points_pre, end_points_pre
             ),
             self._segments_vectorized_pairwise_distance(
-                np.clip(beta_1_solution[..., 0], 0, 1), np.clip(beta_1_solution[..., 1], 0, 1), start_points_pre, end_points_pre
+                np.clip(beta_1_solution[..., 0], 0, 1).T, np.clip(beta_1_solution[..., 1], 0, 1).T, start_points_pre, end_points_pre
             ),
             self._segments_vectorized_pairwise_distance(
-                np.clip(alpha_0_beta_0[..., 0], 0, 1), np.clip(alpha_0_beta_0[..., 1], 0, 1), start_points_pre, end_points_pre
+                np.clip(alpha_0_beta_0[..., 0], 0, 1).T, np.clip(alpha_0_beta_0[..., 1], 0, 1).T, start_points_pre, end_points_pre
             ),
             self._segments_vectorized_pairwise_distance(
-                np.clip(alpha_0_beta_1[..., 0], 0, 1), np.clip(alpha_0_beta_1[..., 1], 0, 1), start_points_pre, end_points_pre
+                np.clip(alpha_0_beta_1[..., 0], 0, 1).T, np.clip(alpha_0_beta_1[..., 1], 0, 1).T, start_points_pre, end_points_pre
             ),
             self._segments_vectorized_pairwise_distance(
-                np.clip(alpha_1_beta_0[..., 0], 0, 1), np.clip(alpha_1_beta_0[..., 1], 0, 1), start_points_pre, end_points_pre
+                np.clip(alpha_1_beta_0[..., 0], 0, 1).T, np.clip(alpha_1_beta_0[..., 1], 0, 1).T, start_points_pre, end_points_pre
             ),
             self._segments_vectorized_pairwise_distance(
-                np.clip(alpha_1_beta_1[..., 0], 0, 1), np.clip(alpha_1_beta_1[..., 1], 0, 1), start_points_pre, end_points_pre
+                np.clip(alpha_1_beta_1[..., 0], 0, 1).T, np.clip(alpha_1_beta_1[..., 1], 0, 1).T, start_points_pre, end_points_pre
             ),
         ]).T
         logging.info(f"{datetime.now()} DISTANCE - Possible distances computation end.")
@@ -137,11 +140,11 @@ class SegmentProcess(ParticleProcess):
     def _segments_vectorized_pairwise_distance(alpha, beta, start_points, end_points):
         alpha = alpha[..., None]
         beta = beta[..., None]
-        left = alpha * start_points[:, None, None, :] + (1 - alpha) * end_points[:, None, None, :]
-        right = beta * start_points[None, :, None, :] + (1 - beta) * end_points[None, :, None, :]
+        left = alpha * start_points[:, None, :] + (1 - alpha) * end_points[:, None, :]
+        right = beta * start_points[None, :, :] + (1 - beta) * end_points[None, :, :]
         res = left - right
-        final = np.sqrt(np.power(res, 2).sum(axis=-1)).min(axis=-1)
-        return final
+        final = np.sqrt(np.power(res, 2).sum(axis=-1))
+        return final.T
 
     @staticmethod
     def _return_convex_combination(start_point: Point, end_point: Point, alpha: float):
@@ -154,9 +157,11 @@ class SegmentProcess(ParticleProcess):
             # col, alpha = self._choose_face_color()
             if particle.mark is not None:
                 if particle.mark.mark_value == 0:
-                    col, alpha = "#003271", 1
+                    col, alpha = "#0075C2", 1
                 elif particle.mark.mark_value == 1:
-                    col, alpha = "#FEC500", 1
+                    col, alpha = "#F87203", 1
+                else:
+                    col, alpha = np.random.choice(const.PARTICLE_COLORS_CHOICE), 1
             else:
                 col, alpha = np.random.choice(const.PARTICLE_COLORS_CHOICE), 1
             # alpha = Vector(particle.grain.start_point).norm() / np.sqrt(2)
@@ -170,3 +175,8 @@ class SegmentProcess(ParticleProcess):
                     ax_3d=ax, point=particle.grain.start_point,
                     #  edgecolor=col, alpha=alpha
                 )
+
+    def _compute_the_particles_measure(self):
+        vectors = np.array([p.grain.end_point - p.grain.start_point for p in self.particles])
+        lengths = self._norm(vectors)
+        return lengths

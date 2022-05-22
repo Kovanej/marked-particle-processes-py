@@ -65,10 +65,10 @@ class PoissonPointProcess(PointProcess):
         _number_of_points = np.random.poisson(
             lam=self.intensity * (self.window_edge_end_point - self.window_edge_start_point) ** self.space_dimension
         )
-        _pts = [
+        _pts = np.array([
             [np.random.random_sample() * (
                     self.window_edge_end_point - self.window_edge_start_point
             ) + self.window_edge_start_point for _ in range(self.space_dimension)] for _ in range(_number_of_points)
-        ]
+        ]).astype(np.float32)
         return Points(_pts)
 

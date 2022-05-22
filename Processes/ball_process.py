@@ -16,10 +16,13 @@ import utils.const as const
 # TODO extend ball processes to in R^d, current state is for d = 2
 class BallProcess(ParticleProcess):
 
-    def __init__(self, germ_intensity: float, particles: List[Particle]):
-        super().__init__(germ_intensity=germ_intensity, grain_type="ball", particles=particles, space_dimension=2)
+    def __init__(self, germ_intensity: float, particles: List[Particle], marked: bool = False):
+        self.radii_array = np.array([p.grain.radius for p in particles])
+        super().__init__(
+            germ_intensity=germ_intensity, grain_type="ball", particles=particles, space_dimension=2, marked=marked
+        )
 
-    def _compute_the_shared_corresponding_measure_matrix(self):
+    def _compute_the_pairwise_shared_measure_matrix(self):
         # TODO subtract the area of circles outside the observational window
         # TODO vectorize
         logging.info(f"{datetime.now()} :Circles shared measure matrix computation start.")
@@ -73,4 +76,9 @@ class BallProcess(ParticleProcess):
                 ax, facecolor=facecolor, linestyle="-", alpha=alpha, linewidth=1, edgecolor=edgecolor,
                 # alpha=0.5,
             )
+
+    def _compute_the_particles_measure(self):
+        # TODO currently for R^2 - improve with general formula later
+        areas = (self.radii_array ** 2) * np.pi
+        return areas
 
