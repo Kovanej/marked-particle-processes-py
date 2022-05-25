@@ -14,7 +14,7 @@ import utils.const as const
 logging.basicConfig(filename='example.log', filemode='w', level=logging.INFO)
 
 NO_OF_CIRCLES = 300
-NO_OF_INSIDE_CIRCLES = 12
+NO_OF_INSIDE_CIRCLES = 15
 
 RANDOM_CENTERS = [
     (np.random.random_sample(), np.random.random_sample())
@@ -44,18 +44,27 @@ RANDOM_CENTERS = [
 
 os.chdir("../")
 
-EPICENTER_COUNT = 100
+EPICENTER_COUNT = 10
 
+# CENTERS_AND_RADII_LISTS = [[
+#     (Point([np.random.random_sample() ** k, 1 - np.random.random_sample() ** k]), 1 / (2 + np.sqrt(np.random.random_sample() + dv))),
+#     (Point([np.random.random_sample() ** k, np.random.random_sample() ** k]), 1 / (2 + np.sqrt(np.random.random_sample() + dv))),
+#     (Point([1 - np.random.random_sample() ** k, 1 - np.random.random_sample() ** k]), 1 / (2 + np.sqrt(np.random.random_sample() + dv))),
+#     (Point([1 - np.random.random_sample() ** k, np.random.random_sample() ** k]), 1 / (2 + np.sqrt(np.random.random_sample() + dv))),
+#     (Point([np.random.random_sample(), 1 - 1/k]), 1 / (2 + np.sqrt(np.random.random_sample() + dv))),
+#     (Point([np.random.random_sample(), 1/k]), 1 / (2 + np.sqrt(np.random.random_sample() + dv))),
+#     (Point([1 - 1/k, np.random.random_sample()]), 1 / (2 + np.sqrt(np.random.random_sample() + dv))),
+#     (Point([1/k, np.random.random_sample()]), 1 / (2 + np.sqrt(np.random.random_sample() + dv))),
+# ] for dv in range(1, NO_OF_INSIDE_CIRCLES) for k in range(1, EPICENTER_COUNT)]
+# CENTERS_AND_RADII = [c_r for inside_list in CENTERS_AND_RADII_LISTS for c_r in inside_list]
+
+
+NO_OF_INSIDE_CIRCLES = 100
 CENTERS_AND_RADII_LISTS = [[
-    (Point([1/np.sqrt(k), 1 - 1/np.sqrt(k)]), 1 / (2 * k * np.sqrt(dv))),
-    (Point([1/np.sqrt(k), 1/np.sqrt(k)]), 1 / (2 * k * np.sqrt(dv))),
-    (Point([1 - 1/np.sqrt(k), 1 - 1/np.sqrt(k)]), 1 / (2 * k * np.sqrt(dv))),
-    (Point([1 - 1/np.sqrt(k), 1/np.sqrt(k)]), 1 / (2 * k * np.sqrt(dv))),
-    # (Point([1/2, 1 - 1/k]), 1 / (k * np.sqrt(dv))),
-    # (Point([1/2, 1/k]), 1 / (k * np.sqrt(dv))),
-    # (Point([1 - 1/k, 1/2]), 1 / (k * np.sqrt(dv))),
-    # (Point([1/k, 1/2]), 1 / (k * np.sqrt(dv))),
-] for dv in range(1, NO_OF_INSIDE_CIRCLES) for k in range(1, EPICENTER_COUNT)]
+    (Point([0, 0]), np.sqrt(2) / np.power(dv, 1/5)),
+    (Point([1, 1]), np.sqrt(2) / np.power(dv, 1/5))
+] for dv in range(1, NO_OF_INSIDE_CIRCLES)
+]  # for k in range(1, EPICENTER_COUNT)]
 CENTERS_AND_RADII = [c_r for inside_list in CENTERS_AND_RADII_LISTS for c_r in inside_list]
 
 particles = [
@@ -69,10 +78,10 @@ particles = [
 ]
 
 ball_process_test = BallProcess(
-    particles=particles, germ_intensity=len(CENTERS_AND_RADII)
+    particles=particles, germ_intensity=len(CENTERS_AND_RADII), marked=True
 )
 ball_process_test.plot_itself()
 
-# ball_process_test.compute_the_f_mark_characteristics()
+# test_process.compute_the_f_mark_characteristics()
 
 a=1

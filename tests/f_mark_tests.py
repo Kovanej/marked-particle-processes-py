@@ -18,11 +18,11 @@ import utils.const as const
 os.chdir("../")
 
 
-TESTED_GRAIN_TYPE = "segment"
-TESTED_INTENSITY = 300
-MAX_SEGMENT_LENGTH = 0.4
+TESTED_GRAIN_TYPE = "ball"
+TESTED_INTENSITY = 10
+MAX_SEGMENT_LENGTH = 0.3
 MIN_SEGMENT_LENGTH = 0.1
-MAX_CIRC_RAD = 0.1
+MAX_CIRC_RAD = 0.15
 MIN_CIRC_RAD = 0.05
 
 
@@ -118,6 +118,9 @@ else:
 particle_process_null_model.compute_the_f_mark_characteristics()
 particle_process_non_null_model.compute_the_f_mark_characteristics()
 
+particle_process_null_model.perform_the_permutation_test_for_f_mark_characteristics()
+particle_process_non_null_model.perform_the_permutation_test_for_f_mark_characteristics()
+
 particle_process_null_model.plot_itself()
 particle_process_non_null_model.plot_itself()
 
@@ -126,6 +129,11 @@ brkpnt = "breakpoint here"
 print(f"NULL MODEL VALUES:")
 for _, __ in particle_process_null_model.f_mark_statistics.items():
     print(_, __)
-print(f"NON-NULL MODEL VALUES:")
-for _, __ in particle_process_non_null_model.f_mark_statistics.items():
+
+print(f"NULL MODEL QUANTILES:")
+for _, __ in particle_process_null_model.f_mark_statistics_quantiles.items():
+    print(_, __)
+
+print(f"NON-NULL MODEL QUANTILES:")
+for _, __ in particle_process_non_null_model.f_mark_statistics_quantiles.items():
     print(_, __)

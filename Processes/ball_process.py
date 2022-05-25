@@ -70,7 +70,7 @@ class BallProcess(ParticleProcess):
 
     def _plot_particles(self, ax, fig):
         for particle in self.particles:
-            facecolor, alpha = self._choose_face_color()
+            facecolor, alpha = self._choose_face_color(particle=particle)
             edgecolor = self._choose_edge_color()
             particle.grain.plot_2d(
                 ax, facecolor=facecolor, linestyle="-", alpha=alpha, linewidth=1, edgecolor=edgecolor,

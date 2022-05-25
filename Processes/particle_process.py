@@ -35,6 +35,8 @@ class ParticleProcess(object):
             self.marks = np.array([p.mark.mark_value for p in self.particles])
             self.marks_product = self.marks[..., None] * self.marks[None, ...]
             self.marks_square = (self.marks[..., None] - self.marks[None, ...]) ** 2 / 2
+            self.max_mark = np.amax(self.marks)
+            self.min_mark = np.amin(self.marks)
         self.particle_measure = self._compute_the_particles_measure()
         # compute the grains distance
         self.germs_distance_matrix = self._compute_the_germs_distance_matrix()
@@ -48,6 +50,10 @@ class ParticleProcess(object):
         # if needed following attributes are computed via executing ParticleProcess.compute_f_mark_statistics
         self.f_mark_normalization_constants: Dict[str, float] = {}
         self.f_mark_statistics: Dict[Tuple[str, str], float] = {}
+        self.f_mark_statistics_permutations: Dict[Tuple[str, str], np.array] = {
+            (f_type, weight_type): np.array([]) for (f_type, weight_type) in const.F_MARK_COMBINATIONS
+        }
+        self.f_mark_statistics_quantiles: Dict[Tuple[str, str], float] = {}
 
     @staticmethod
     def _dot_pairwise(a, b):
@@ -88,66 +94,114 @@ class ParticleProcess(object):
                 f_type=f_type, weight_type=weight_type
             )
 
-    def _compute_the_f_mark_statistic(self, f_type: str, weight_type: str):
+    def perform_the_permutation_test_for_f_mark_characteristics(self):
+        for _ in range(const.PERMUTATION_TEST_REPEAT_COUNT):
+            permutation = np.random.permutation(self.number_of_particles)
+            marks_permuted = self.marks[permutation]
+            for (f_type, weight_type) in const.F_MARK_COMBINATIONS:
+                val = self._compute_the_f_mark_statistic(
+                        f_type=f_type, weight_type=weight_type, marks_vector=marks_permuted
+                    )
+                self.f_mark_statistics_permutations[f_type, weight_type] = np.append(
+                    self.f_mark_statistics_permutations[f_type, weight_type], val
+                )
+        for (f_type, weight_type) in const.F_MARK_COMBINATIONS:
+            self.f_mark_statistics_quantiles[f_type, weight_type] = np.where(
+                self.f_mark_statistics_permutations[f_type, weight_type] >= self.f_mark_statistics[f_type, weight_type],
+                0, 1
+            ).mean()
+
+    def _compute_the_f_mark_statistic(self, f_type: str, weight_type: str, marks_vector: Optional[np.array] = None):
         f_mark_statistic = {
-            ("product", "intersection"): self._compute_the_f_mark_intersection_correlation(f_type=f_type),
-            ("product", "shared_area"): self._compute_the_f_mark_shared_area_correlation(f_type=f_type),
-            ("square", "intersection"): self._compute_the_f_mark_intersection_correlation(f_type=f_type),
-            ("square", "shared_area"): self._compute_the_f_mark_shared_area_correlation(f_type=f_type),
-            ("first_mark", "intersection"): self._compute_the_f_mark_intersection_correlation(f_type=f_type),
-            ("first_mark", "shared_area"): self._compute_the_f_mark_shared_area_correlation(f_type=f_type),
+            ("product", "intersection"): self._compute_the_f_mark_intersection_correlation(
+                f_type=f_type, marks_vector=marks_vector
+            ),
+            ("product", "shared_area"): self._compute_the_f_mark_shared_area_correlation(
+                f_type=f_type, marks_vector=marks_vector
+            ),
+            ("square", "intersection"): self._compute_the_f_mark_intersection_correlation(
+                f_type=f_type, marks_vector=marks_vector
+            ),
+            ("square", "shared_area"): self._compute_the_f_mark_shared_area_correlation(
+                f_type=f_type, marks_vector=marks_vector
+            ),
+            ("first_mark", "intersection"): self._compute_the_f_mark_intersection_correlation(
+                f_type=f_type, marks_vector=marks_vector
+            ),
+            ("first_mark", "shared_area"): self._compute_the_f_mark_shared_area_correlation(
+                f_type=f_type, marks_vector=marks_vector
+            )
         }.get((f_type, weight_type))
         return f_mark_statistic
 
-    def _compute_the_f_mark_shared_area_correlation(self, f_type: str):
+    def _compute_the_f_mark_shared_area_correlation(self, f_type: str, marks_vector: Optional[np.array] = None):
         # since we are working on a [0, 1]^d window -> not normed by its Lebesgue measure, since it is 1 (je to jedno)
         shared_area_zero_diagonal = self.pairwise_shared_measure_matrix.copy()
         np.fill_diagonal(shared_area_zero_diagonal, 0)
+        if marks_vector is None:
+            marks_vector = self.marks
+            marks_product = self.marks_product
+            marks_square = self.marks_square
+        else:
+            marks_product = marks_vector[..., None] * marks_vector[None, ...]
+            marks_square = (marks_vector[..., None] - marks_vector[None, ...]) ** 2 / 2
         if f_type == "product":
-            f_shared_nn = (self.marks_product * shared_area_zero_diagonal).sum() / 2
+            f_shared_nn = (marks_product * shared_area_zero_diagonal).sum()
             norm_by = self.f_mark_normalization_constants[f_type] * (self.germ_intensity ** 2)
         elif f_type == "square":
-            f_shared_nn = (self.marks_square * shared_area_zero_diagonal).sum() / 2
+            f_shared_nn = (marks_square * shared_area_zero_diagonal).sum()
             norm_by = self.f_mark_normalization_constants[f_type] * (self.germ_intensity ** 2)
         elif f_type == "first_mark":
+            # TODO in my opinion we should not use the np.triu-ed matrix, only the zero-diagonal one
             shared_area_zero_on_and_under_diagonal = np.triu(shared_area_zero_diagonal)
-            f_shared_nn = (self.marks * shared_area_zero_on_and_under_diagonal).sum()
+            f_shared_nn = (marks_vector * shared_area_zero_diagonal).sum()
             norm_by = self.f_mark_normalization_constants[f_type] * (self.germ_intensity ** 2)
         else:
             raise NotImplementedError(f"f-mark shared area correlation cannot be obtained for unknown f_type={f_type}")
-        return f_shared_nn / norm_by
+        # TODO for testing right now returning non-normed values
+        # return f_shared_nn / norm_by
+        return f_shared_nn
 
-    def _compute_the_f_mark_intersection_correlation(self, f_type: str):
+    def _compute_the_f_mark_intersection_correlation(self, f_type: str, marks_vector: Optional[np.array] = None):
         # since we are working on a [0, 1]^d window -> not normed by its Lebesgue measure, since it is 1 (je to jedno)
         intersection_zero_diagonal = self.particles_intersection_matrix.copy()
         np.fill_diagonal(intersection_zero_diagonal, 0)
+        if marks_vector is None:
+            marks_vector = self.marks
+            marks_product = self.marks_product
+            marks_square = self.marks_square
+        else:
+            marks_product = marks_vector[..., None] * marks_vector[None, ...]
+            marks_square = (marks_vector[..., None] - marks_vector[None, ...]) ** 2 / 2
         if f_type == "product":
-            f_intersection_nn = (self.marks_product * intersection_zero_diagonal).sum() / 2
+            f_intersection_nn = (marks_product * intersection_zero_diagonal).sum()
             norm_by = self.f_mark_normalization_constants[f_type] * (self.germ_intensity ** 2)
         elif f_type == "square":
-            f_intersection_nn = (self.marks_square * intersection_zero_diagonal).sum() / 2
+            f_intersection_nn = (marks_square * intersection_zero_diagonal).sum()
             norm_by = self.f_mark_normalization_constants[f_type] * (self.germ_intensity ** 2)
         elif f_type == "first_mark":
+            # TODO in my opinion we should not use the np.triu-ed matrix, only the zero-diagonal
             intersection_zero_on_and_under_diagonal = np.triu(intersection_zero_diagonal)
-            f_intersection_nn = (self.marks * intersection_zero_on_and_under_diagonal).sum()
+            f_intersection_nn = (marks_vector * intersection_zero_diagonal).sum()
             norm_by = (self.f_mark_normalization_constants[f_type]) * (self.germ_intensity ** 2)
         else:
             raise NotImplementedError(f"f-mark intersection correlation cannot be obtained for unknown f_type={f_type}")
         self.f_intersection_nn = f_intersection_nn
-        return f_intersection_nn / norm_by
+        # TODO for testing right now returning non-normed values
+        # return f_intersection_nn / norm_by
+        return f_intersection_nn
 
     def _compute_the_f_mark_normalization_constants(self, f_type: str):
-        # estimate the E[f(M_i, M_j)] - evaluate it on each pair of n points and divide by (n choose 2)
-        pairs_count = (self.number_of_particles * (self.number_of_particles - 1)) / 2
+        n_times_n_minus_one = (self.number_of_particles * (self.number_of_particles - 1))
         if f_type == "product":
             marks_product_zero_diagonal = self.marks_product.copy()
             np.fill_diagonal(marks_product_zero_diagonal, 0)
-            c_f_nn = marks_product_zero_diagonal.sum() / 2
-            c_f = c_f_nn / pairs_count
+            c_f_nn = marks_product_zero_diagonal.sum()
+            c_f = c_f_nn / n_times_n_minus_one
         elif f_type == "square":
             # zero_diagonal by default - no need to "hardcode"
-            c_f_nn = self.marks_square.sum() / 2
-            c_f = c_f_nn / pairs_count
+            c_f_nn = self.marks_square.sum()
+            c_f = c_f_nn / n_times_n_minus_one
         elif f_type == "first_mark":
             c_f_nn = self.marks.sum()
             c_f = c_f_nn / self.number_of_particles
@@ -178,14 +232,14 @@ class ParticleProcess(object):
         )
 
     def _choose_edge_color(self):
-        return "#ffffff"
-        # return np.random.choice([
-        #         "#F9EFB4", "#F4BE9A", "#BA6191", "#40008C", "#000032"
-        #     ])
+        return "#000000"
+        # return np.random.choice(const.PARTICLE_COLORS_CHOICE)
 
     def _choose_face_color(self, particle=None):
-        # TODO later adjust for marks
-        alpha = const.ALPHA
+        if particle.mark is not None:
+            alpha = (particle.mark.mark_value - self.min_mark + 1) / (1 + self.max_mark)
+        else:
+            alpha = const.ALPHA
         col = np.random.choice(const.PARTICLE_COLORS_CHOICE)
         return col, alpha
 
