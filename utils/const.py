@@ -26,8 +26,7 @@ F_MARK_TYPES = [
     "product", "square", "first_mark",
 ]
 WEIGHT_TYPES = [
-    "intersection", "shared_area",
-    # "distance"
+    "intersection", "shared_area", "distance"
 ]
 
 F_MARK_COMBINATIONS = [
