@@ -161,7 +161,7 @@ class SegmentProcess(ParticleProcess):
                 elif particle.mark.mark_value == 1:
                     col, alpha = "#F87203", 1
                 else:
-                    col, alpha = np.random.choice(const.PARTICLE_COLORS_CHOICE), 1
+                    col, alpha = self._choose_face_color(particle=particle)
             else:
                 col, alpha = np.random.choice(const.PARTICLE_COLORS_CHOICE), 1
             # alpha = Vector(particle.grain.start_point).norm() / np.sqrt(2)

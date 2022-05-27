@@ -104,8 +104,13 @@ class ParticleProcess(object):
             permutation = np.random.permutation(self.number_of_particles)
             marks_permuted = self.marks[permutation]
             for (f_type, weight_type) in const.F_MARK_COMBINATIONS:
-                val = self._compute_the_f_mark_statistic(
-                        f_type=f_type, weight_type=weight_type, marks_vector=marks_permuted
+                weight_matrix = {
+                    "intersection": self.particles_intersection_matrix,
+                    "shared_area": self.pairwise_shared_measure_matrix,
+                    "distance": self.particles_distance_matrix
+                }.get(weight_type)
+                val = self._compute_the_f_mark_correlation(
+                        f_type=f_type, weight_matrix=weight_matrix, marks_vector=marks_permuted
                     )
                 self.f_mark_statistics_permutations[f_type, weight_type] = np.append(
                     self.f_mark_statistics_permutations[f_type, weight_type], val
@@ -192,7 +197,7 @@ class ParticleProcess(object):
 
     def _choose_face_color(self, particle=None):
         if particle.mark is not None:
-            alpha = (particle.mark.mark_value - self.min_mark + 1) / (1 + self.max_mark)
+            alpha = (1 + particle.mark.mark_value - self.min_mark) / (1 + self.max_mark - self.min_mark)
         else:
             alpha = const.ALPHA
         col = np.random.choice(const.PARTICLE_COLORS_CHOICE)
