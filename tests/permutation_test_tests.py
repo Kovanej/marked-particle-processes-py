@@ -18,7 +18,7 @@ import utils.const as const
 os.chdir("../")
 
 
-TESTED_GRAIN_TYPE = "segment"
+TESTED_GRAIN_TYPE = "ball"
 TESTED_INTENSITY = 10
 MAX_SEGMENT_LENGTH = 0.3
 MIN_SEGMENT_LENGTH = 0.1
@@ -28,7 +28,7 @@ MIN_CIRC_RAD = 0.05
 CENTERS_AND_RADII_LISTS = [[
     (Point([1 / 4, 1 / 2]), 1 / 4),
     (Point([2 / 4, 1 / 2]), 1 / 4),
-    (Point([3 / 4, 1 / 2]), 1 / 4),
+    (Point([1, 1 / 2]), 1 / 4),
 ]
 
 ]  # for k in range(1, EPICENTER_COUNT)]
@@ -40,6 +40,9 @@ START_AND_END_POINTS = [
     (Point([0, 10]), Point([0, 15])),
 ]
 SEGMENT_MARKS = [
+    1, 3, 2
+]
+MARKS_BALLS = [
     1, 2, 3
 ]
 
@@ -50,12 +53,12 @@ if TESTED_GRAIN_TYPE == "ball":
 
     particles = [
         Particle(
-            germ=center,
+            germ=CENTERS_AND_RADII[k][0],
             grain_type="ball",
-            grain=Circle(point=center, radius=radius),
-            mark=Mark(mark_type="continuous", mark_value=center[0])
+            grain=Circle(point=CENTERS_AND_RADII[k][0], radius=CENTERS_AND_RADII[k][1]),
+            mark=Mark(mark_type="continuous", mark_value=MARKS_BALLS[k])
         )
-        for center, radius in CENTERS_AND_RADII
+        for k in range(len(CENTERS_AND_RADII))
     ]
 
     test_process = BallProcess(
@@ -83,5 +86,7 @@ test_process.plot_itself()
 test_process.compute_the_f_mark_characteristics()
 
 test_process.perform_the_permutation_test_for_f_mark_characteristics()
+
+print(f"{test_process.f_mark_statistics_quantiles}")
 
 brkpnt = "breakpoint here"

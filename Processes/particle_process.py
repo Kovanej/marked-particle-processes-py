@@ -107,7 +107,7 @@ class ParticleProcess(object):
                 )
         for (f_type, weight_type) in const.F_MARK_COMBINATIONS:
             self.f_mark_statistics_quantiles[f_type, weight_type] = np.where(
-                self.f_mark_statistics_permutations[f_type, weight_type] >= self.f_mark_statistics[f_type, weight_type],
+                self.f_mark_statistics[f_type, weight_type] <= self.f_mark_statistics_permutations[f_type, weight_type],
                 0, 1
             ).mean()
 
