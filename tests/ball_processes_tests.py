@@ -82,6 +82,6 @@ ball_process_test = BallProcess(
 )
 ball_process_test.plot_itself()
 
-# test_process.compute_the_f_mark_characteristics()
+ball_process_test.compute_the_f_mark_characteristics()
 
-a=1
+print(f"{ball_process_test.f_mark_statistics}")

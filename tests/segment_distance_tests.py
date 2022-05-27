@@ -6,6 +6,7 @@ from skspatial.objects import Point
 
 from Geometry.grain import Grain, Segment
 from Plotting.plotting import plot_the_grains
+from Processes.markings import Mark
 from Geometry.particle import Particle
 from Processes.segment_process import SegmentProcess
 
@@ -47,8 +48,7 @@ START_AND_END_POINTS = [
 
 MAX_SEGMENT_LENGTH_TEST = 0.4
 MIN_SEGMENT_LENGTH_TEST = 0.1
-NO_OF_SEGMENTS = 1000
-
+NO_OF_SEGMENTS = 100
 
 # particles = [
 #         Particle(
@@ -61,35 +61,49 @@ NO_OF_SEGMENTS = 1000
 #         ) for point in START_AND_END_POINTS
 #     ]
 
+ANGLE_DEPENDENCY_WEIGHT = 0
+
 angles = [
     np.pi * np.random.random_sample() for _ in range(NO_OF_SEGMENTS)
 ]
 lengths = [
-    (MIN_SEGMENT_LENGTH_TEST + (MAX_SEGMENT_LENGTH_TEST - MIN_SEGMENT_LENGTH_TEST) * np.random.random_sample()) *
-    (np.pi - angles[_]) for _ in range(NO_OF_SEGMENTS)
+    MIN_SEGMENT_LENGTH_TEST + np.random.random_sample() * (MAX_SEGMENT_LENGTH_TEST - MIN_SEGMENT_LENGTH_TEST)
+    for _ in range(NO_OF_SEGMENTS)
 ]
 start_points = [
-    Point([np.random.random_sample(), np.random.random_sample()]) for _ in range(NO_OF_SEGMENTS)
+    Point(
+        [np.random.random_sample() - np.cos(angles[_]) * lengths[_] / 2,
+         np.random.random_sample() - np.sin(angles[_]) * lengths[_] / 2]
+    )
+    for _ in range(NO_OF_SEGMENTS)
+]
+marks = [
+    ANGLE_DEPENDENCY_WEIGHT * angles[k] + (1 - ANGLE_DEPENDENCY_WEIGHT) * np.random.random_sample()
+    for k in range(NO_OF_SEGMENTS)
 ]
 
 particles = [
     Particle(
         grain_type="segment",
-        germ=start_points[k] + [np.cos(angles[k]) * lengths[k], np.sin(angles[k]) * lengths[k]],
+        germ=start_points[k],
         grain=Segment(
-            start_point=Point([np.random.random_sample(), np.random.random_sample()]),
+            start_point=start_points[k],
             angle=angles[k],
             length=lengths[k]
-        )
+        ),
+        mark=Mark(mark_type="continuous", mark_value=marks[k])
     )
     for k in range(NO_OF_SEGMENTS)
 ]
 
 particle_process = SegmentProcess(
-    particles=particles, germ_intensity=NO_OF_SEGMENTS, space_dimension=len(START_AND_END_POINTS[0][0])
+    particles=particles, germ_intensity=NO_OF_SEGMENTS, space_dimension=len(START_AND_END_POINTS[0][0]), marked=True
 )
 particle_process.plot_itself()
 # comparison = particle_process.particles_distance_matrix == particle_process.particles_distance_matrix_vectorized
 # equal_arrays = comparison.all()
 # print(equal_arrays)
-a=1
+particle_process.compute_the_f_mark_characteristics()
+particle_process.perform_the_permutation_test_for_f_mark_characteristics()
+print(f"{particle_process.f_mark_statistics}")
+print(f"{particle_process.f_mark_statistics_quantiles}")

@@ -18,7 +18,7 @@ import utils.const as const
 os.chdir("../")
 
 
-TESTED_GRAIN_TYPE = "ball"
+TESTED_GRAIN_TYPE = "segment"
 TESTED_INTENSITY = 10
 MAX_SEGMENT_LENGTH = 0.3
 MIN_SEGMENT_LENGTH = 0.1
@@ -85,8 +85,9 @@ test_process.plot_itself()
 
 test_process.compute_the_f_mark_characteristics()
 
-test_process.perform_the_permutation_test_for_f_mark_characteristics()
+# test_process.perform_the_permutation_test_for_f_mark_characteristics()
 
-print(f"{test_process.f_mark_statistics_quantiles}")
+# print(f"{test_process.f_mark_statistics_quantiles}")
+print(f"{test_process.f_mark_statistics}")
 
 brkpnt = "breakpoint here"
