@@ -24,6 +24,7 @@ class ParticleProcess(object):
             marks_aposteriori_type: Optional[str] = None
     ):
         logging.info(f"Particle process class initialized.")
+        self.angles_matrix = None
         self.germ_intensity = germ_intensity
         self.particles = particles
         self.number_of_particles = len(self.particles)
