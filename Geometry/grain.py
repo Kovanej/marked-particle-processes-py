@@ -44,7 +44,7 @@ class Segment(Grain):
         if self.end_point is None:
             # assuming 2-dim for now
             x_1 = self.start_point[0] + self.length * np.cos(self.angle)
-            y_1 = self.start_point[0] + self.length * np.sin(self.angle)
+            y_1 = self.start_point[1] + self.length * np.sin(self.angle)
             self.end_point = Point(np.array([x_1, y_1]))
         if self.angle is None:
             _vector = Vector(self.end_point - self.start_point)
