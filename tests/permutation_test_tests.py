@@ -18,7 +18,7 @@ import utils.const as const
 os.chdir("../")
 
 
-TESTED_GRAIN_TYPE = "segment"
+TESTED_GRAIN_TYPE = "ball"
 # TESTED_INTENSITY = 10
 MAX_SEGMENT_LENGTH = 0.2
 MIN_SEGMENT_LENGTH = 0.1
@@ -58,6 +58,10 @@ ball_radii = [
     MIN_CIRC_RAD + (MAX_CIRC_RAD - MIN_CIRC_RAD) * np.random.random_sample()
     for _ in range(len(poisson_point_process.points))
 ]
+marks_ball_discrete = [
+    np.random.binomial(size=1, n=1, p=np.array(1/MAX_CIRC_RAD * ball_radii[k]))[0]
+    for k in range(len(poisson_point_process.points))
+]
 marks_null = np.random.binomial(size=len(poisson_point_process.points), n=1, p=0.5)
 marks_angles_beatles_discrete = [
     np.random.binomial(size=1, n=1, p=np.array(1/np.pi * segment_angles[k]))[0]
@@ -80,6 +84,35 @@ if TESTED_GRAIN_TYPE == "ball":
     test_process_null = BallProcess(
         particles=particles, germ_intensity=poisson_point_process.intensity, marked=True
     )
+
+    particles_radii_continuous = [
+        Particle(
+            germ=Point(poisson_point_process.points[k]),
+            grain_type="ball",
+            grain=Circle(point=Point(poisson_point_process.points[k]), radius=ball_radii[k]),
+            mark=Mark(mark_type="discrete", mark_value=ball_radii[k])
+        )
+        for k in range(len(poisson_point_process.points))
+    ]
+
+    test_process_radii_continuous = BallProcess(
+        particles=particles_radii_continuous, germ_intensity=poisson_point_process.intensity, marked=True
+    )
+
+    particles_radii_discrete = [
+        Particle(
+            germ=Point(poisson_point_process.points[k]),
+            grain_type="ball",
+            grain=Circle(point=Point(poisson_point_process.points[k]), radius=ball_radii[k]),
+            mark=Mark(mark_type="discrete", mark_value=marks_ball_discrete[k])
+        )
+        for k in range(len(poisson_point_process.points))
+    ]
+
+    test_process_radii_discrete = BallProcess(
+        particles=particles_radii_discrete, germ_intensity=poisson_point_process.intensity, marked=True
+    )
+
 elif TESTED_GRAIN_TYPE == "segment":
     particles = [
         Particle(
@@ -154,9 +187,24 @@ if TESTED_GRAIN_TYPE == "segment":
     test_process_angles_continuous.plot_itself()
     test_process_angles_continuous.compute_the_f_mark_characteristics()
     test_process_angles_continuous.perform_the_permutation_test_for_f_mark_characteristics()
-    print("---ANGLE MODEL DISCRETE---")
+    print("---ANGLE MODEL CONTINUOUS---")
     for _, __ in test_process_angles_continuous.f_mark_statistics.items():
         print(f"STATISTIC: {_}, VALUE: {__}, QUANTILE: {test_process_angles_continuous.f_mark_statistics_quantiles[_]}")
+
+if TESTED_GRAIN_TYPE == "ball":
+    test_process_radii_discrete.plot_itself()
+    test_process_radii_discrete.compute_the_f_mark_characteristics()
+    test_process_radii_discrete.perform_the_permutation_test_for_f_mark_characteristics()
+    print("---RADII MODEL DISCRETE---")
+    for _, __ in test_process_radii_discrete.f_mark_statistics.items():
+        print(f"STATISTIC: {_}, VALUE: {__}, QUANTILE: {test_process_radii_discrete.f_mark_statistics_quantiles[_]}")
+
+    test_process_radii_continuous.plot_itself()
+    test_process_radii_continuous.compute_the_f_mark_characteristics()
+    test_process_radii_continuous.perform_the_permutation_test_for_f_mark_characteristics()
+    print("---RADII MODEL CONTINUOUS---")
+    for _, __ in test_process_radii_continuous.f_mark_statistics.items():
+        print(f"STATISTIC: {_}, VALUE: {__}, QUANTILE: {test_process_radii_continuous.f_mark_statistics_quantiles[_]}")
 
 
 brkpnt = "breakpoint here"
