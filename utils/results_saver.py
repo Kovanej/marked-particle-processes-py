@@ -19,6 +19,7 @@ class ResultSaver(object):
             "Permutation Test Count": [],
             "Quantile": []
         }
+        self.results_df = None
 
     def save_the_results(
             self, model_name: str, grain_type: str, permutations_count: int, quantile_dict: Dict, value_dict: Dict,
@@ -35,9 +36,9 @@ class ResultSaver(object):
             self.result_dict["Quantile"].append(val)
 
     def save_to_pandas(self, save_csv: bool = const.SAVE_RESULTS_TO_CSV):
-        df = pd.DataFrame(self.result_dict)
+        self.results_df = pd.DataFrame(self.result_dict)
         dtm = str(dt.now()).replace(":", "-")
         if save_csv:
-            df.to_csv(f"results_{dtm}.csv", index=False)
+            self.results_df.to_csv(f"results_{dtm}.csv", index=False)
 
 

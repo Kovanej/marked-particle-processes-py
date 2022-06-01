@@ -75,7 +75,7 @@ def first_blood(number_of_seeds: int = 1):
             model_name="null model", value_dict=ball_process_null.f_mark_statistics,
             quantile_dict=ball_process_null.f_mark_statistics_quantiles,
             permutations_count=const.PERMUTATION_TEST_REPEAT_COUNT,
-            grain_type="ball"
+            grain_type="ball", seed=seed
         )
 
         particles_balls_radii_continuous = [
@@ -94,10 +94,10 @@ def first_blood(number_of_seeds: int = 1):
         ball_process_radii_continuous.compute_the_f_mark_characteristics()
         ball_process_radii_continuous.perform_the_permutation_test_for_f_mark_characteristics()
         result_saver.save_the_results(
-            model_name="mark=radii", value_dict=ball_process_radii_continuous.f_mark_statistics,
+            model_name="continuous radii", value_dict=ball_process_radii_continuous.f_mark_statistics,
             quantile_dict=ball_process_radii_continuous.f_mark_statistics_quantiles,
             permutations_count=const.PERMUTATION_TEST_REPEAT_COUNT,
-            grain_type="ball"
+            grain_type="ball", seed=seed
         )
 
         particles_balls_radii_discrete = [
@@ -116,10 +116,10 @@ def first_blood(number_of_seeds: int = 1):
         balls_process_radii_discrete.compute_the_f_mark_characteristics()
         balls_process_radii_discrete.perform_the_permutation_test_for_f_mark_characteristics()
         result_saver.save_the_results(
-            model_name="mark~alt(radius)", value_dict=balls_process_radii_discrete.f_mark_statistics,
+            model_name="discrete radius", value_dict=balls_process_radii_discrete.f_mark_statistics,
             quantile_dict=balls_process_radii_discrete.f_mark_statistics_quantiles,
             permutations_count=const.PERMUTATION_TEST_REPEAT_COUNT,
-            grain_type="ball"
+            grain_type="ball", seed=seed
         )
 
         # SEGMENTS PART
@@ -149,7 +149,7 @@ def first_blood(number_of_seeds: int = 1):
             model_name="null model", value_dict=segment_process_null.f_mark_statistics,
             quantile_dict=segment_process_null.f_mark_statistics_quantiles,
             permutations_count=const.PERMUTATION_TEST_REPEAT_COUNT,
-            grain_type="segment"
+            grain_type="segment", seed=seed
         )
 
         particles_segments_angle_discrete = [
@@ -173,10 +173,10 @@ def first_blood(number_of_seeds: int = 1):
         segment_process_angles_discrete.compute_the_f_mark_characteristics()
         segment_process_angles_discrete.perform_the_permutation_test_for_f_mark_characteristics()
         result_saver.save_the_results(
-            model_name="mark~alt(angle)", value_dict=segment_process_angles_discrete.f_mark_statistics,
+            model_name="discrete angle", value_dict=segment_process_angles_discrete.f_mark_statistics,
             quantile_dict=segment_process_angles_discrete.f_mark_statistics_quantiles,
             permutations_count=const.PERMUTATION_TEST_REPEAT_COUNT,
-            grain_type="segment"
+            grain_type="segment", seed=seed
         )
 
         particles_segments_angle_continuous = [
@@ -200,12 +200,13 @@ def first_blood(number_of_seeds: int = 1):
         segment_process_angles_continuous.compute_the_f_mark_characteristics()
         segment_process_angles_continuous.perform_the_permutation_test_for_f_mark_characteristics()
         result_saver.save_the_results(
-            model_name="mark=angle", value_dict=segment_process_angles_continuous.f_mark_statistics,
+            model_name="continuous angle", value_dict=segment_process_angles_continuous.f_mark_statistics,
             quantile_dict=segment_process_angles_continuous.f_mark_statistics_quantiles,
             permutations_count=const.PERMUTATION_TEST_REPEAT_COUNT,
-            grain_type="segment"
+            grain_type="segment", seed=seed
         )
     result_saver.save_to_pandas()
+    return result_saver
 
 
 def execute_boolean_particle_process(
