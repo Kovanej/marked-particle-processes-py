@@ -3,6 +3,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import pandas as pd
 from skspatial.objects import Circle, Point
 
 from Geometry.grain import Grain, Segment
@@ -13,7 +14,7 @@ from Processes.segment_process import SegmentProcess
 from Processes.ball_process import BallProcess
 from Processes.point_process import PoissonPointProcess
 import utils.const as const
-
+from utils.results_saver import ResultSaver
 
 os.chdir("../")
 
@@ -67,6 +68,11 @@ marks_angles_beatles_discrete = [
     np.random.binomial(size=1, n=1, p=np.array(1/np.pi * segment_angles[k]))[0]
     for k in range(len(poisson_point_process.points))
 ]
+
+seed = 88
+np.random.seed(seed=seed)
+
+result_saver = ResultSaver()
 
 logging.basicConfig(filename='example.log', filemode='w', level=logging.INFO)
 # poisson_point_process = PoissonPointProcess(intensity=TESTED_INTENSITY)
@@ -175,6 +181,13 @@ test_process_null.perform_the_permutation_test_for_f_mark_characteristics()
 print("---NULL MODEL---")
 for _, __ in test_process_null.f_mark_statistics.items():
     print(f"STATISTIC: {_}, VALUE: {__}, QUANTILE: {test_process_null.f_mark_statistics_quantiles[_]}")
+result_saver.save_the_results(
+    model_name="NULL",
+    permutations_count=const.PERMUTATION_TEST_REPEAT_COUNT,
+    quantile_dict=test_process_null.f_mark_statistics_quantiles,
+    value_dict=test_process_null.f_mark_statistics,
+    seed=seed
+)
 
 if TESTED_GRAIN_TYPE == "segment":
     test_process_angles_discrete.plot_itself()
@@ -183,10 +196,23 @@ if TESTED_GRAIN_TYPE == "segment":
     print("---ANGLE MODEL DISCRETE---")
     for _, __ in test_process_angles_discrete.f_mark_statistics.items():
         print(f"STATISTIC: {_}, VALUE: {__}, QUANTILE: {test_process_angles_discrete.f_mark_statistics_quantiles[_]}")
+    result_saver.save_the_results(
+        model_name="ANGLES_DISCRETE",
+        permutations_count=const.PERMUTATION_TEST_REPEAT_COUNT,
+        quantile_dict=test_process_angles_discrete.f_mark_statistics_quantiles,
+        value_dict=test_process_angles_discrete.f_mark_statistics
+    )
 
     test_process_angles_continuous.plot_itself()
     test_process_angles_continuous.compute_the_f_mark_characteristics()
     test_process_angles_continuous.perform_the_permutation_test_for_f_mark_characteristics()
+    result_saver.save_the_results(
+        model_name="ANGLES_CONTINUOUS",
+        permutations_count=const.PERMUTATION_TEST_REPEAT_COUNT,
+        quantile_dict=test_process_angles_continuous.f_mark_statistics_quantiles,
+        value_dict=test_process_angles_continuous.f_mark_statistics,
+        seed=seed
+    )
     print("---ANGLE MODEL CONTINUOUS---")
     for _, __ in test_process_angles_continuous.f_mark_statistics.items():
         print(f"STATISTIC: {_}, VALUE: {__}, QUANTILE: {test_process_angles_continuous.f_mark_statistics_quantiles[_]}")
@@ -195,6 +221,13 @@ if TESTED_GRAIN_TYPE == "ball":
     test_process_radii_discrete.plot_itself()
     test_process_radii_discrete.compute_the_f_mark_characteristics()
     test_process_radii_discrete.perform_the_permutation_test_for_f_mark_characteristics()
+    result_saver.save_the_results(
+        model_name="RADII_DISCRETE",
+        permutations_count=const.PERMUTATION_TEST_REPEAT_COUNT,
+        quantile_dict=test_process_radii_discrete.f_mark_statistics_quantiles,
+        value_dict=test_process_radii_discrete.f_mark_statistics,
+        seed=seed
+    )
     print("---RADII MODEL DISCRETE---")
     for _, __ in test_process_radii_discrete.f_mark_statistics.items():
         print(f"STATISTIC: {_}, VALUE: {__}, QUANTILE: {test_process_radii_discrete.f_mark_statistics_quantiles[_]}")
@@ -202,9 +235,17 @@ if TESTED_GRAIN_TYPE == "ball":
     test_process_radii_continuous.plot_itself()
     test_process_radii_continuous.compute_the_f_mark_characteristics()
     test_process_radii_continuous.perform_the_permutation_test_for_f_mark_characteristics()
+    result_saver.save_the_results(
+        model_name="RADII_CONTINUOUS",
+        permutations_count=const.PERMUTATION_TEST_REPEAT_COUNT,
+        quantile_dict=test_process_radii_continuous.f_mark_statistics_quantiles,
+        value_dict=test_process_radii_continuous.f_mark_statistics,
+        seed=seed
+    )
     print("---RADII MODEL CONTINUOUS---")
     for _, __ in test_process_radii_continuous.f_mark_statistics.items():
         print(f"STATISTIC: {_}, VALUE: {__}, QUANTILE: {test_process_radii_continuous.f_mark_statistics_quantiles[_]}")
 
 
 brkpnt = "breakpoint here"
+result_saver.save_to_pandas()
