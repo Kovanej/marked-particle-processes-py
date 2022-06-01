@@ -25,13 +25,19 @@ PERMUTATION_TEST_REPEAT_COUNT = 10000
 F_MARK_TYPES = [
     "product", "square", "first_mark",
 ]
-WEIGHT_TYPES = [
-    "intersection", "shared_area", "distance"
-]
+WEIGHT_TYPES = {
+    "ball": [
+        "intersection", "shared_area", "distance"
+    ],
+    "segment": [
+        "intersection", "distance", "angle"
+    ],
+}
 
-F_MARK_COMBINATIONS = [
-    (f, w) for f in F_MARK_TYPES for w in WEIGHT_TYPES
-]
+F_MARK_COMBINATIONS = {
+    k: [(f, v[i]) for f in F_MARK_TYPES for i in range(len(v))]
+    for k, v in WEIGHT_TYPES.items()
+}
 
 # COLORS
 
@@ -57,7 +63,7 @@ F_MARK_COMBINATIONS = [
 #                       ] + ["#E0ADDD", "#FFF4D9", "#87D7D7", "#7488BB"]
 
 # PARTICLE_COLORS_CHOICE = ["#448F58", "#90C26E", "#DE3657", "#6A559B", "#FF9443"]
-PARTICLE_COLORS_CHOICE = ["#B84479"]  # , "#F6AF5B", "#4DA58C", "#1B2784"]
+PARTICLE_COLORS_CHOICE = ["#1B2784"]  # , "#F6AF5B", "#4DA58C", "#1B2784"]
 
 # PARTICLE_COLORS_CHOICE = ["#FC6499", "#6BCEEE", "#87D7D7"]
 ALPHA = 0.95

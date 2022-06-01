@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from typing import List, Optional, Union, Tuple, Dict
 import numpy as np
 import random
-from scipy.optimize import fsolve
 from sklearn.metrics import pairwise_distances
 from skspatial.objects import Point, Vector
 
@@ -51,7 +50,7 @@ class ParticleProcess(object):
         self.f_mark_normalization_constants: Dict[str, float] = {}
         self.f_mark_statistics: Dict[Tuple[str, str], float] = {}
         self.f_mark_statistics_permutations: Dict[Tuple[str, str], np.array] = {
-            (f_type, weight_type): np.array([]) for (f_type, weight_type) in const.F_MARK_COMBINATIONS
+            val: np.array([]) for val in const.F_MARK_COMBINATIONS[self.grain_type]
         }
         self.f_mark_statistics_quantiles: Dict[Tuple[str, str], float] = {}
 
@@ -84,16 +83,15 @@ class ParticleProcess(object):
         logging.info(f"{datetime.now()} :Germs distance computation end.")
         return grains_distance_matrix
 
-    def compute_the_f_mark_characteristics(
-            self
-    ):
+    def compute_the_f_mark_characteristics(self):
         for f_type in const.F_MARK_TYPES:
             self._compute_the_f_mark_normalization_constants(f_type=f_type)
-        for (f_type, weight_type) in const.F_MARK_COMBINATIONS:
+        for (f_type, weight_type) in const.F_MARK_COMBINATIONS[self.grain_type]:
             weight_matrix = {
                 "intersection": self.particles_intersection_matrix,
                 "shared_area": self.pairwise_shared_measure_matrix,
-                "distance": self.particles_distance_matrix
+                "distance": self.particles_distance_matrix,
+                "angle": self.angles_matrix
             }.get(weight_type)
             self.f_mark_statistics[f_type, weight_type] = self._compute_the_f_mark_correlation(
                 f_type=f_type, weight_matrix=weight_matrix
@@ -103,11 +101,12 @@ class ParticleProcess(object):
         for _ in range(const.PERMUTATION_TEST_REPEAT_COUNT):
             permutation = np.random.permutation(self.number_of_particles)
             marks_permuted = self.marks[permutation]
-            for (f_type, weight_type) in const.F_MARK_COMBINATIONS:
+            for (f_type, weight_type) in const.F_MARK_COMBINATIONS[self.grain_type]:
                 weight_matrix = {
                     "intersection": self.particles_intersection_matrix,
                     "shared_area": self.pairwise_shared_measure_matrix,
-                    "distance": self.particles_distance_matrix
+                    "distance": self.particles_distance_matrix,
+                    "angle": self.angles_matrix
                 }.get(weight_type)
                 val = self._compute_the_f_mark_correlation(
                         f_type=f_type, weight_matrix=weight_matrix, marks_vector=marks_permuted
@@ -115,7 +114,7 @@ class ParticleProcess(object):
                 self.f_mark_statistics_permutations[f_type, weight_type] = np.append(
                     self.f_mark_statistics_permutations[f_type, weight_type], val
                 )
-        for (f_type, weight_type) in const.F_MARK_COMBINATIONS:
+        for (f_type, weight_type) in const.F_MARK_COMBINATIONS[self.grain_type]:
             self.f_mark_statistics_quantiles[f_type, weight_type] = np.where(
                 self.f_mark_statistics[f_type, weight_type] <= self.f_mark_statistics_permutations[f_type, weight_type],
                 0, 1
@@ -195,7 +194,7 @@ class ParticleProcess(object):
         return "#000000"
         # return np.random.choice(const.PARTICLE_COLORS_CHOICE)
 
-    def _choose_face_color(self, particle=None):
+    def _choose_face_color(self, particle):
         if particle.mark is not None:
             alpha = (1 + particle.mark.mark_value - self.min_mark) / (1 + self.max_mark - self.min_mark)
         else:

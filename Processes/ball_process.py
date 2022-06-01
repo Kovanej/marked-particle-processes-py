@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from typing import List, Optional, Union
 import numpy as np
 import random
-from scipy.optimize import fsolve
 from sklearn.metrics import pairwise_distances
 from skspatial.objects import Point, Vector
 

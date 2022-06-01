@@ -3,7 +3,6 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from typing import List, Optional, Union
 import numpy as np
-from scipy.optimize import fsolve
 from sklearn.metrics import pairwise_distances
 from skspatial.objects import Point, Vector
 
@@ -99,7 +98,7 @@ class SegmentProcess(ParticleProcess):
         ]).T.reshape(self.number_of_particles, self.number_of_particles, 2)
         logging.info(f"{datetime.now()} DISTANCE - Simpler solution computation end.")
         logging.info(f"{datetime.now()} DISTANCE - Possible distances computation start.")
-        # TODO this is a slow performance part for some reason - fix this
+        # TODO next step performs slowly - probably can be further vectorized
         possible_distances = np.array([
             self._segments_vectorized_pairwise_distance(
                 np.clip(solution[..., 0], 0, 1), np.clip(solution[..., 1], 0, 1), start_points_pre, end_points_pre
@@ -154,17 +153,7 @@ class SegmentProcess(ParticleProcess):
         if self.space_dimension == 3:
             ax = fig.add_subplot(111, projection='3d')
         for particle in self.particles:
-            # col, alpha = self._choose_face_color()
-            if particle.mark is not None:
-                if particle.mark.mark_value == 0:
-                    col, alpha = "#0075C2", 1
-                elif particle.mark.mark_value == 1:
-                    col, alpha = "#F87203", 1
-                else:
-                    col, alpha = self._choose_face_color(particle=particle)
-            else:
-                col, alpha = np.random.choice(const.PARTICLE_COLORS_CHOICE), 1
-            # alpha = Vector(particle.grain.start_point).norm() / np.sqrt(2)
+            col, alpha = self._choose_face_color(particle=particle)
             if self.space_dimension == 2:
                 particle.grain.vector.plot_2d(
                     ax_2d=ax, point=particle.grain.start_point, head_width=0,
