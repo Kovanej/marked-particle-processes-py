@@ -1,4 +1,6 @@
 
+from datetime import datetime
+import logging
 import numpy as np
 from skspatial.objects import Point, Vector, Circle
 
@@ -28,6 +30,8 @@ def first_blood(number_of_seeds: int = 1):
     result_saver = ResultSaver()
 
     for seed in range(number_of_seeds):
+
+        print(f"{datetime.now()} --- Seed no: {seed}")
 
         np.random.seed(seed=seed)
 
@@ -206,6 +210,7 @@ def first_blood(number_of_seeds: int = 1):
             grain_type="segment", seed=seed
         )
     result_saver.save_to_pandas()
+    result_saver.pickle_the_result_dataframes()
     return result_saver
 
 
