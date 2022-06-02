@@ -15,13 +15,6 @@ import utils.const as const
 from utils.results_saver import ResultSaver
 
 
-MAX_SEGMENT_LENGTH = 0.2
-MIN_SEGMENT_LENGTH = 0.1
-MAX_CIRC_RAD = 0.15
-MIN_CIRC_RAD = 0.05
-POISSON_TEST_INTENSITY = 100
-
-
 # testing null segment & ball processes (Bernoulli) &
 # angles/radii marks (either as parameter to Bernoulli or simply its value)
 
@@ -36,23 +29,23 @@ def first_blood(number_of_seeds: int = 1):
         np.random.seed(seed=seed)
 
         # one underlying Poisson Point Process for each model
-        poisson_point_process = PoissonPointProcess(intensity=POISSON_TEST_INTENSITY)
+        poisson_point_process = PoissonPointProcess(intensity=const.POISSON_INTENSITY)
 
         segment_angles = [np.pi * np.random.random_sample() for _ in range(len(poisson_point_process.points))]
 
         segment_lengths = [
-            MIN_SEGMENT_LENGTH + (MAX_SEGMENT_LENGTH - MIN_SEGMENT_LENGTH) * np.random.random_sample()
+            const.MIN_SEGMENT_LENGTH + (const.MAX_SEGMENT_LENGTH - const.MIN_SEGMENT_LENGTH) * np.random.random_sample()
             for _ in range(len(poisson_point_process.points))
         ]
 
         ball_radii = [
-            MIN_CIRC_RAD + (MAX_CIRC_RAD - MIN_CIRC_RAD) * np.random.random_sample()
+            const.MIN_CIRC_RAD + (const.MAX_CIRC_RAD - const.MIN_CIRC_RAD) * np.random.random_sample()
             for _ in range(len(poisson_point_process.points))
         ]
 
         marks_null = np.random.binomial(size=len(poisson_point_process.points), n=1, p=0.5)
         marks_ball_discrete = [
-            np.random.binomial(size=1, n=1, p=np.array(1 / MAX_CIRC_RAD * ball_radii[k]))[0]
+            np.random.binomial(size=1, n=1, p=np.array(1 / const.MAX_CIRC_RAD * ball_radii[k]))[0]
             for k in range(len(poisson_point_process.points))
         ]
         marks_angles_beatles_discrete = [
@@ -210,7 +203,8 @@ def first_blood(number_of_seeds: int = 1):
             grain_type="segment", seed=seed
         )
     result_saver.save_to_pandas()
-    result_saver.pickle_the_result_dataframes()
+    if const.PICKLE_RESULTS:
+        result_saver.pickle_the_result_dataframes()
     return result_saver
 
 

@@ -1,8 +1,9 @@
 
 from datetime import datetime as dt
-from typing import Dict, Optional
+import matplotlib.pyplot as plt
 import pandas as pd
 import pickle
+from typing import Dict, Optional
 
 import utils.const as const
 
@@ -18,9 +19,12 @@ class ResultSaver(object):
             "Weight Type": [],
             "Value": [],
             "Permutation Test Count": [],
-            "Quantile": []
+            "Left p-value": [],
+            "Right p-value": [],
+            "Both Sided p-value": []
         }
-        self.results_df = None
+        self.results_grouped_df_dict: Dict = {}
+        self.results_all_df = None
         self.results_grouped_by_df = None
 
     def save_the_results(
@@ -35,21 +39,38 @@ class ResultSaver(object):
             self.result_dict["Weight Type"].append(key[1])
             self.result_dict["Value"].append(value_dict[key])
             self.result_dict["Permutation Test Count"].append(permutations_count)
-            self.result_dict["Quantile"].append(val)
+            self.result_dict["Left p-value"].append(val)
+            self.result_dict["Right p-value"].append(1 - val)
+            self.result_dict["Both Sided p-value"].append(2 * min(val, 1 - val))
 
     def save_to_pandas(self, save_csv: bool = const.SAVE_RESULTS_TO_CSV):
-        self.results_df = pd.DataFrame(self.result_dict)
+        self.results_all_df = pd.DataFrame(self.result_dict)
+        results_all_grouped_by = self.results_all_df.groupby([
+            "Grain Type", "Model", "f-Mark Type", "Weight Type"
+        ])
+        self.results_grouped_df_dict = {
+            k: results_all_grouped_by.get_group(k) for k in results_all_grouped_by.groups
+        }
         dtm = str(dt.now()).replace(":", "-")
         if save_csv:
-            self.results_df.to_csv(f"results_{dtm}.csv", index=False)
-        self.results_grouped_by_df = self.results_df.groupby(
-            by=["Grain Type", "Model", "f-Mark Type", "Weight Type"]
-        )['Quantile'].mean()
+            self.results_all_df.to_csv(f"results_{dtm}.csv", index=False)
 
     def pickle_the_result_dataframes(self):
-        f_results = open('results.txt', 'wb')
-        pickle.dump(self.results_df, f_results)
-        f_results_grouped = open('results_grouped.txt', 'wb')
-        pickle.dump(self.results_grouped_by_df, f_results_grouped)
+        f_results = open(f'results_{str(dt.now()).replace(":", "-")}.txt', 'wb')
+        pickle.dump(self.results_all_df, f_results)
+        f_results_grouped = open(f'results_grouped_dict{str(dt.now()).replace(":", "-")}.txt', 'wb')
+        pickle.dump(self.results_grouped_df_dict, f_results_grouped)
 
+    def plot_the_p_values(
+            self, grain_type: str, model: str, f_mark_type: str,
+            weight_type: str
+    ):
+        ax = self.results_grouped_df_dict[(grain_type, model, f_mark_type, weight_type)]["Both Sided p-value"].hist(
+            bins=8
+        )
+        # TODO this doesn't work if the list of columns is passed ^^
+        fig = ax.get_figure()
+        ax.set_title(f"{grain_type, model, f_mark_type, weight_type}")
+        plt.show()
+        plt.close(fig)
 
