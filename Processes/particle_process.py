@@ -21,7 +21,8 @@ class ParticleProcess(object):
             grain_type: str,
             space_dimension: int,
             marked: bool,
-            marks_aposteriori_type: Optional[str] = None
+            marked_aposteriori: Optional[bool] = False,
+            marks_aposteriori_type: Optional[str] = None,
     ):
         logging.info(f"Particle process class initialized.")
         self.angles_matrix = None
@@ -31,7 +32,12 @@ class ParticleProcess(object):
         self.grain_type = grain_type
         self.space_dimension = space_dimension
         self.marked = marked
-        if self.marked:
+        self.marked_aposteriori = marked_aposteriori
+        if self.marked_aposteriori:
+            if not marks_aposteriori_type:
+                raise ValueError(f"Parameter marks_aposteriori_type not filled for marked_aposteriori==True!")
+            self.marks_aposteriori_type = marks_aposteriori_type
+        if self.marked and not self.marked_aposteriori:
             self.marks = np.array([p.mark.mark_value for p in self.particles])
             self.marks_product = self.marks[..., None] * self.marks[None, ...]
             self.marks_square = (self.marks[..., None] - self.marks[None, ...]) ** 2 / 2
@@ -54,6 +60,11 @@ class ParticleProcess(object):
             val: np.array([]) for val in const.F_MARK_COMBINATIONS[self.grain_type]
         }
         self.f_mark_statistics_quantiles: Dict[Tuple[str, str], float] = {}
+        if self.marked_aposteriori:
+            self._compute_the_marks()
+
+    def _compute_the_marks(self):
+        pass
 
     @staticmethod
     def _dot_pairwise(a, b):
