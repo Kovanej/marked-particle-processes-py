@@ -46,9 +46,9 @@ class ParticleProcess(object):
         self.particle_measure = self._compute_the_particles_measure()
         # compute the grains distance
         self.germs_distance_matrix = self._compute_the_germs_distance_matrix()
-        # compute particles_null_model distance (inf {||x_i - x_j||: x_i \in \Xi_i, x_j \in \Xi_j})
+        # compute particles_ball_null_model distance (inf {||x_i - x_j||: x_i \in \Xi_i, x_j \in \Xi_j})
         self.particles_distance_matrix = self._compute_the_particles_distance_matrix()
-        # particles_null_model distance == 0 -> intersected, otherwise not intersected
+        # particles_ball_null_model distance == 0 -> intersected, otherwise not intersected
         self.particles_intersection_matrix = self._compute_the_particles_intersection_matrix()
         # compute the pairwise shared corresponding Lebesgue measure
         # ("ball": shared areas, "segment": same as intersection matrix ...)
@@ -187,10 +187,13 @@ class ParticleProcess(object):
         fig = plt.figure()
         ax = fig.add_subplot()
         ax.set_aspect('equal', adjustable='box')
+        ax.set_xlim(left=0, right=1)
+        ax.set_ylim(bottom=0, top=1)
         self._plot_particles(ax=ax, fig=fig)
         if show_germs:
             for particle in self.particles:
-                color, alpha = self._choose_germ_color()
+                color, alpha = self._choose_face_color(particle=particle)
+                alpha = 1
                 particle.germ.plot_2d(ax, c=color, alpha=alpha)
         if const.SAVE_PLOTS:
             plt.savefig(f"generated_pics/{str(datetime.now()).replace(':','-')}_plot.png", dpi=1000)
@@ -208,10 +211,15 @@ class ParticleProcess(object):
 
     def _choose_face_color(self, particle):
         if particle.mark is not None:
-            alpha = (1 + particle.mark.mark_value - self.min_mark) / (1 + self.max_mark - self.min_mark)
+            if particle.mark.mark_type == "continuous":
+                col = const.PARTICLE_COLORS_CHOICE[0]
+                alpha = (1 + particle.mark.mark_value - self.min_mark) / (1.2 + self.max_mark - self.min_mark)
+            else:
+                col = const.PARTICLE_COLORS_CHOICE[particle.mark.mark_value]
+                alpha = const.ALPHA
         else:
+            col = np.random.choice(const.PARTICLE_COLORS_CHOICE)
             alpha = const.ALPHA
-        col = np.random.choice(const.PARTICLE_COLORS_CHOICE)
         return col, alpha
 
     def _choose_germ_color(self):

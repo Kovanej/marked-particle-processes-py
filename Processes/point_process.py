@@ -35,6 +35,8 @@ class PointProcess(object):
         fig = plt.figure()
         ax = fig.add_subplot()
         ax.set_aspect('equal', adjustable='box')
+        # ax.set_xlim(left=0, right=1)
+        # ax.set_ylim(bottom=0, top=1)
         self.points.plot_2d(ax)
         plt.show()
 
