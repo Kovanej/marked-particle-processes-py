@@ -193,6 +193,7 @@ class ParticleProcess(object):
         if show_germs:
             for particle in self.particles:
                 color, alpha = self._choose_face_color(particle=particle)
+                color = "#000000"
                 alpha = 1
                 particle.germ.plot_2d(ax, c=color, alpha=alpha)
         if const.SAVE_PLOTS:
