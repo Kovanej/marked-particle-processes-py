@@ -195,7 +195,7 @@ class ParticleProcess(object):
                 color, alpha = self._choose_face_color(particle=particle)
                 color = "#000000"
                 alpha = 1
-                particle.germ.plot_2d(ax, c=color, alpha=alpha)
+                particle.germ.plot_2d(ax, c=color, alpha=alpha, marker=".")
         if const.SAVE_PLOTS:
             plt.savefig(f"generated_pics/{str(datetime.now()).replace(':','-')}_plot.png", dpi=1000)
         plt.show()

@@ -13,6 +13,17 @@ from Processes.markings import Mark
 from Geometry.grain import Segment
 import utils.const as const
 from utils.results_saver import ResultSaver
+from tests.wider_window_simulation_tests import simulate_the_processes
+
+
+def overnight_computations():
+    result_savers = []
+    for seed in range(10):
+        print(f"Seed no {seed}: {datetime.now()}")
+        result_savers.append(
+            simulate_the_processes(alphas_list=[0, 0.25, 0.5, 0.75, 1], seed=seed)
+        )
+    return result_savers
 
 
 # testing null segment & ball processes (Bernoulli) &
