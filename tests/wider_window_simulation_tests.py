@@ -13,9 +13,6 @@ import utils.const as const
 from utils.results_saver import ResultSaver
 
 
-os.chdir("../.")
-
-
 def simulate_the_processes(alphas_list: List[float] = [0, 0.5,  1], seed: int = 1):
     poisson_point_process = PoissonPointProcess(
         intensity=const.POISSON_INTENSITY,
@@ -99,12 +96,9 @@ def simulate_the_processes(alphas_list: List[float] = [0, 0.5,  1], seed: int = 
                 permutations_count=const.PERMUTATION_TEST_REPEAT_COUNT,
                 grain_type=f"{processes[k].grain_type}", seed=seed
             )
-    result_saver.save_to_pandas()
+    result_saver.save_to_pandas(save_csv=True)
     result_saver.pickle_the_result_dataframes()
     return result_saver
-
-
-
 
 
 def simulate_the_processes_legacy(alphas_list: List[float] = [0, 0.5,  1]):
