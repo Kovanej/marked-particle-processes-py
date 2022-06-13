@@ -73,6 +73,7 @@ class BallProcess(ParticleProcess):
             edgecolor = self._choose_edge_color()
             particle.grain.plot_2d(
                 ax, facecolor=facecolor, linestyle="-", alpha=alpha, linewidth=1, edgecolor=edgecolor,
+                label=edgecolor
                 # alpha=0.5,
             )
 

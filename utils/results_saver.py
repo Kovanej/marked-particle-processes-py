@@ -53,12 +53,12 @@ class ResultSaver(object):
         }
         dtm = str(dt.now()).replace(":", "-")
         if save_csv:
-            self.results_all_df.to_csv(f"results_{dtm}.csv", index=False)
+            self.results_all_df.to_csv(f"results/results_{dtm}.csv", index=False)
 
     def pickle_the_result_dataframes(self):
-        f_results = open(f'results_{str(dt.now()).replace(":", "-")}.txt', 'wb')
+        f_results = open(f'pickles/results_{str(dt.now()).replace(":", "-")}.txt', 'wb')
         pickle.dump(self.results_all_df, f_results)
-        f_results_grouped = open(f'results_grouped_dict{str(dt.now()).replace(":", "-")}.txt', 'wb')
+        f_results_grouped = open(f'pickles/results_grouped_dict{str(dt.now()).replace(":", "-")}.txt', 'wb')
         pickle.dump(self.results_grouped_df_dict, f_results_grouped)
 
     def plot_the_p_values(

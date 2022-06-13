@@ -190,6 +190,9 @@ class ParticleProcess(object):
         ax.set_xlim(left=0, right=1)
         ax.set_ylim(bottom=0, top=1)
         self._plot_particles(ax=ax, fig=fig)
+        # levels = [str(lv) for lv in range(self.particles[0].mark.number_of_levels)]
+        # cols = [const.PARTICLE_COLORS_CHOICE[level] for level in range(self.particles[0].mark.number_of_levels)]
+        plt.figlegend(loc="right")
         if show_germs:
             for particle in self.particles:
                 color, alpha = self._choose_face_color(particle=particle)
@@ -199,6 +202,7 @@ class ParticleProcess(object):
         if const.SAVE_PLOTS:
             plt.savefig(f"generated_pics/{str(datetime.now()).replace(':','-')}_plot.png", dpi=1000)
         plt.show()
+        plt.close()
 
     def _compute_the_particles_distance_matrix(self):
         raise NotImplementedError(

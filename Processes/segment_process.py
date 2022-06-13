@@ -157,7 +157,7 @@ class SegmentProcess(ParticleProcess):
             if self.space_dimension == 2:
                 particle.grain.vector.plot_2d(
                     ax_2d=ax, point=particle.grain.start_point, head_width=0,
-                    edgecolor=col, alpha=alpha
+                    edgecolor=col, facecolor=col, alpha=alpha, label=col
                 )
             elif self.space_dimension == 3:
                 particle.grain.vector.plot_3d(
