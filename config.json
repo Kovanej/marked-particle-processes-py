@@ -1,5 +1,6 @@
 {
   "intensity":  1000,
+  "space_dimension": 2,
   "process_type": "ball",
   "particles_parameters": {
     "ball": {
@@ -14,8 +15,17 @@
     }
   },
   "marking_type": null,
+  "marking_parameters": {
+    "alphas": [0, 1]
+  },
   "plot_realizations": true,
-  "perform_permutation_test": false,
-  "permutation_tests_count": 5000,
+  "compute_f_mark_statistics": true,
+  "f_mark_statistics_parameters": {
 
+  },
+  "perform_permutation_test": false,
+  "permutation_tests_parameters": {
+    "number_of_permutations": 5000,
+    "plot_histograms": false
+  }
 }
