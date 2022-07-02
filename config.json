@@ -1,0 +1,21 @@
+{
+  "intensity":  1000,
+  "process_type": "ball",
+  "particles_parameters": {
+    "ball": {
+      "max_radius": 0.3,
+      "min_radius": 0.2
+    },
+    "segment": {
+      "max_segment_length": 0.3,
+      "min_segment_length": 0.2,
+      "max_angle": 180,
+      "min_angle": 0
+    }
+  },
+  "marking_type": null,
+  "plot_realizations": true,
+  "perform_permutation_test": false,
+  "permutation_tests_count": 5000,
+
+}

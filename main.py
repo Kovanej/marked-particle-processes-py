@@ -1,4 +1,4 @@
-import logging
+import json
 from matplotlib import pyplot as plt
 import pickle
 import pandas as pd
@@ -12,6 +12,8 @@ LOAD_PICKLE = False
 
 
 if __name__ == '__main__':
+    with open("config.json", "r") as json_data:
+        config_json = json.loads(json_data.read())
     if LOAD_PICKLE:
         result_saver = ResultSaver()
         file_results = open("results.txt", 'rb')
