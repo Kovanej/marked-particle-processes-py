@@ -10,8 +10,8 @@
     "segment": {
       "max_segment_length": 0.3,
       "min_segment_length": 0.2,
-      "max_angle": 180,
-      "min_angle": 0
+      "max_angle_in_degrees": 180,
+      "min_angle_in_degrees": 0
     }
   },
   "marking_type": null,

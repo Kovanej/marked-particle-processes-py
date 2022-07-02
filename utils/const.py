@@ -22,8 +22,6 @@ MARKS_MODEL = "Lisa"
 SPACE_DIMENSION = 2
 GRAIN_TYPE = "segment"
 
-COMPUTE_SEGMENT_DISTANCES = False
-
 PERMUTATION_TEST_REPEAT_COUNT = 5000
 SAVE_RESULTS_TO_CSV = False
 PICKLE_RESULTS = False
@@ -78,3 +76,15 @@ PARTICLE_COLORS_CHOICE = [
 
 # PARTICLE_COLORS_CHOICE = ["#FC6499", "#6BCEEE", "#87D7D7"]
 ALPHA = 0.75
+
+CONFIG_VALID_KEYS = [
+    "process_type", "intensity", "space_dimension", "marking_type", "marking_parameters", "particles_parameters",
+    "plot_realizations", "compute_f_mark_statistics", "f_mark_statistics_parameters", "perform_permutation_test",
+    "permutation_tests_parameters"
+]
+CONFIG_NON_NULLABLE = ["process_type", "intensity"]
+CONFIG_OPTIONAL_VALUES = {
+    "space_dimension": 2,
+    "marking_type": None,
+
+}
