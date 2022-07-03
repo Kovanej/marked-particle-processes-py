@@ -1,0 +1,35 @@
+{
+  "intensity":  1000,
+  "space_dimension": 2,
+  "process_type": "ball",
+  "particles_parameters": {
+    "ball": {
+      "max_radius": 0.3,
+      "min_radius": 0.2
+    },
+    "segment": {
+      "max_segment_length": 0.3,
+      "min_segment_length": 0.2,
+      "max_angle_in_degrees": 180,
+      "min_angle_in_degrees": 0
+    }
+  },
+  "marking_type": {
+    "ball": ["radius_discrete"],
+    "segment": []
+  },
+  "marking_parameters": {
+    "alphas": [0, 1]
+  },
+  "plot_realizations": true,
+  "compute_f_mark_statistics": true,
+  "f_mark_weights_and_statistics": {
+    "intersection": ["product"]
+  },
+  "perform_permutation_test": false,
+  "permutation_tests_parameters": {
+    "number_of_permutations": 5000,
+    "plot_histograms": false
+  },
+  "number_of_realizations": 1
+}
