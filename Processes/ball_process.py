@@ -8,6 +8,7 @@ from sklearn.metrics import pairwise_distances
 from skspatial.objects import Point, Vector
 
 from Geometry.particle import Particle
+from Processes.markings import Mark
 from Processes.particle_process import ParticleProcess
 import utils.const as const
 
@@ -86,3 +87,47 @@ class BallProcess(ParticleProcess):
         areas = (self.radii_array ** 2) * np.pi
         return areas
 
+
+class RadiusMarksBallProcess(BallProcess):
+
+    def __init__(
+            self, germ_intensity: float, particles: List[Particle], model_name: Optional[str]
+    ):
+        super().__init__(
+            germ_intensity=germ_intensity, particles=particles, marked=True, model_name=model_name
+        )
+
+
+class BivariateMarksBallProcess(RadiusMarksBallProcess):
+
+    def __init__(
+            self, germ_intensity: float, particles: List[Particle], alpha: float, max_radius: float, min_radius: float,
+            seed: float = 23
+    ):
+        for particle in particles:
+            tau = np.random.binomial(n=1, p=alpha, size=1)[0]
+            p_alt = {
+                0: 1/2,
+                1: np.random.binomial(n=1, p=(particle.grain.radius - min_radius)/(max_radius - min_radius))
+            }.get(tau)
+            mark_value = np.random.binomial(n=1, p=p_alt)
+            mark = Mark(mark_type="discrete", mark_value=mark_value, number_of_levels=2)
+            particle.mark = mark
+        super().__init__(
+            germ_intensity=germ_intensity, particles=particles, model_name=f"bivariate_radius_alpha={alpha}"
+        )
+
+
+class ContinuousMarksBallProcess(RadiusMarksBallProcess):
+
+    def __init__(
+            self, germ_intensity: float, particles: List[Particle], alpha: float, max_radius: float, min_radius: float,
+            seed: float = 23
+    ):
+        for particle in particles:
+            mark_value = min_radius + (max_radius - min_radius) * np.random.random_sample()
+            mark = Mark(mark_type="continuous", mark_value=mark_value)
+            particle.mark = mark
+        super().__init__(
+            germ_intensity=germ_intensity, particles=particles, model_name=f"continuous_radius_alpha={alpha}"
+        )

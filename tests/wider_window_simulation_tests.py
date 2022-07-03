@@ -36,10 +36,10 @@ def simulate_the_processes(alphas_list: List[float] = [0, 0.5,  1], seed: int = 
             length = np.random.random_sample() * (const.MAX_SEGMENT_LENGTH - const.MIN_SEGMENT_LENGTH) + const.MIN_SEGMENT_LENGTH
             angle = np.random.random_sample() * (const.MAX_SEGMENT_ANGLE - const.MIN_SEGMENT_ANGLE) + const.MIN_SEGMENT_ANGLE
             bernoulli_independent = np.random.binomial(n=1, p=1/2, size=1)[0]
-            bernoulli_radius = np.random.binomial(n=1, p=(radius - const.MIN_CIRC_RAD)/const.MAX_CIRC_RAD, size=1)[0]
-            bernoulli_length = np.random.binomial(n=1, p=(length - const.MIN_SEGMENT_LENGTH)/const.MAX_SEGMENT_LENGTH, size=1)[0]
-            bernoulli_angle = np.random.binomial(n=1, p=angle/np.pi, size=1)[0]
-            bernoulli_alpha = np.random.binomial(n=1, p=alpha, size=1)[0]
+            bernoulli_radius = np.random.binomial(n=1, p=(radius - const.MIN_CIRC_RAD)/const.MAX_CIRC_RAD)
+            bernoulli_length = np.random.binomial(n=1, p=(length - const.MIN_SEGMENT_LENGTH)/const.MAX_SEGMENT_LENGTH)
+            bernoulli_angle = np.random.binomial(n=1, p=angle/np.pi)
+            bernoulli_alpha = np.random.binomial(n=1, p=alpha)
             mark_radius_categorical = bernoulli_alpha * bernoulli_radius + (1 - bernoulli_alpha) * bernoulli_independent
             mark_length_categorical = bernoulli_alpha * bernoulli_length + (1 - bernoulli_alpha) * bernoulli_independent
             mark_angle_categorical = bernoulli_alpha * bernoulli_angle + (1 - bernoulli_alpha) * bernoulli_independent

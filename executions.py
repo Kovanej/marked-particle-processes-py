@@ -29,7 +29,9 @@ def overnight_computations():
 def execute_from_config(config_parser: ConfigParser):
     result_savers = []
     for seed in range(config_parser.initial_seed, config_parser.initial_seed + config_parser.number_of_realizations):
-        config_parser.initialize_the_corresponding_process()
+        config_parser.initialize_the_processes(seed=seed)
+        result_saver = config_parser.return_the_result_saver(seed=seed)
+        a=1
 
 
 # testing null segment & ball processes (Bernoulli) &

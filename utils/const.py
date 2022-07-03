@@ -22,7 +22,7 @@ MARKS_MODEL = "Lisa"
 SPACE_DIMENSION = 2
 GRAIN_TYPE = "segment"
 
-PERMUTATION_TEST_REPEAT_COUNT = 5000
+PERMUTATION_TEST_REPEAT_COUNT = 500
 SAVE_RESULTS_TO_CSV = False
 PICKLE_RESULTS = False
 PLOT_THE_P_VALUES = True
@@ -79,13 +79,16 @@ ALPHA = 0.75
 
 CONFIG_VALID_KEYS = [
     "process_type", "intensity", "space_dimension", "marking_type", "marking_parameters", "particles_parameters",
-    "plot_realizations", "compute_f_mark_statistics", "f_mark_statistics_parameters", "perform_permutation_test",
+    "plot_realizations", "compute_f_mark_statistics", "f_mark_weights_and_statistics", "perform_permutation_test",
     "permutation_tests_parameters", "initial_seed", "number_of_realizations"
 ]
 CONFIG_NON_NULLABLE = ["process_type", "intensity"]
 CONFIG_OPTIONAL_VALUES = {
     "space_dimension": 2,
-    "marking_type": None,
+    "marking_type": {
+        "ball": ["radius_discrete", "radius_continuous"],
+        "segment": []
+    },
     "particles_parameters": {
         "ball": {
           "max_radius": 0.3,
@@ -103,7 +106,8 @@ CONFIG_OPTIONAL_VALUES = {
       },
     "plot_realizations": True,
     "compute_f_mark_statistics": True,
-    "f_mark_statistics_parameters": {
+    "f_mark_weights_and_statistics": {
+        "intersection": ["product"]
     },
     "perform_permutation_test": False,
     "permutation_tests_parameters": {
