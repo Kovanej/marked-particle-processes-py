@@ -11,6 +11,7 @@ from Processes.segment_process import SegmentProcess
 from Processes.ball_process import BallProcess
 from Processes.markings import Mark
 from Geometry.grain import Segment
+from utils.config_parser import ConfigParser
 import utils.const as const
 from utils.results_saver import ResultSaver
 from tests.wider_window_simulation_tests import simulate_the_processes
@@ -24,6 +25,11 @@ def overnight_computations():
         result_savers.append(result_saver)
     return result_savers
 
+
+def execute_from_config(config_parser: ConfigParser):
+    result_savers = []
+    for seed in range(config_parser.initial_seed, config_parser.initial_seed + config_parser.number_of_realizations):
+        print(seed)
 
 # testing null segment & ball processes (Bernoulli) &
 # angles/radii marks (either as parameter to Bernoulli or simply its value)

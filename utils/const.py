@@ -80,11 +80,36 @@ ALPHA = 0.75
 CONFIG_VALID_KEYS = [
     "process_type", "intensity", "space_dimension", "marking_type", "marking_parameters", "particles_parameters",
     "plot_realizations", "compute_f_mark_statistics", "f_mark_statistics_parameters", "perform_permutation_test",
-    "permutation_tests_parameters"
+    "permutation_tests_parameters", "initial_seed", "number_of_realizations"
 ]
 CONFIG_NON_NULLABLE = ["process_type", "intensity"]
 CONFIG_OPTIONAL_VALUES = {
     "space_dimension": 2,
     "marking_type": None,
-
+    "particles_parameters": {
+        "ball": {
+          "max_radius": 0.3,
+          "min_radius": 0.2
+        },
+        "segment": {
+          "max_segment_length": 0.3,
+          "min_segment_length": 0.2,
+          "max_angle_in_degrees": 180,
+          "min_angle_in_degrees": 0
+        }
+      },
+    "marking_parameters": {
+        "alphas": [0, 1]
+      },
+    "plot_realizations": True,
+    "compute_f_mark_statistics": True,
+    "f_mark_statistics_parameters": {
+    },
+    "perform_permutation_test": False,
+    "permutation_tests_parameters": {
+        "number_of_permutations": 5000,
+        "plot_histograms": False
+    },
+    "initial_seed": 0,
+    "number_of_realizations": 1
 }

@@ -27,5 +27,6 @@
   "permutation_tests_parameters": {
     "number_of_permutations": 5000,
     "plot_histograms": false
-  }
+  },
+  "number_of_realizations": 1
 }

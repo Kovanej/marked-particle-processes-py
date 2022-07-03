@@ -20,7 +20,11 @@ class ConfigParser(object):
             setattr(self, _, self.config[_])
 
     def _parse_the_nullable_values(self):
-        pass
+        for attr_name, attr_value in CONFIG_OPTIONAL_VALUES.items():
+            if attr_name in self.config.keys():
+                setattr(self, attr_name, self.config[attr_name])
+            else:
+                setattr(self, attr_name, attr_value)
 
     def _validate_the_config(self):
         _invalid_keys = [
