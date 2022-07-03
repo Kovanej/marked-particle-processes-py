@@ -14,12 +14,13 @@ import utils.const as const
 class SegmentProcess(ParticleProcess):
 
     def __init__(
-            self, germ_intensity: float, particles: List[Particle], marked: bool = False, space_dimension: int = 2
+            self, germ_intensity: float, particles: List[Particle], marked: bool = False, space_dimension: int = 2,
+            model_name: Optional[str] = None
     ):
         logging.info(f"{datetime.now()} Segment process init start.")
         super().__init__(
             germ_intensity=germ_intensity, grain_type="segment", particles=particles, space_dimension=space_dimension,
-            marked=marked
+            marked=marked, model_name=model_name
         )
         logging.info(f"{datetime.now()} Segment process angles matrix computation start.")
         self.angles_matrix = self._compute_the_angles_matrix()

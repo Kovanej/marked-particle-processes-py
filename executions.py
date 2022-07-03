@@ -29,11 +29,11 @@ def overnight_computations():
 def execute_from_config(config_parser: ConfigParser):
     result_savers = []
     for seed in range(config_parser.initial_seed, config_parser.initial_seed + config_parser.number_of_realizations):
-        print(seed)
+        config_parser.initialize_the_corresponding_process()
+
 
 # testing null segment & ball processes (Bernoulli) &
 # angles/radii marks (either as parameter to Bernoulli or simply its value)
-
 def first_blood(number_of_seeds: int = 1):
 
     result_saver = ResultSaver()

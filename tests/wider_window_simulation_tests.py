@@ -14,6 +14,7 @@ from utils.results_saver import ResultSaver
 
 
 def simulate_the_processes(alphas_list: List[float] = [0, 0.5,  1], seed: int = 1):
+
     poisson_point_process = PoissonPointProcess(
         intensity=const.POISSON_INTENSITY,
         window_edge_start_point=-const.MAX_CIRC_RAD,

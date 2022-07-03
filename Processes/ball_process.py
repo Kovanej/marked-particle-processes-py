@@ -15,10 +15,14 @@ import utils.const as const
 # TODO extend ball processes to in R^d, current state is for d = 2
 class BallProcess(ParticleProcess):
 
-    def __init__(self, germ_intensity: float, particles: List[Particle], marked: bool = False):
+    def __init__(
+            self, germ_intensity: float, particles: List[Particle], marked: bool = False,
+            model_name: Optional[str] = None
+    ):
         self.radii_array = np.array([p.grain.radius for p in particles])
         super().__init__(
-            germ_intensity=germ_intensity, grain_type="ball", particles=particles, space_dimension=2, marked=marked
+            germ_intensity=germ_intensity, grain_type="ball", particles=particles, space_dimension=2, marked=marked,
+            model_name=model_name
         )
 
     def _compute_the_pairwise_shared_measure_matrix(self):
