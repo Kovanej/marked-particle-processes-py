@@ -51,6 +51,7 @@ class ResultSaver(object):
         self.results_grouped_df_dict = {
             k: results_all_grouped_by.get_group(k) for k in results_all_grouped_by.groups
         }
+        # self.results_grouped_by_df = pd.DataFrame(self.results_grouped_df_dict)
         dtm = str(dt.now()).replace(":", "-")
         if save_csv:
             self.results_all_df.to_csv(f"results/results_{dtm}.csv", index=False)

@@ -7,6 +7,7 @@ from sklearn.metrics import pairwise_distances
 from skspatial.objects import Point, Vector
 
 from Geometry.particle import Particle
+from Processes.markings import Mark
 from Processes.particle_process import ParticleProcess
 import utils.const as const
 
@@ -15,12 +16,12 @@ class SegmentProcess(ParticleProcess):
 
     def __init__(
             self, germ_intensity: float, particles: List[Particle], marked: bool = False, space_dimension: int = 2,
-            model_name: Optional[str] = None
+            model_name: Optional[str] = None, seed: Optional[int] = None
     ):
         logging.info(f"{datetime.now()} Segment process init start.")
         super().__init__(
             germ_intensity=germ_intensity, grain_type="segment", particles=particles, space_dimension=space_dimension,
-            marked=marked, model_name=model_name
+            marked=marked, model_name=model_name, seed=seed
         )
         logging.info(f"{datetime.now()} Segment process angles matrix computation start.")
         self.angles_matrix = self._compute_the_angles_matrix()
@@ -170,3 +171,108 @@ class SegmentProcess(ParticleProcess):
         vectors = np.array([p.grain.end_point - p.grain.start_point for p in self.particles])
         lengths = self._norm(vectors)
         return lengths
+
+
+class AngleMarksSegmentProcess(SegmentProcess):
+
+    def __init__(
+            self, germ_intensity: float, particles: List[Particle], model_name: Optional[str],
+            seed: Optional[int] = None
+    ):
+        super().__init__(
+            germ_intensity=germ_intensity, particles=particles, marked=True, model_name=model_name, seed=seed
+        )
+
+
+class BivariateAngleMarksSegmentProcess(AngleMarksSegmentProcess):
+
+    def __init__(
+            self, germ_intensity: float, particles: List[Particle], alpha: float,
+            max_angle: float, min_angle: float, seed: Optional[int] = None
+    ):
+        self.alpha = alpha
+        tau = np.random.binomial(n=1, p=self.alpha, size=len(particles))
+        angles = np.array([particle.grain.angle for particle in particles])
+        p_alt = np.where(tau == 0, 1 / 2, np.random.binomial(n=1, p=(angles - min_angle) / (max_angle - min_angle)))
+        mark_values = np.random.binomial(n=1, p=p_alt)
+        for k in range(len(particles)):
+            mark_value = mark_values[k]
+            mark = Mark(mark_type="discrete", mark_value=mark_value, number_of_levels=2)
+            particles[k].mark = mark
+        super().__init__(
+            germ_intensity=germ_intensity, particles=particles, model_name=f"discrete_angle_alpha={self.alpha}",
+            seed=seed
+        )
+
+
+class ContinuousAngleMarksSegmentProcess(AngleMarksSegmentProcess):
+
+    def __init__(
+            self, germ_intensity: float, particles: List[Particle], alpha: float,
+            max_angle: float, min_angle: float, seed: Optional[int] = None
+    ):
+        self.alpha = alpha
+        angles = np.array([particle.grain.angle for particle in particles])
+        mark_values = self.alpha * angles + (1-self.alpha) * (min_angle + (
+                max_angle - min_angle) * np.random.random(size=angles))
+        for k in range(len(particles)):
+            mark_value = mark_values[k]
+            mark = Mark(mark_type="continuous", mark_value=mark_value)
+            particles[k].mark = mark
+        super().__init__(
+            germ_intensity=germ_intensity, particles=particles, model_name=f"continuous_angle_alpha={self.alpha}",
+            seed=seed
+        )
+
+
+class LengthMarksSegmentProcess(SegmentProcess):
+
+    def __init__(
+            self, germ_intensity: float, particles: List[Particle], model_name: Optional[str],
+            seed: Optional[int] = None
+    ):
+        super().__init__(
+            germ_intensity=germ_intensity, particles=particles, marked=True, model_name=model_name, seed=seed
+        )
+
+
+class BivariateLengthMarksSegmentProcess(LengthMarksSegmentProcess):
+
+    def __init__(
+            self, germ_intensity: float, particles: List[Particle], alpha: float,
+            max_len: float, min_len: float, seed: Optional[int] = None
+    ):
+        self.alpha = alpha
+        tau = np.random.binomial(n=1, p=self.alpha, size=len(particles))
+        lengths = np.array([particle.grain.length for particle in particles])
+        p_alt = np.where(tau == 0, 1 / 2, np.random.binomial(n=1, p=(lengths - min_len) / (max_len - min_len)))
+        mark_values = np.random.binomial(n=1, p=p_alt)
+        for k in range(len(particles)):
+            mark_value = mark_values[k]
+            mark = Mark(mark_type="discrete", mark_value=mark_value, number_of_levels=2)
+            particles[k].mark = mark
+        super().__init__(
+            germ_intensity=germ_intensity, particles=particles, model_name=f"discrete_length_alpha={self.alpha}",
+            seed=seed
+        )
+
+
+class ContinuousLengthMarksSegmentProcess(LengthMarksSegmentProcess):
+
+    def __init__(
+            self, germ_intensity: float, particles: List[Particle], alpha: float,
+            max_len: float, min_len: float, seed: Optional[int] = None
+    ):
+        self.alpha = alpha
+        lengths = np.array([particle.grain.length for particle in particles])
+        mark_values = self.alpha * lengths + (1-self.alpha) * (min_len + (
+                max_len - min_len) * np.random.random(size=lengths.size))
+        for k in range(len(particles)):
+            mark_value = mark_values[k]
+            mark = Mark(mark_type="continuous", mark_value=mark_value)
+            particles[k].mark = mark
+        super().__init__(
+            germ_intensity=germ_intensity, particles=particles, model_name=f"continuous_length_alpha={self.alpha}",
+            seed=seed
+        )
+

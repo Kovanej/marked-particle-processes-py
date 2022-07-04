@@ -18,12 +18,12 @@ class BallProcess(ParticleProcess):
 
     def __init__(
             self, germ_intensity: float, particles: List[Particle], marked: bool = False,
-            model_name: Optional[str] = None
+            model_name: Optional[str] = None, seed: Optional[int] = None
     ):
         self.radii_array = np.array([p.grain.radius for p in particles])
         super().__init__(
             germ_intensity=germ_intensity, grain_type="ball", particles=particles, space_dimension=2, marked=marked,
-            model_name=model_name
+            model_name=model_name, seed=seed
         )
 
     def _compute_the_pairwise_shared_measure_matrix(self):
@@ -91,10 +91,10 @@ class BallProcess(ParticleProcess):
 class RadiusMarksBallProcess(BallProcess):
 
     def __init__(
-            self, germ_intensity: float, particles: List[Particle], model_name: Optional[str]
+            self, germ_intensity: float, particles: List[Particle], model_name: Optional[str], seed: Optional[int] = None
     ):
         super().__init__(
-            germ_intensity=germ_intensity, particles=particles, marked=True, model_name=model_name
+            germ_intensity=germ_intensity, particles=particles, marked=True, model_name=model_name, seed=seed
         )
 
 
@@ -102,19 +102,20 @@ class BivariateMarksBallProcess(RadiusMarksBallProcess):
 
     def __init__(
             self, germ_intensity: float, particles: List[Particle], alpha: float, max_radius: float, min_radius: float,
-            seed: float = 23
+            seed: Optional[int] = None
     ):
-        for particle in particles:
-            tau = np.random.binomial(n=1, p=alpha, size=1)[0]
-            p_alt = {
-                0: 1/2,
-                1: np.random.binomial(n=1, p=(particle.grain.radius - min_radius)/(max_radius - min_radius))
-            }.get(tau)
-            mark_value = np.random.binomial(n=1, p=p_alt)
+        self.alpha = alpha
+        tau = np.random.binomial(n=1, p=self.alpha, size=len(particles))
+        radii = np.array([particle.grain.radius for particle in particles])
+        p_alt = np.where(tau == 0, 1/2, np.random.binomial(n=1, p=(radii - min_radius)/(max_radius - min_radius)))
+        mark_values = np.random.binomial(n=1, p=p_alt)
+        for k in range(len(particles)):
+            mark_value = mark_values[k]
             mark = Mark(mark_type="discrete", mark_value=mark_value, number_of_levels=2)
-            particle.mark = mark
+            particles[k].mark = mark
         super().__init__(
-            germ_intensity=germ_intensity, particles=particles, model_name=f"bivariate_radius_alpha={alpha}"
+            germ_intensity=germ_intensity, particles=particles, model_name=f"bivariate_radius_alpha={self.alpha}",
+            seed=seed
         )
 
 
@@ -122,12 +123,16 @@ class ContinuousMarksBallProcess(RadiusMarksBallProcess):
 
     def __init__(
             self, germ_intensity: float, particles: List[Particle], alpha: float, max_radius: float, min_radius: float,
-            seed: float = 23
+            seed: Optional[int] = None
     ):
-        for particle in particles:
-            mark_value = min_radius + (max_radius - min_radius) * np.random.random_sample()
-            mark = Mark(mark_type="continuous", mark_value=mark_value)
-            particle.mark = mark
+        self.alpha = alpha
+        radii = np.array([particle.grain.radius for particle in particles])
+        mark_values = self.alpha * radii + (1-self.alpha) * (min_radius + (
+                max_radius - min_radius) * np.random.random(size=radii.size))
+        for k in range(len(particles)):
+            mark = Mark(mark_type="continuous", mark_value=mark_values[k])
+            particles[k].mark = mark
         super().__init__(
-            germ_intensity=germ_intensity, particles=particles, model_name=f"continuous_radius_alpha={alpha}"
+            germ_intensity=germ_intensity, particles=particles, model_name=f"continuous_radius_alpha={self.alpha}",
+            seed=seed
         )

@@ -1,4 +1,7 @@
 {
   "intensity":  10,
-  "process_type": "ball"
+  "process_type": "ball",
+  "marking_parameters": {
+    "alphas": [0, 0.5, 1]
+  }
 }

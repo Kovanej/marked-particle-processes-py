@@ -87,16 +87,16 @@ CONFIG_OPTIONAL_VALUES = {
     "space_dimension": 2,
     "marking_type": {
         "ball": ["radius_discrete", "radius_continuous"],
-        "segment": []
+        "segment": ["angle_discrete", "angle_continuous", "length_discrete", "length_continuous"]
     },
     "particles_parameters": {
         "ball": {
-          "max_radius": 0.3,
-          "min_radius": 0.2
+          "max_radius": 0.15,
+          "min_radius": 0.05
         },
         "segment": {
-          "max_segment_length": 0.3,
-          "min_segment_length": 0.2,
+          "max_segment_length": 0.2,
+          "min_segment_length": 0.1,
           "max_angle_in_degrees": 180,
           "min_angle_in_degrees": 0
         }

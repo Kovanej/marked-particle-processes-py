@@ -24,8 +24,10 @@ class ParticleProcess(object):
             model_name: Optional[str] = None,
             marked_aposteriori: Optional[bool] = False,
             marks_aposteriori_type: Optional[str] = None,
+            seed: Optional[int] = None
     ):
         logging.info(f"Particle process class initialized.")
+        self.seed = seed
         self.model_name = model_name
         self.angles_matrix = None
         self.germ_intensity = germ_intensity

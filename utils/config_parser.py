@@ -68,15 +68,18 @@ class ConfigParser(object):
         result_saver = ResultSaver()
         processes_to_save = {key: v for key, v in self.lists_of_processes_per_seed_and_name.items() if key[1] == seed}
         for key, process in processes_to_save.items():
-            process.plot_itself()
+            # process.plot_itself()
             process.compute_the_f_mark_characteristics()
             process.perform_the_permutation_test_for_f_mark_characteristics()
             for weight, fs in self.f_mark_weights_and_statistics.items():
                 for f in fs:
                     result_saver.save_the_results(
-                        model_name=key[0], grain_type=process.grain_type, permutations_count=const.PERMUTATION_TEST_REPEAT_COUNT,
-                        quantile_dict=process.f_mark_statistics_quantiles, value_dict=process.f_mark_statistics
+                        model_name=key[0], grain_type=process.grain_type,
+                        permutations_count=const.PERMUTATION_TEST_REPEAT_COUNT,
+                        quantile_dict=process.f_mark_statistics_quantiles, value_dict=process.f_mark_statistics,
+                        seed=seed
                     )
+        result_saver.save_to_pandas()
         return result_saver
 
     def initialize_the_processes(self, seed: int = 23) -> None:
@@ -132,8 +135,8 @@ class ConfigParser(object):
         return particle_processes
 
     def _initialize_the_segment_processes(self, seed: int) -> List[ParticleProcess]:
-        max_len = self.particles_parameters["segment"]["max_length"]
-        min_len = self.particles_parameters["segment"]["min_length"]
+        max_len = self.particles_parameters["segment"]["max_segment_length"]
+        min_len = self.particles_parameters["segment"]["min_segment_length"]
         max_angle_rad = self.particles_parameters["segment"]["max_angle_in_degrees"] * np.pi / 180
         min_angle_rad = self.particles_parameters["segment"]["min_angle_in_degrees"] * np.pi / 180
         particle_processes = []
@@ -153,16 +156,27 @@ class ConfigParser(object):
             particles.append(particle)
         for model in self.marking_type["segment"]:
             for alpha in self.marking_parameters["alphas"]:
-                particle_process = {
-                    "radius_discrete": sp.BivariateMarksBallProcess(
+                particles = copy.deepcopy(particles)
+                if model == "angle_discrete":
+                    particle_process = sp.BivariateAngleMarksSegmentProcess(
                         germ_intensity=self.germ_processes_per_seed[seed].intensity,
-                        particles=particles, alpha=alpha, max_radius=max_rad, min_radius=min_rad, seed=seed
-                    ),
-                    "radius_continuous": bp.ContinuousMarksBallProcess(
-                        germ_intensity=self.germ_processes_per_seed[seed].intensity,
-                        particles=particles, alpha=alpha, max_radius=max_rad, min_radius=min_rad, seed=seed
+                        particles=particles, alpha=alpha, max_angle=max_angle_rad, min_angle=min_angle_rad, seed=seed
                     )
-                }.get(model)
+                elif model == "angle_continuous":
+                    particle_process = sp.ContinuousAngleMarksSegmentProcess(
+                        germ_intensity=self.germ_processes_per_seed[seed].intensity,
+                        particles=particles, alpha=alpha, max_angle=max_angle_rad, min_angle=min_angle_rad, seed=seed
+                    )
+                elif model == "length_discrete":
+                    particle_process = sp.BivariateLengthMarksSegmentProcess(
+                        germ_intensity=self.germ_processes_per_seed[seed].intensity,
+                        particles=particles, alpha=alpha, max_len=max_len, min_len=min_len, seed=seed
+                    )
+                elif model == "length_continuous":
+                    particle_process = sp.ContinuousLengthMarksSegmentProcess(
+                        germ_intensity=self.germ_processes_per_seed[seed].intensity,
+                        particles=particles, alpha=alpha, max_len=max_len, min_len=min_len, seed=seed
+                    )
                 particle_processes.append(particle_process)
         return particle_processes
 
