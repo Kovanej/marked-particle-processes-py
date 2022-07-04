@@ -159,13 +159,17 @@ class SegmentProcess(ParticleProcess):
             if self.space_dimension == 2:
                 particle.grain.vector.plot_2d(
                     ax_2d=ax, point=particle.grain.start_point, head_width=0,
-                    edgecolor=col, facecolor=col, alpha=alpha, label=col
+                    edgecolor=col, facecolor=col, alpha=alpha, label=particle.mark.mark_value
                 )
             elif self.space_dimension == 3:
                 particle.grain.vector.plot_3d(
                     ax_3d=ax, point=particle.grain.start_point,
                     #  edgecolor=col, alpha=alpha
                 )
+        handles, labels = plt.gca().get_legend_handles_labels()
+        by_label = dict(zip(labels, handles))
+        by_label_sorted = {k: by_label[k] for k in sorted(by_label)}
+        plt.figlegend(by_label_sorted.values(), by_label_sorted.keys())
 
     def _compute_the_particles_measure(self):
         vectors = np.array([p.grain.end_point - p.grain.start_point for p in self.particles])
@@ -214,7 +218,7 @@ class ContinuousAngleMarksSegmentProcess(AngleMarksSegmentProcess):
         self.alpha = alpha
         angles = np.array([particle.grain.angle for particle in particles])
         mark_values = self.alpha * angles + (1-self.alpha) * (min_angle + (
-                max_angle - min_angle) * np.random.random(size=angles))
+                max_angle - min_angle) * np.random.random(size=angles.size))
         for k in range(len(particles)):
             mark_value = mark_values[k]
             mark = Mark(mark_type="continuous", mark_value=mark_value)

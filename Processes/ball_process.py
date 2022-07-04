@@ -78,9 +78,13 @@ class BallProcess(ParticleProcess):
             edgecolor = self._choose_edge_color()
             particle.grain.plot_2d(
                 ax, facecolor=facecolor, linestyle="-", alpha=alpha, linewidth=1, edgecolor=edgecolor,
-                label=edgecolor
+                label=particle.mark.mark_value
                 # alpha=0.5,
             )
+        handles, labels = plt.gca().get_legend_handles_labels()
+        by_label = dict(zip(labels, handles))
+        by_label_sorted = {k: by_label[k] for k in sorted(by_label)}
+        plt.figlegend(by_label_sorted.values(), by_label_sorted.keys())
 
     def _compute_the_particles_measure(self):
         # TODO currently for R^2 - improve with general formula later

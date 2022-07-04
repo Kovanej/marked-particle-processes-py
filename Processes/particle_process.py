@@ -196,7 +196,6 @@ class ParticleProcess(object):
         self._plot_particles(ax=ax, fig=fig)
         # levels = [str(lv) for lv in range(self.particles[0].mark.number_of_levels)]
         # cols = [const.PARTICLE_COLORS_CHOICE[level] for level in range(self.particles[0].mark.number_of_levels)]
-        plt.figlegend(loc="right")
         if show_germs:
             for particle in self.particles:
                 color, alpha = self._choose_face_color(particle=particle)
@@ -222,7 +221,7 @@ class ParticleProcess(object):
         if particle.mark is not None:
             if particle.mark.mark_type == "continuous":
                 col = const.PARTICLE_COLORS_CHOICE[0]
-                alpha = (1 + particle.mark.mark_value - self.min_mark) / (1.2 + self.max_mark - self.min_mark)
+                alpha = 0.2 + 0.8 * ((particle.mark.mark_value - self.min_mark) / (self.max_mark - self.min_mark))
             else:
                 col = const.PARTICLE_COLORS_CHOICE[particle.mark.mark_value]
                 alpha = const.ALPHA
