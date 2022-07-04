@@ -76,6 +76,7 @@ PARTICLE_COLORS_CHOICE = [
 
 # PARTICLE_COLORS_CHOICE = ["#FC6499", "#6BCEEE", "#87D7D7"]
 ALPHA = 0.75
+GRADIENT_SMOOTHNESS = 100
 
 CONFIG_VALID_KEYS = [
     "process_type", "intensity", "space_dimension", "marking_type", "marking_parameters", "particles_parameters",

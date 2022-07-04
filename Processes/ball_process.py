@@ -73,18 +73,21 @@ class BallProcess(ParticleProcess):
         return distance_matrix
 
     def _plot_particles(self, ax, fig):
+        min_alpha = 1
+        max_alpha = 0
         for particle in self.particles:
-            facecolor, alpha = self._choose_face_color(particle=particle)
-            edgecolor = self._choose_edge_color()
+            face_color, alpha = self._choose_face_color(particle=particle)
+            edge_color = self._choose_edge_color()
             particle.grain.plot_2d(
-                ax, facecolor=facecolor, linestyle="-", alpha=alpha, linewidth=1, edgecolor=edgecolor,
+                ax, facecolor=face_color, linestyle="-", alpha=alpha, linewidth=1, edgecolor=edge_color,
                 label=particle.mark.mark_value
                 # alpha=0.5,
             )
-        handles, labels = plt.gca().get_legend_handles_labels()
-        by_label = dict(zip(labels, handles))
-        by_label_sorted = {k: by_label[k] for k in sorted(by_label)}
-        plt.figlegend(by_label_sorted.values(), by_label_sorted.keys())
+            min_alpha = alpha if min_alpha > alpha else min_alpha
+            max_alpha = alpha if max_alpha < alpha else max_alpha
+        self._add_legend(
+            ax=ax, plt=plt, fig=fig, mark_type=particle.mark.mark_type, face_color=face_color, min_alpha=min_alpha, max_alpha=max_alpha
+        )
 
     def _compute_the_particles_measure(self):
         # TODO currently for R^2 - improve with general formula later

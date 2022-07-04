@@ -152,24 +152,28 @@ class SegmentProcess(ParticleProcess):
         return alpha * start_point + (1 - alpha) * end_point
 
     def _plot_particles(self, ax, fig):
+        min_alpha = 1
+        max_alpha = 0
         if self.space_dimension == 3:
             ax = fig.add_subplot(111, projection='3d')
         for particle in self.particles:
-            col, alpha = self._choose_face_color(particle=particle)
+            face_color, alpha = self._choose_face_color(particle=particle)
             if self.space_dimension == 2:
                 particle.grain.vector.plot_2d(
                     ax_2d=ax, point=particle.grain.start_point, head_width=0,
-                    edgecolor=col, facecolor=col, alpha=alpha, label=particle.mark.mark_value
+                    edgecolor=face_color, facecolor=face_color, alpha=alpha, label=particle.mark.mark_value
                 )
             elif self.space_dimension == 3:
                 particle.grain.vector.plot_3d(
                     ax_3d=ax, point=particle.grain.start_point,
                     #  edgecolor=col, alpha=alpha
                 )
-        handles, labels = plt.gca().get_legend_handles_labels()
-        by_label = dict(zip(labels, handles))
-        by_label_sorted = {k: by_label[k] for k in sorted(by_label)}
-        plt.figlegend(by_label_sorted.values(), by_label_sorted.keys())
+            min_alpha = alpha if min_alpha > alpha else min_alpha
+            max_alpha = alpha if max_alpha < alpha else max_alpha
+        self._add_legend(
+            ax=ax, plt=plt, fig=fig, mark_type=particle.mark.mark_type, face_color=face_color, min_alpha=min_alpha,
+            max_alpha=max_alpha
+        )
 
     def _compute_the_particles_measure(self):
         vectors = np.array([p.grain.end_point - p.grain.start_point for p in self.particles])

@@ -2,6 +2,7 @@
 from datetime import datetime
 import logging
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 from typing import List, Optional, Union, Tuple, Dict
 import numpy as np
 import random
@@ -212,6 +213,28 @@ class ParticleProcess(object):
             f"Method called from the instance of general ParticleProcess class. "
             f"Please use the instance of some of the ParticleProcess subclasses (SegmentProcess, BallProcess)."
         )
+
+    def _add_legend(
+            self,
+            ax, plt, fig,
+            mark_type: str,
+            face_color: Optional[str] = None,
+            max_alpha: Optional[float] = None,
+            min_alpha: Optional[float] = None
+    ):
+        if mark_type == "discrete":
+            handles, labels = plt.gca().get_legend_handles_labels()
+            by_label = dict(zip(labels, handles))
+            by_label_sorted = {k: by_label[k] for k in sorted(by_label)}
+            plt.figlegend(by_label_sorted.values(), by_label_sorted.keys())
+        else:
+            alphas = np.linspace(0, max_alpha, const.GRADIENT_SMOOTHNESS)
+            r, g, b = tuple(int(face_color.lstrip('#')[i:i + 2], 16) / 256 for i in (0, 2, 4))
+            cols = np.array([[r, g, b, alphas[k]] for k in range(const.GRADIENT_SMOOTHNESS)])
+            psm = ax.pcolormesh(
+                [[0, 0], [1, 1]], cmap=ListedColormap(cols), rasterized=True, vmin=0, vmax=self.max_mark
+            )
+            fig.colorbar(psm, ax=ax)
 
     def _choose_edge_color(self):
         return "#000000"

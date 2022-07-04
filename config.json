@@ -1,13 +1,20 @@
 {
   "intensity":  100,
-  "process_type": "ball",
+  "process_type": "segment",
+  "marking_type": {
+      "ball": ["radius_continuous", "radius_discrete"],
+      "segment": [
+        "angle_discrete", "length_discrete",
+        "angle_continuous", "length_continuous"
+      ]
+  },
   "marking_parameters": {
-    "alphas": [0, 0.5, 1]
+    "alphas": [1]
   },
   "permutation_tests_parameters": {
         "number_of_permutations": 5000,
         "plot_histograms": false
     },
-  "plot_realizations": false,
-  "save_results": true
+  "plot_realizations": true,
+  "save_results": false
 }
