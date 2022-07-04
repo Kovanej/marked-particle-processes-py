@@ -11,8 +11,9 @@ Currently only for 2D simulations.
 * Setup a config (see below).
 * Run `main.py`.
 #### 2) Install directly
+* TBD
 
 ## Config (WIP)
 The "minimal" requirements for config values are parameters:
 * `process_type` (str) - either `"ball"` or `"segment"`
-* `intensity` (float) - intensity of a ground Poisson point process of germs (expected number in a unit-measure Borel subset of $R^d$).
+* `intensity` (float) - intensity of a ground Poisson point process of germs (expected number in a unit-measure Borel subset of $\mathbb R^d$).
