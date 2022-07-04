@@ -1,6 +1,5 @@
 import json
 
-from executions import first_blood, overnight_computations
 from run import run
 from utils.results_saver import ResultSaver
 

@@ -1,6 +1,7 @@
 
 from typing import Dict, List, Optional, Tuple
 
+import copy
 from datetime import datetime
 import logging
 import numpy as np
@@ -116,16 +117,17 @@ class ConfigParser(object):
             particles.append(particle)
         for model in self.marking_type["ball"]:
             for alpha in self.marking_parameters["alphas"]:
-                particle_process = {
-                    "radius_discrete": bp.BivariateMarksBallProcess(
-                        germ_intensity=self.germ_processes_per_seed[seed].intensity,
-                        particles=particles, alpha=alpha, max_radius=max_rad, min_radius=min_rad, seed=seed
-                    ),
-                    "radius_continuous": bp.ContinuousMarksBallProcess(
+                particles = copy.deepcopy(particles)
+                if model == "radius_discrete":
+                    particle_process = bp.BivariateMarksBallProcess(
                         germ_intensity=self.germ_processes_per_seed[seed].intensity,
                         particles=particles, alpha=alpha, max_radius=max_rad, min_radius=min_rad, seed=seed
                     )
-                }.get(model)
+                elif model == "radius_continuous":
+                    particle_process = bp.ContinuousMarksBallProcess(
+                        germ_intensity=self.germ_processes_per_seed[seed].intensity,
+                        particles=particles, alpha=alpha, max_radius=max_rad, min_radius=min_rad, seed=seed
+                    )
                 particle_processes.append(particle_process)
         return particle_processes
 
