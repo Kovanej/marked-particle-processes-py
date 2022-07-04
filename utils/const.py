@@ -80,7 +80,7 @@ ALPHA = 0.75
 CONFIG_VALID_KEYS = [
     "process_type", "intensity", "space_dimension", "marking_type", "marking_parameters", "particles_parameters",
     "plot_realizations", "compute_f_mark_statistics", "f_mark_weights_and_statistics", "perform_permutation_test",
-    "permutation_tests_parameters", "initial_seed", "number_of_realizations"
+    "permutation_tests_parameters", "initial_seed", "number_of_realizations", "save_results"
 ]
 CONFIG_NON_NULLABLE = ["process_type", "intensity"]
 CONFIG_OPTIONAL_VALUES = {
@@ -115,5 +115,6 @@ CONFIG_OPTIONAL_VALUES = {
         "plot_histograms": False
     },
     "initial_seed": 0,
-    "number_of_realizations": 1
+    "number_of_realizations": 1,
+    "save_results": True
 }

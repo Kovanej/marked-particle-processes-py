@@ -68,7 +68,8 @@ class ConfigParser(object):
         result_saver = ResultSaver()
         processes_to_save = {key: v for key, v in self.lists_of_processes_per_seed_and_name.items() if key[1] == seed}
         for key, process in processes_to_save.items():
-            # process.plot_itself()
+            if self.plot_realizations:
+                process.plot_itself()
             process.compute_the_f_mark_characteristics()
             process.perform_the_permutation_test_for_f_mark_characteristics()
             for weight, fs in self.f_mark_weights_and_statistics.items():
@@ -79,7 +80,7 @@ class ConfigParser(object):
                         quantile_dict=process.f_mark_statistics_quantiles, value_dict=process.f_mark_statistics,
                         seed=seed
                     )
-        result_saver.save_to_pandas()
+        result_saver.save_to_pandas(save_csv=self.save_results)
         return result_saver
 
     def initialize_the_processes(self, seed: int = 23) -> None:
@@ -194,5 +195,6 @@ class ConfigParser(object):
         self.permutation_tests_parameters = None
         self.initial_seed = None
         self.number_of_realizations = None
+        self.save_results = None
 
 

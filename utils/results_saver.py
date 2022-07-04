@@ -1,4 +1,4 @@
-
+import os
 from datetime import datetime as dt
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -54,6 +54,8 @@ class ResultSaver(object):
         # self.results_grouped_by_df = pd.DataFrame(self.results_grouped_df_dict)
         dtm = str(dt.now()).replace(":", "-")
         if save_csv:
+            if "results" not in os.listdir():
+                os.mkdir("./results")
             self.results_all_df.to_csv(f"results/results_{dtm}.csv", index=False)
 
     def pickle_the_result_dataframes(self):
