@@ -16,3 +16,11 @@ Currently only for 2D simulations.
 The "minimal" requirements for config values are parameters:
 * `process_type` (str) - either `"ball"` or `"segment"`
 * `intensity` (float) - intensity of a ground Poisson point process of germs (expected number in a unit-measure Borel subset of $\mathbb R^d$).
+Example of "minimal config":
+```
+{
+  "process_type": ball,
+  "intensity": 100
+}
+```
+"Maximal config options" can be found in `config_ext.json`, yet for some of the functionalities the code has to be updated (WIP).
