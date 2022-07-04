@@ -2,10 +2,9 @@
 (To be) library/module for simulating and/or statistical analysis of marked particle processes realizations.
 Currently only for 2D simulations.
 
-## Usage
-
 ### Installation
 #### 1) Cloning the project
+* Asure that you have the `python` installed in your device.
 * Clone the repo in branch `main`.
 * Install the required packages (stored in `requirements.txt` with corresponding versions needed).
 * Setup a config (see below).
