@@ -90,7 +90,8 @@ class BallProcess(ParticleProcess):
             min_alpha = alpha if min_alpha > alpha else min_alpha
             max_alpha = alpha if max_alpha < alpha else max_alpha
         self._add_legend(
-            ax=ax, plt=plt, fig=fig, mark_type=particle.mark.mark_type, face_color=face_color, min_alpha=min_alpha, max_alpha=max_alpha
+            ax=ax, plt=plt, fig=fig, mark_type=particle.mark.mark_type, face_color=face_color, min_alpha=min_alpha,
+            max_alpha=max_alpha
         )
 
     def _compute_the_particles_measure(self):
@@ -162,18 +163,45 @@ class BivariateMaximalSharedAreaMarkBallProcess(BallProcess):
         super().__init__(
             germ_intensity=germ_intensity, particles=particles, marked=True, seed=seed,
             marked_aposteriori=True, marks_aposteriori_type="maximal_shared_area",
-            model_name=f"max_shared_area_alpha={self.alpha}", max_radius=max_radius, min_radius=min_radius
+            model_name=f"max_shared_area_disc_alpha={self.alpha}", max_radius=max_radius, min_radius=min_radius
         )
         self._mark_itself()
 
     def _mark_itself(self):
         max_shared_per_particle = self.pairwise_shared_measure_matrix.max(axis=0)
         max_possible_shared_area = (self.max_radius ** 2) * np.pi
-        tau = np.random.binomial(n=1, p=1/2)
+        tau = np.random.binomial(n=1, p=self.alpha)
         p_alt = np.where(tau == 0, 1 / 2, np.random.binomial(n=1, p=max_shared_per_particle / max_possible_shared_area))
         mark_values = np.random.binomial(n=1, p=p_alt)
+        for k in range(len(self.particles)):
+            mark = Mark(mark_type="discrete", mark_value=mark_values[k])
+            self.particles[k].mark = mark
+        self._compute_the_marks_matrices()
+
+
+class ContinuousMaximalSharedAreaMarkBallProcess(BallProcess):
+
+    def __init__(
+            self, germ_intensity: float, particles: List[Particle], alpha: float, min_radius: float, max_radius: float,
+            seed: Optional[int] = None
+    ):
+        self.alpha = alpha
+        super().__init__(
+            germ_intensity=germ_intensity, particles=particles, marked=True, seed=seed,
+            marked_aposteriori=True, marks_aposteriori_type="maximal_shared_area",
+            model_name=f"max_shared_area_cont_alpha={self.alpha}", max_radius=max_radius, min_radius=min_radius
+        )
+        self._mark_itself()
+
+    def _mark_itself(self):
+        max_shared_per_particle = self.pairwise_shared_measure_matrix.max(axis=0)
+        # TODO compute correctly
+        max_shared_area = self.pairwise_shared_measure_matrix.max()
+        min_shared_area = self.pairwise_shared_measure_matrix.min()
+        mark_values = self.alpha * max_shared_per_particle + (1 - self.alpha) * (
+            min_shared_area + (max_shared_area - min_shared_area) * np.random.random(size=max_shared_per_particle.size)
+        )
         for k in range(len(self.particles)):
             mark = Mark(mark_type="continuous", mark_value=mark_values[k])
             self.particles[k].mark = mark
         self._compute_the_marks_matrices()
-        a=1
