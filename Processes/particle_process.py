@@ -240,7 +240,7 @@ class ParticleProcess(object):
             fig.colorbar(psm, ax=ax)
 
     @staticmethod
-    def _choose_edge_color(self):
+    def _choose_edge_color():
         return "#000000"
         # return np.random.choice(const.PARTICLE_COLORS_CHOICE)
 
@@ -258,7 +258,7 @@ class ParticleProcess(object):
         return col, alpha
 
     @staticmethod
-    def _choose_germ_color(self):
+    def _choose_germ_color():
         return "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)]), np.random.random(1)[0]
 
     def _compute_the_particles_measure(self):
