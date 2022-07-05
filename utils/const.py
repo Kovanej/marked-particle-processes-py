@@ -18,7 +18,6 @@ MIN_CIRC_RAD = 0.05
 
 POISSON_INTENSITY = 100
 MARKED = True
-MARKS_MODEL = "Lisa"
 SPACE_DIMENSION = 2
 GRAIN_TYPE = "segment"
 
@@ -44,37 +43,10 @@ F_MARK_COMBINATIONS = {
     for k, v in WEIGHT_TYPES.items()
 }
 
-# COLORS
-
-# PARTICLE_COLORS_CHOICE = [
-#                 "#FC6499", "#9FF4DF", "#F6F0A3"
-#             ]
-# PARTICLE_COLORS_CHOICE = [
-#                 "#F9EFB4", "#F4BE9A", "#BA6191", "#40008C", "#000032"
-#             ]
-# PARTICLE_COLORS_CHOICE = [
-#                 "#E0ADDD", "#FFF4D9", "#87D7D7", "#7488BB"
-#             ]
-# PARTICLE_COLORS_CHOICE = [
-#                 "#0075C2", "#FDE152", "#EEB336", "#017C81", "#254479", "#F87203"
-#             ]
-# PARTICLE_COLORS_CHOICE = [
-#                 "#22A7D9", "#2B2B2B", "#FCCF1C", "#FC6499"
-#             ]
-# PARTICLE_COLORS_CHOICE = [
-#                 "#FC6499", "#9FF4DF", "#F6F0A3", "#6BCEEE"
-#             ] + ["#22A7D9", "#2B2B2B", "#FCCF1C", "#FC6499"
-#                  ] + ["#0075C2", "#FDE152", "#EEB336", "#017C81", "#254479", "#F87203"
-#                       ] + ["#E0ADDD", "#FFF4D9", "#87D7D7", "#7488BB"]
-
-# PARTICLE_COLORS_CHOICE = ["#448F58", "#90C26E", "#DE3657", "#6A559B", "#FF9443"]
 PARTICLE_COLORS_CHOICE = [
-    "#1B2784", "#F6AF5B", "#4DA58C", "#1B2784", "#448F58", "#90C26E", "#DE3657", "#6A559B", "#FF9443"
-] + [
-    "#000000"
+    "#1B2784", "#F6AF5B", "#4DA58C", "#1B2784", "#448F58", "#90C26E", "#DE3657", "#6A559B", "#FF9443", "#000000"
 ]
 
-# PARTICLE_COLORS_CHOICE = ["#FC6499", "#6BCEEE", "#87D7D7"]
 ALPHA = 0.75
 GRADIENT_SMOOTHNESS = 100
 

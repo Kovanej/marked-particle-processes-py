@@ -17,13 +17,17 @@ import utils.const as const
 class BallProcess(ParticleProcess):
 
     def __init__(
-            self, germ_intensity: float, particles: List[Particle], marked: bool = False,
-            model_name: Optional[str] = None, seed: Optional[int] = None
+            self, germ_intensity: float, particles: List[Particle], max_radius: float, min_radius: float,
+            marked: bool = False, model_name: Optional[str] = None, seed: Optional[int] = None,
+            marked_aposteriori: Optional[bool] = False, marks_aposteriori_type: Optional[str] = None,
     ):
         self.radii_array = np.array([p.grain.radius for p in particles])
+        self.max_radius = max_radius
+        self.min_radius = min_radius
         super().__init__(
             germ_intensity=germ_intensity, grain_type="ball", particles=particles, space_dimension=2, marked=marked,
-            model_name=model_name, seed=seed
+            model_name=model_name, seed=seed, marked_aposteriori=marked_aposteriori,
+            marks_aposteriori_type=marks_aposteriori_type
         )
 
     def _compute_the_pairwise_shared_measure_matrix(self):
@@ -98,14 +102,17 @@ class BallProcess(ParticleProcess):
 class RadiusMarksBallProcess(BallProcess):
 
     def __init__(
-            self, germ_intensity: float, particles: List[Particle], model_name: Optional[str], seed: Optional[int] = None
+            self, germ_intensity: float, particles: List[Particle], model_name: Optional[str],max_radius: float,
+            min_radius: float, seed: Optional[int] = None
+
     ):
         super().__init__(
-            germ_intensity=germ_intensity, particles=particles, marked=True, model_name=model_name, seed=seed
+            germ_intensity=germ_intensity, particles=particles, marked=True, model_name=model_name, seed=seed,
+            min_radius=min_radius, max_radius=max_radius
         )
 
 
-class BivariateMarksBallProcess(RadiusMarksBallProcess):
+class BivariateRadiusMarksBallProcess(RadiusMarksBallProcess):
 
     def __init__(
             self, germ_intensity: float, particles: List[Particle], alpha: float, max_radius: float, min_radius: float,
@@ -122,11 +129,11 @@ class BivariateMarksBallProcess(RadiusMarksBallProcess):
             particles[k].mark = mark
         super().__init__(
             germ_intensity=germ_intensity, particles=particles, model_name=f"bivariate_radius_alpha={self.alpha}",
-            seed=seed
+            seed=seed, max_radius=max_radius, min_radius=min_radius
         )
 
 
-class ContinuousMarksBallProcess(RadiusMarksBallProcess):
+class ContinuousRadiusMarksBallProcess(RadiusMarksBallProcess):
 
     def __init__(
             self, germ_intensity: float, particles: List[Particle], alpha: float, max_radius: float, min_radius: float,
@@ -141,5 +148,32 @@ class ContinuousMarksBallProcess(RadiusMarksBallProcess):
             particles[k].mark = mark
         super().__init__(
             germ_intensity=germ_intensity, particles=particles, model_name=f"continuous_radius_alpha={self.alpha}",
-            seed=seed
+            seed=seed, max_radius=max_radius, min_radius=min_radius
         )
+
+
+class BivariateMaximalSharedAreaMarkBallProcess(BallProcess):
+
+    def __init__(
+            self, germ_intensity: float, particles: List[Particle], alpha: float, min_radius: float, max_radius: float,
+            seed: Optional[int] = None
+    ):
+        self.alpha = alpha
+        super().__init__(
+            germ_intensity=germ_intensity, particles=particles, marked=True, seed=seed,
+            marked_aposteriori=True, marks_aposteriori_type="maximal_shared_area",
+            model_name=f"max_shared_area_alpha={self.alpha}", max_radius=max_radius, min_radius=min_radius
+        )
+        self._mark_itself()
+
+    def _mark_itself(self):
+        max_shared_per_particle = self.pairwise_shared_measure_matrix.max(axis=0)
+        max_possible_shared_area = (self.max_radius ** 2) * np.pi
+        tau = np.random.binomial(n=1, p=1/2)
+        p_alt = np.where(tau == 0, 1 / 2, np.random.binomial(n=1, p=max_shared_per_particle / max_possible_shared_area))
+        mark_values = np.random.binomial(n=1, p=p_alt)
+        for k in range(len(self.particles)):
+            mark = Mark(mark_type="continuous", mark_value=mark_values[k])
+            self.particles[k].mark = mark
+        self._compute_the_marks_matrices()
+        a=1

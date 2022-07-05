@@ -123,14 +123,19 @@ class ConfigParser(object):
             for alpha in self.marking_parameters["alphas"]:
                 particles = copy.deepcopy(particles)
                 if model == "radius_discrete":
-                    particle_process = bp.BivariateMarksBallProcess(
+                    particle_process = bp.BivariateRadiusMarksBallProcess(
                         germ_intensity=self.germ_processes_per_seed[seed].intensity,
                         particles=particles, alpha=alpha, max_radius=max_rad, min_radius=min_rad, seed=seed
                     )
                 elif model == "radius_continuous":
-                    particle_process = bp.ContinuousMarksBallProcess(
+                    particle_process = bp.ContinuousRadiusMarksBallProcess(
                         germ_intensity=self.germ_processes_per_seed[seed].intensity,
                         particles=particles, alpha=alpha, max_radius=max_rad, min_radius=min_rad, seed=seed
+                    )
+                elif model == "max_shared_area":
+                    particle_process = bp.BivariateMaximalSharedAreaMarkBallProcess(
+                        germ_intensity=self.germ_processes_per_seed[seed].intensity, particles=particles,
+                        alpha=alpha, min_radius=min_rad, max_radius=max_rad
                     )
                 particle_processes.append(particle_process)
         return particle_processes

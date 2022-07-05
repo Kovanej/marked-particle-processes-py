@@ -43,11 +43,7 @@ class ParticleProcess(object):
                 raise ValueError(f"Parameter marks_aposteriori_type not filled for marked_aposteriori==True!")
             self.marks_aposteriori_type = marks_aposteriori_type
         if self.marked and not self.marked_aposteriori:
-            self.marks = np.array([p.mark.mark_value for p in self.particles])
-            self.marks_product = self.marks[..., None] * self.marks[None, ...]
-            self.marks_square = (self.marks[..., None] - self.marks[None, ...]) ** 2 / 2
-            self.max_mark = np.amax(self.marks)
-            self.min_mark = np.amin(self.marks)
+            self._compute_the_marks_matrices()
         self.particle_measure = self._compute_the_particles_measure()
         # compute the grains distance
         self.germs_distance_matrix = self._compute_the_germs_distance_matrix()
@@ -67,6 +63,13 @@ class ParticleProcess(object):
         self.f_mark_statistics_quantiles: Dict[Tuple[str, str], float] = {}
         if self.marked_aposteriori:
             self._compute_the_marks()
+
+    def _compute_the_marks_matrices(self):
+        self.marks = np.array([p.mark.mark_value for p in self.particles])
+        self.marks_product = self.marks[..., None] * self.marks[None, ...]
+        self.marks_square = (self.marks[..., None] - self.marks[None, ...]) ** 2 / 2
+        self.max_mark = np.amax(self.marks)
+        self.min_mark = np.amin(self.marks)
 
     def _compute_the_marks(self):
         pass
@@ -236,6 +239,7 @@ class ParticleProcess(object):
             )
             fig.colorbar(psm, ax=ax)
 
+    @staticmethod
     def _choose_edge_color(self):
         return "#000000"
         # return np.random.choice(const.PARTICLE_COLORS_CHOICE)
@@ -253,9 +257,9 @@ class ParticleProcess(object):
             alpha = const.ALPHA
         return col, alpha
 
+    @staticmethod
     def _choose_germ_color(self):
         return "#"+''.join([random.choice('ABCDEF0123456789') for i in range(6)]), np.random.random(1)[0]
 
     def _compute_the_particles_measure(self):
         pass
-
