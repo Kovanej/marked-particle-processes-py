@@ -59,8 +59,12 @@ CONFIG_NON_NULLABLE = ["process_type", "intensity"]
 CONFIG_OPTIONAL_VALUES = {
     "space_dimension": 2,
     "marking_type": {
-        "ball": ["radius_discrete", "radius_continuous"],
-        "segment": ["angle_discrete", "angle_continuous", "length_discrete", "length_continuous"]
+        "ball": [
+            "radius_discrete", "radius_continuous", "nearest_neighbour_distance", "max_shared_area_continuous"
+        ],
+        "segment": [
+            "angle_discrete", "angle_continuous", "length_discrete", "length_continuous", "nearest_neighbour_distance"
+        ]
     },
     "particles_parameters": {
         "ball": {

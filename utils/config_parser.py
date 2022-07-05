@@ -142,6 +142,11 @@ class ConfigParser(object):
                         germ_intensity=self.germ_processes_per_seed[seed].intensity, particles=particles,
                         alpha=alpha, min_radius=min_rad, max_radius=max_rad
                     )
+                elif model == "nearest_neighbour_distance":
+                    particle_process = bp.ContinuousNNDistanceMarkBallProcess(
+                        germ_intensity=self.germ_processes_per_seed[seed].intensity, particles=particles,
+                        alpha=alpha, min_radius=min_rad, max_radius=max_rad
+                    )
                 particle_processes.append(particle_process)
         return particle_processes
 
@@ -171,22 +176,32 @@ class ConfigParser(object):
                 if model == "angle_discrete":
                     particle_process = sp.BivariateAngleMarksSegmentProcess(
                         germ_intensity=self.germ_processes_per_seed[seed].intensity,
-                        particles=particles, alpha=alpha, max_angle=max_angle_rad, min_angle=min_angle_rad, seed=seed
+                        particles=particles, alpha=alpha, max_angle=max_angle_rad, min_angle=min_angle_rad, seed=seed,
+                        max_length=max_len, min_length=min_len
                     )
                 elif model == "angle_continuous":
                     particle_process = sp.ContinuousAngleMarksSegmentProcess(
                         germ_intensity=self.germ_processes_per_seed[seed].intensity,
-                        particles=particles, alpha=alpha, max_angle=max_angle_rad, min_angle=min_angle_rad, seed=seed
+                        particles=particles, alpha=alpha, max_angle=max_angle_rad, min_angle=min_angle_rad, seed=seed,
+                        max_length=max_len, min_length=min_len
                     )
                 elif model == "length_discrete":
                     particle_process = sp.BivariateLengthMarksSegmentProcess(
                         germ_intensity=self.germ_processes_per_seed[seed].intensity,
-                        particles=particles, alpha=alpha, max_len=max_len, min_len=min_len, seed=seed
+                        particles=particles, alpha=alpha, max_length=max_len, min_length=min_len, seed=seed,
+                        max_angle=max_angle_rad, min_angle=min_angle_rad
                     )
                 elif model == "length_continuous":
                     particle_process = sp.ContinuousLengthMarksSegmentProcess(
                         germ_intensity=self.germ_processes_per_seed[seed].intensity,
-                        particles=particles, alpha=alpha, max_len=max_len, min_len=min_len, seed=seed
+                        particles=particles, alpha=alpha, max_length=max_len, min_len=min_len, seed=seed,
+                        max_angle=max_angle_rad, min_angle=min_angle_rad
+                    )
+                elif model == "nearest_neighbour_distance":
+                    particle_process = sp.ContinuousNNDistanceMarkSegmentProcess(
+                        germ_intensity=self.germ_processes_per_seed[seed].intensity,
+                        particles=particles, alpha=alpha, max_length=max_len, min_length=min_len, seed=seed,
+                        max_angle=max_angle_rad, min_angle=min_angle_rad
                     )
                 particle_processes.append(particle_process)
         return particle_processes

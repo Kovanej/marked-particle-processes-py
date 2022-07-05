@@ -205,3 +205,33 @@ class ContinuousMaximalSharedAreaMarkBallProcess(BallProcess):
             mark = Mark(mark_type="continuous", mark_value=mark_values[k])
             self.particles[k].mark = mark
         self._compute_the_marks_matrices()
+
+
+class ContinuousNNDistanceMarkBallProcess(BallProcess):
+
+    def __init__(
+            self, germ_intensity: float, particles: List[Particle], alpha: float, min_radius: float, max_radius: float,
+            seed: Optional[int] = None
+    ):
+        self.alpha = alpha
+        super().__init__(
+            germ_intensity=germ_intensity, particles=particles, marked=True, seed=seed,
+            marked_aposteriori=True, marks_aposteriori_type="nn_dist",
+            model_name=f"N_N_dist_alpha={self.alpha}", max_radius=max_radius, min_radius=min_radius
+        )
+        self._mark_itself()
+
+    def _mark_itself(self):
+        part_dist_inf_diagonal = self.particles_distance_matrix.copy()
+        np.fill_diagonal(part_dist_inf_diagonal, np.inf)
+        nn_dist_per_particle = part_dist_inf_diagonal.min(axis=0)
+        # TODO compute correctly
+        max_distance = self.particles_distance_matrix.max()
+        min_distance = nn_dist_per_particle.min()
+        mark_values = self.alpha * nn_dist_per_particle + (1 - self.alpha) * (
+                min_distance + (max_distance - min_distance) * np.random.random(size=nn_dist_per_particle.size)
+        )
+        for k in range(len(self.particles)):
+            mark = Mark(mark_type="continuous", mark_value=mark_values[k])
+            self.particles[k].mark = mark
+        self._compute_the_marks_matrices()
