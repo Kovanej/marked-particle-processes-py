@@ -15,6 +15,7 @@ class ResultSaver(object):
             "Seed": [],
             "Grain Type": [],
             "Model": [],
+            "Intensity": [],
             "f-Mark Type": [],
             "Weight Type": [],
             "Value": [],
@@ -29,12 +30,13 @@ class ResultSaver(object):
 
     def save_the_results(
             self, model_name: str, grain_type: str, permutations_count: int, quantile_dict: Dict, value_dict: Dict,
-            seed: Optional[int] = None
+            intensity: float, seed: Optional[int] = None
     ):
         for (key, val) in quantile_dict.items():
             self.result_dict["Seed"].append(seed)
             self.result_dict["Grain Type"].append(grain_type)
             self.result_dict["Model"].append(model_name)
+            self.result_dict["Intensity"].append(intensity)
             self.result_dict["f-Mark Type"].append(key[0])
             self.result_dict["Weight Type"].append(key[1])
             self.result_dict["Value"].append(value_dict[key])
@@ -46,7 +48,7 @@ class ResultSaver(object):
     def save_to_pandas(self, save_csv: bool = const.SAVE_RESULTS_TO_CSV):
         self.results_all_df = pd.DataFrame(self.result_dict)
         results_all_grouped_by = self.results_all_df.groupby([
-            "Grain Type", "Model", "f-Mark Type", "Weight Type"
+            "Grain Type", "Model", "f-Mark Type", "Weight Type", "Intensity"
         ])
         self.results_grouped_df_dict = {
             k: results_all_grouped_by.get_group(k) for k in results_all_grouped_by.groups
@@ -56,7 +58,9 @@ class ResultSaver(object):
         if save_csv:
             if "results" not in os.listdir():
                 os.mkdir("./results")
-            self.results_all_df.to_csv(f"results/results_{dtm}.csv", index=False)
+            if "csvs" not in os.listdir("./results"):
+                os.mkdir("./results/csvs")
+            self.results_all_df.to_csv(f"results/csvs/results_{dtm}.csv", index=False)
 
     def pickle_the_result_dataframes(self):
         f_results = open(f'pickles/results_{str(dt.now()).replace(":", "-")}.txt', 'wb')

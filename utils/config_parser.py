@@ -78,7 +78,7 @@ class ConfigParser(object):
                         model_name=key[0], grain_type=process.grain_type,
                         permutations_count=const.PERMUTATION_TEST_REPEAT_COUNT,
                         quantile_dict=process.f_mark_statistics_quantiles, value_dict=process.f_mark_statistics,
-                        seed=seed
+                        seed=seed, intensity=process.germ_intensity
                     )
         result_saver.save_to_pandas(save_csv=self.save_results)
         return result_saver
