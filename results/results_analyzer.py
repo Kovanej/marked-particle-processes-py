@@ -31,7 +31,7 @@ class ResultsAnalyzer(object):
     def plot_the_histograms(self):
         for grain_type, model, f_mark_type, weight_type in self.grouped_keys:
             ax = self.grouped_dfs[(grain_type, model, f_mark_type, weight_type)]["Both Sided p-value"].hist(
-                bins=8
+                bins=8, grid=False,
             )
             # TODO this doesn't work if the list of columns is passed ^^
             fig = ax.get_figure()
@@ -41,6 +41,7 @@ class ResultsAnalyzer(object):
             # TODO later will be model & alpha as separate, now temporary workedaround like this
             model_wo_alpha = model.split("alpha")[0][:-1]
             alpha = float(model.split("alpha")[1][1:])
+            plt.xlim(xmin=0, xmax=1)
             plt.savefig(f"./histograms/{grain_type}_{model_wo_alpha}_{weight_type}_{f_mark_type}_{'%.2f' % alpha}.jpg")
             plt.close()
 
