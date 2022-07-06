@@ -44,10 +44,15 @@ F_MARK_COMBINATIONS = {
 }
 
 PARTICLE_COLORS_CHOICE = [
-    "#1B2784", "#F6AF5B", "#4DA58C", "#1B2784", "#448F58", "#90C26E", "#DE3657", "#6A559B", "#FF9443", "#000000"
+    "#1B2784", "#F6AF5B", "#4DA58C", "#1B2784", "#448F58", "#90C26E", "#DE3657", "#6A559B", "#FF9443",
+    "#613A6B", "#FFAA71", "#FAE6B6", "#77ABB5", "#2D264D",
+    "#492742", "#E14F5D", "#FFC349", "#A6BC3E", "#92A43B",
+    "#A2E0DB", "#F55E55", "#FF857A", "#61A8E8", "#4FDDC3",
+    "#FF6D74", "#FFC562", "#476088",
+    "#1B8781", "#F61F51", "#4DF584", "#1CE784", "#04FF58", "#000000"
 ]
 
-ALPHA = 0.75
+ALPHA = 0.85
 GRADIENT_SMOOTHNESS = 100
 
 CONFIG_VALID_KEYS = [
@@ -60,10 +65,12 @@ CONFIG_OPTIONAL_VALUES = {
     "space_dimension": 2,
     "marking_type": {
         "ball": [
-            "radius_discrete", "radius_continuous", "nearest_neighbour_distance", "max_shared_area_continuous"
+            "radius_discrete", "radius_continuous", "nearest_neighbour_distance", "max_shared_area_continuous",
+            "intersection_counting"
         ],
         "segment": [
-            "angle_discrete", "angle_continuous", "length_discrete", "length_continuous", "nearest_neighbour_distance"
+            "angle_discrete", "angle_continuous", "length_discrete", "length_continuous", "nearest_neighbour_distance",
+            "intersection_counting"
         ]
     },
     "particles_parameters": {

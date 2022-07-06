@@ -147,6 +147,13 @@ class ConfigParser(object):
                         germ_intensity=self.germ_processes_per_seed[seed].intensity, particles=particles,
                         alpha=alpha, min_radius=min_rad, max_radius=max_rad
                     )
+                elif model == "intersection_counting":
+                    particle_process = bp.CountingIntersectionNumberMarkBallProcess(
+                        germ_intensity=self.germ_processes_per_seed[seed].intensity, particles=particles,
+                        alpha=alpha, min_radius=min_rad, max_radius=max_rad
+                    )
+                else:
+                    raise NotImplementedError(f"Unknown model '{model}' for a Ball Process.")
                 particle_processes.append(particle_process)
         return particle_processes
 
@@ -171,6 +178,7 @@ class ConfigParser(object):
             )
             particles.append(particle)
         for model in self.marking_type["segment"]:
+            print(model)
             for alpha in self.marking_parameters["alphas"]:
                 particles = copy.deepcopy(particles)
                 if model == "angle_discrete":
@@ -194,7 +202,7 @@ class ConfigParser(object):
                 elif model == "length_continuous":
                     particle_process = sp.ContinuousLengthMarksSegmentProcess(
                         germ_intensity=self.germ_processes_per_seed[seed].intensity,
-                        particles=particles, alpha=alpha, max_length=max_len, min_len=min_len, seed=seed,
+                        particles=particles, alpha=alpha, max_length=max_len, min_length=min_len, seed=seed,
                         max_angle=max_angle_rad, min_angle=min_angle_rad
                     )
                 elif model == "nearest_neighbour_distance":
@@ -203,6 +211,14 @@ class ConfigParser(object):
                         particles=particles, alpha=alpha, max_length=max_len, min_length=min_len, seed=seed,
                         max_angle=max_angle_rad, min_angle=min_angle_rad
                     )
+                elif model == "intersection_counting":
+                    particle_process = sp.CountingIntersectionNumberMarkSegmentProcess(
+                        germ_intensity=self.germ_processes_per_seed[seed].intensity,
+                        particles=particles, alpha=alpha, max_length=max_len, min_length=min_len, seed=seed,
+                        max_angle=max_angle_rad, min_angle=min_angle_rad
+                    )
+                else:
+                    raise NotImplementedError(f"Unknown model '{model}' for a Segment Process.")
                 particle_processes.append(particle_process)
         return particle_processes
 

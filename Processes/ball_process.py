@@ -235,3 +235,31 @@ class ContinuousNNDistanceMarkBallProcess(BallProcess):
             mark = Mark(mark_type="continuous", mark_value=mark_values[k])
             self.particles[k].mark = mark
         self._compute_the_marks_matrices()
+
+
+class CountingIntersectionNumberMarkBallProcess(BallProcess):
+
+    def __init__(
+            self, germ_intensity: float, particles: List[Particle], alpha: float, min_radius: float, max_radius: float,
+            seed: Optional[int] = None
+    ):
+        self.alpha = alpha
+        super().__init__(
+            germ_intensity=germ_intensity, particles=particles, marked=True, seed=seed,
+            marked_aposteriori=True, marks_aposteriori_type="nn_dist",
+            model_name=f"N_N_dist_alpha={self.alpha}", max_radius=max_radius, min_radius=min_radius
+        )
+        self._mark_itself()
+
+    def _mark_itself(self):
+        tau = np.random.binomial(n=1, p=self.alpha, size=len(self.particles))
+        # subtracting the one, since particles intersect themselves
+        intersection_count = self.particles_intersection_matrix.sum(axis=0) - 1
+        # TODO compute properly
+        independent_poisson = np.random.poisson(intersection_count.mean(), size=intersection_count.size)
+        dependent_poisson = np.random.poisson(intersection_count)
+        mark_values = np.where(tau == 0, independent_poisson, dependent_poisson)
+        for k in range(len(self.particles)):
+            mark = Mark(mark_type="discrete", mark_value=mark_values[k])
+            self.particles[k].mark = mark
+        self._compute_the_marks_matrices()

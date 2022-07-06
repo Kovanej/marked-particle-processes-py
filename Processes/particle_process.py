@@ -227,6 +227,7 @@ class ParticleProcess(object):
     ):
         if mark_type == "discrete":
             handles, labels = plt.gca().get_legend_handles_labels()
+            labels = [int(lb) for lb in labels]
             by_label = dict(zip(labels, handles))
             by_label_sorted = {k: by_label[k] for k in sorted(by_label)}
             plt.figlegend(by_label_sorted.values(), by_label_sorted.keys())
