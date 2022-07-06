@@ -8,9 +8,9 @@ class ResultsAnalyzer(object):
 
     def __init__(self):
         self.dfs_list = []
-        self.files_to_analyze = [f for f in os.listdir() if ".csv" in f]
+        self.files_to_analyze = [f for f in os.listdir("./csvs") if ".csv" in f]
         for f in self.files_to_analyze:
-            df = pd.read_csv(f)
+            df = pd.read_csv(f"./csvs/{f}")
             self.dfs_list.append(df)
         self.df = pd.concat(self.dfs_list)
         self.grouped_keys = [
@@ -36,7 +36,10 @@ class ResultsAnalyzer(object):
             # TODO this doesn't work if the list of columns is passed ^^
             fig = ax.get_figure()
             ax.set_title(f"{grain_type, model, f_mark_type, weight_type}")
-            plt.show()
+            if "histograms" not in os.listdir():
+                os.makedirs("./histograms")
+            plt.savefig(f"./histograms/{grain_type}_{model}_{f_mark_type}_{weight_type}_bothsided.jpg")
+            plt.close()
 
 
 results_analyzer = ResultsAnalyzer()

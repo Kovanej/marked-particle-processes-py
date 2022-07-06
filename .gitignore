@@ -133,3 +133,6 @@ dmypy.json
 generated_pics/
 pickles/
 run_debug.py
+results_old/
+results/archive
+results/histograms
