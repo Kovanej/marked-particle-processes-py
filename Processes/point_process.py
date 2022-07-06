@@ -26,6 +26,9 @@ class PointProcess(object):
             self.points = self._generate_itself()
         else:
             self.points = points
+        self.point_inside_the_obs_window = np.array(
+            [all([(0 <= point[j] <= 1) for j in range(point.size)]) for point in self.points]
+        )
 
     def _generate_itself(self):
         # overriden in subclasses - TODO: Raise Error if not called in subclass

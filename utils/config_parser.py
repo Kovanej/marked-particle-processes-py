@@ -114,10 +114,13 @@ class ConfigParser(object):
         min_rad = self.particles_parameters["ball"]["min_radius"]
         particle_processes = []
         particles = []
-        for point in self.germ_processes_per_seed[seed].points:
+        for k in range(self.germ_processes_per_seed[seed].points.shape[0]):
             radius = min_rad + (max_rad - min_rad) * np.random.random_sample()
-            grain = Circle(point=point, radius=radius)
-            particle = Particle(germ=point, grain=grain)
+            grain = Circle(point=self.germ_processes_per_seed[seed].points[k], radius=radius)
+            particle = Particle(
+                germ=self.germ_processes_per_seed[seed].points[k], grain=grain,
+                germ_inside_the_obs_window=self.germ_processes_per_seed[seed].point_inside_the_obs_window[k]
+            )
             particles.append(particle)
         for model in self.marking_type["ball"]:
             for alpha in self.marking_parameters["alphas"]:
@@ -164,21 +167,19 @@ class ConfigParser(object):
         min_angle_rad = self.particles_parameters["segment"]["min_angle_in_degrees"] * np.pi / 180
         particle_processes = []
         particles = []
-        for point in self.germ_processes_per_seed[seed].points:
+        for k in range(self.germ_processes_per_seed[seed].points.shape[0]):
             length = min_len + (max_len - min_len) * np.random.random_sample()
             angle = min_angle_rad + (max_angle_rad - min_angle_rad) * np.random.random_sample()
             particle = Particle(
-                germ=point,
-                grain_type="segment",
+                germ=self.germ_processes_per_seed[seed].points[k], grain_type="segment",
                 grain=Segment(
-                    start_point=point - 1 / 2 * length * np.array(
+                    start_point=self.germ_processes_per_seed[seed].points[k] - 1 / 2 * length * np.array(
                         [np.cos(angle), np.sin(angle)]),
                     length=length, angle=angle
-                )
+                ), germ_inside_the_obs_window=self.germ_processes_per_seed[seed].point_inside_the_obs_window[k]
             )
             particles.append(particle)
         for model in self.marking_type["segment"]:
-            print(model)
             for alpha in self.marking_parameters["alphas"]:
                 particles = copy.deepcopy(particles)
                 if model == "angle_discrete":

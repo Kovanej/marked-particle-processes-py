@@ -13,6 +13,7 @@ class Particle(object):
             self,
             germ: Point,
             grain: Union[Circle, Segment],
+            germ_inside_the_obs_window: bool,
             grain_type: str = "ball",
             mark: Optional[Mark] = None,
             space_dimension: int = 2
@@ -22,6 +23,7 @@ class Particle(object):
                 f"Invalid input of grain_type=={grain_type}. Please use one of the {const.GRAIN_VALID_TYPES}."
             )
         self.germ = germ
+        self.germ_inside_the_obs_window = germ_inside_the_obs_window
         self.grain = grain
         self.space_dimension = space_dimension
         self.mark = mark
