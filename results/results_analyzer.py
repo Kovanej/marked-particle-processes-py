@@ -38,7 +38,10 @@ class ResultsAnalyzer(object):
             ax.set_title(f"{grain_type, model, f_mark_type, weight_type}")
             if "histograms" not in os.listdir():
                 os.makedirs("./histograms")
-            plt.savefig(f"./histograms/{grain_type}_{model}_{f_mark_type}_{weight_type}_bothsided.jpg")
+            # TODO later will be model & alpha as separate, now temporary workedaround like this
+            model_wo_alpha = model.split("alpha")[0][:-1]
+            alpha = float(model.split("alpha")[1][1:])
+            plt.savefig(f"./histograms/{grain_type}_{model_wo_alpha}_{weight_type}_{f_mark_type}_{'%.2f' % alpha}.jpg")
             plt.close()
 
 
