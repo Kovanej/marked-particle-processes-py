@@ -129,7 +129,7 @@ class BivariateRadiusMarksBallProcess(RadiusMarksBallProcess):
             mark = Mark(mark_type="discrete", mark_value=mark_value, number_of_levels=2)
             particles[k].mark = mark
         super().__init__(
-            germ_intensity=germ_intensity, particles=particles, model_name=f"bivariate_radius_alpha={self.alpha}",
+            germ_intensity=germ_intensity, particles=particles, model_name=f"ball_bivariate_radius_alpha={self.alpha}",
             seed=seed, max_radius=max_radius, min_radius=min_radius
         )
 
@@ -148,7 +148,7 @@ class ContinuousRadiusMarksBallProcess(RadiusMarksBallProcess):
             mark = Mark(mark_type="continuous", mark_value=mark_values[k])
             particles[k].mark = mark
         super().__init__(
-            germ_intensity=germ_intensity, particles=particles, model_name=f"continuous_radius_alpha={self.alpha}",
+            germ_intensity=germ_intensity, particles=particles, model_name=f"ball_continuous_radius_alpha={self.alpha}",
             seed=seed, max_radius=max_radius, min_radius=min_radius
         )
 
@@ -163,7 +163,7 @@ class BivariateMaximalSharedAreaMarkBallProcess(BallProcess):
         super().__init__(
             germ_intensity=germ_intensity, particles=particles, marked=True, seed=seed,
             marked_aposteriori=True, marks_aposteriori_type="maximal_shared_area",
-            model_name=f"max_shared_area_disc_alpha={self.alpha}", max_radius=max_radius, min_radius=min_radius
+            model_name=f"ball_max_shared_area_disc_alpha={self.alpha}", max_radius=max_radius, min_radius=min_radius
         )
         self._mark_itself()
 
@@ -189,7 +189,7 @@ class ContinuousMaximalSharedAreaMarkBallProcess(BallProcess):
         super().__init__(
             germ_intensity=germ_intensity, particles=particles, marked=True, seed=seed,
             marked_aposteriori=True, marks_aposteriori_type="maximal_shared_area",
-            model_name=f"max_shared_area_cont_alpha={self.alpha}", max_radius=max_radius, min_radius=min_radius
+            model_name=f"ball_max_shared_area_cont_alpha={self.alpha}", max_radius=max_radius, min_radius=min_radius
         )
         self._mark_itself()
 
@@ -217,7 +217,7 @@ class ContinuousNNDistanceMarkBallProcess(BallProcess):
         super().__init__(
             germ_intensity=germ_intensity, particles=particles, marked=True, seed=seed,
             marked_aposteriori=True, marks_aposteriori_type="nn_dist",
-            model_name=f"N_N_dist_alpha={self.alpha}", max_radius=max_radius, min_radius=min_radius
+            model_name=f"ball_N_N_dist_alpha={self.alpha}", max_radius=max_radius, min_radius=min_radius
         )
         self._mark_itself()
 
@@ -247,7 +247,7 @@ class CountingIntersectionNumberMarkBallProcess(BallProcess):
         super().__init__(
             germ_intensity=germ_intensity, particles=particles, marked=True, seed=seed,
             marked_aposteriori=True, marks_aposteriori_type="nn_dist",
-            model_name=f"N_N_dist_alpha={self.alpha}", max_radius=max_radius, min_radius=min_radius
+            model_name=f"ball_intersection_count_alpha={self.alpha}", max_radius=max_radius, min_radius=min_radius
         )
         self._mark_itself()
 

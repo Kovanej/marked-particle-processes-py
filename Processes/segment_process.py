@@ -217,7 +217,7 @@ class BivariateAngleMarksSegmentProcess(AngleMarksSegmentProcess):
             mark = Mark(mark_type="discrete", mark_value=mark_value, number_of_levels=2)
             particles[k].mark = mark
         super().__init__(
-            germ_intensity=germ_intensity, particles=particles, model_name=f"discrete_angle_alpha={self.alpha}",
+            germ_intensity=germ_intensity, particles=particles, model_name=f"seg_discrete_angle_alpha={self.alpha}",
             seed=seed, max_angle=max_angle, min_angle=min_angle, max_length=max_length, min_length=min_length
         )
 
@@ -237,7 +237,7 @@ class ContinuousAngleMarksSegmentProcess(AngleMarksSegmentProcess):
             mark = Mark(mark_type="continuous", mark_value=mark_value)
             particles[k].mark = mark
         super().__init__(
-            germ_intensity=germ_intensity, particles=particles, model_name=f"continuous_angle_alpha={self.alpha}",
+            germ_intensity=germ_intensity, particles=particles, model_name=f"seg_continuous_angle_alpha={self.alpha}",
             seed=seed, max_angle=max_angle, min_angle=min_angle, max_length=max_length, min_length=min_length
         )
 
@@ -271,7 +271,7 @@ class BivariateLengthMarksSegmentProcess(LengthMarksSegmentProcess):
             mark = Mark(mark_type="discrete", mark_value=mark_value, number_of_levels=2)
             particles[k].mark = mark
         super().__init__(
-            germ_intensity=germ_intensity, particles=particles, model_name=f"discrete_length_alpha={self.alpha}",
+            germ_intensity=germ_intensity, particles=particles, model_name=f"seg_discrete_length_alpha={self.alpha}",
             seed=seed, max_angle=max_angle, min_angle=min_angle, max_length=max_length, min_length=min_length
         )
 
@@ -291,7 +291,7 @@ class ContinuousLengthMarksSegmentProcess(LengthMarksSegmentProcess):
             mark = Mark(mark_type="continuous", mark_value=mark_value)
             particles[k].mark = mark
         super().__init__(
-            germ_intensity=germ_intensity, particles=particles, model_name=f"continuous_length_alpha={self.alpha}",
+            germ_intensity=germ_intensity, particles=particles, model_name=f"seg_continuous_length_alpha={self.alpha}",
             seed=seed, max_angle=max_angle, min_angle=min_angle, max_length=max_length, min_length=min_length
         )
 
@@ -306,7 +306,7 @@ class ContinuousNNDistanceMarkSegmentProcess(SegmentProcess):
         super().__init__(
             germ_intensity=germ_intensity, particles=particles, marked=True, seed=seed,
             marked_aposteriori=True, marks_aposteriori_type="nn_dist",
-            model_name=f"N_N_dist_alpha={self.alpha}",
+            model_name=f"seg_N_N_dist_alpha={self.alpha}",
             max_angle=max_angle, min_angle=min_angle, max_length=max_length, min_length=min_length
         )
         self._mark_itself()
@@ -337,7 +337,7 @@ class CountingIntersectionNumberMarkSegmentProcess(SegmentProcess):
         super().__init__(
             germ_intensity=germ_intensity, particles=particles, marked=True, seed=seed,
             marked_aposteriori=True, marks_aposteriori_type="intersection_count",
-            model_name=f"intersection_count_alpha={self.alpha}",
+            model_name=f"seg_intersection_count_alpha={self.alpha}",
             max_angle=max_angle, min_angle=min_angle, max_length=max_length, min_length=min_length
         )
         self._mark_itself()

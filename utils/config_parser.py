@@ -95,6 +95,10 @@ class ConfigParser(object):
             processes = self._initialize_the_ball_processes(seed=seed)
         elif self.process_type == "segment":
             processes = self._initialize_the_segment_processes(seed=seed)
+        elif self.process_type == "both":
+            ball_processes = self._initialize_the_ball_processes(seed=seed)
+            segment_processes = self._initialize_the_segment_processes(seed=seed)
+            processes = ball_processes + segment_processes
         else:
             raise ValueError(f"Incapable of simulating process of unknown process_type: {self.process_type}")
         for process in processes:
@@ -105,6 +109,13 @@ class ConfigParser(object):
             max_overlap = self.particles_parameters["ball"]["max_radius"]
         elif self.process_type == "segment":
             max_overlap = self.particles_parameters["segment"]["max_segment_length"]
+        elif self.process_type == "both":
+            max_overlap = np.max(
+                [
+                    self.particles_parameters["ball"]["max_radius"],
+                    self.particles_parameters["segment"]["max_segment_length"]
+                ]
+            )
         else:
             raise ValueError(f"Unknown particle process type: {self.process_type}")
         return - max_overlap, 1 + max_overlap
