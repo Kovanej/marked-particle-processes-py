@@ -27,6 +27,9 @@ class ResultsAnalyzer(object):
         }
         self.grouped_dfs = {k: df for k, df in self.grouped_dfs.items() if not df.empty}
         self.grouped_keys = [k for k in self.grouped_dfs.keys()]
+        self.grouped_both_sided_rejection_rate = {
+            k: (df["Both Sided p-value"] < 0.05).mean() for k, df in self.grouped_dfs.items()
+        }
 
     def plot_the_histograms(self):
         for grain_type, model, f_mark_type, weight_type in self.grouped_keys:
