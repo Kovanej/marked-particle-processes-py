@@ -32,6 +32,6 @@
     },
   "plot_realizations": false,
   "save_results": true,
-  "initial_seed": 2163,
+  "initial_seed": 2186,
   "number_of_realizations": 500
 }
