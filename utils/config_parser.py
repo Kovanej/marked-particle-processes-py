@@ -74,14 +74,14 @@ class ConfigParser(object):
             process.compute_the_f_mark_characteristics()
             _end = datetime.now()
             logging.info(
-                f"{datetime.now}: f-mark characteristics computation end for process "
+                f"{datetime.now()}: f-mark characteristics computation end for process "
                 f"{process.model_name} with duration: {_end - _start}"
             )
             _start = datetime.now()
             process.perform_the_permutation_test_for_f_mark_characteristics()
             _end = datetime.now()
             logging.info(
-                f"{datetime.now}: permutation test computation end for process "
+                f"{datetime.now()}: permutation test computation end for process "
                 f"{process.model_name} with duration: {_end - _start}"
             )
             for weight, fs in self.f_mark_weights_and_statistics.items():
