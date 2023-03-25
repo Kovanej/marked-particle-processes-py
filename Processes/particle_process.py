@@ -103,6 +103,9 @@ class ParticleProcess(object):
         logging.info(f"{datetime.now()} :Germs distance computation end.")
         return grains_distance_matrix
 
+    def compute_the_statistics(self):
+        pass
+
     def compute_the_f_mark_characteristics(self):
         for f_type in const.F_MARK_TYPES:
             self._compute_the_f_mark_normalization_constants(f_type=f_type)

@@ -22,7 +22,7 @@ def execute_from_config(config_parser: ConfigParser):
     for seed in range(config_parser.initial_seed, config_parser.initial_seed + config_parser.number_of_realizations):
         config_parser.initialize_the_processes(seed=seed)
         result_saver = config_parser.return_the_result_saver(seed=seed)
-        # result_savers.append(result_saver)
+        result_savers.append(result_saver)
         print(f"Results computed for seed={seed}.")
     return result_savers
 
