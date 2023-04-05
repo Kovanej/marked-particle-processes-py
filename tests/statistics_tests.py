@@ -14,23 +14,32 @@ from Processes.ball_process import BallProcess
 from Processes.point_process import PoissonPointProcess
 import utils.const as const
 
-NUMBER_OF_SEEDS = 500
+NUMBER_OF_SEEDS = 100
 LAMBDA_TEST = 40
 
-RADIUS_FIXED = FALSE
-RADIUS_TEST_MEAN = 0.2
-RADIUS_TEST_RANGE = 0.1
+RADIUS_FIXED = False
+RADIUS_TEST_MIN = 0.1
+RADIUS_TEST_RANGE = 0.8
 
-R_MIN = RADIUS_TEST_MEAN - RADIUS_TEST_RANGE / 2
-R_MAX = RADIUS_TEST_MEAN + RADIUS_TEST_RANGE / 2
+R_MIN = RADIUS_TEST_MIN
+R_MAX = RADIUS_TEST_MIN + RADIUS_TEST_RANGE
 
-P_ALT = 1/2
+P_ALT = 0.3
 win_edge_start_point, win_edge_end_point = - 1 - 3 * R_MAX, 1 + 3 * R_MAX
 
 f_mark_statistics = []
 
-for _ in range(NUMBER_OF_SEEDS):
 
+def simple_pwfcf_for_uniform_distribution(value: float, lam: float, p: float, a: float, b: float):
+    return (lam * p * np.pi) ** 2 * (1 / 180) * (
+        (210 * b ** 2 + 300 * a * b + 210 * a ** 2) * value ** 2 +
+        (270 * b ** 3 + 450 * a ** 2 * b + 450 * a * b ** 2 + 210 * a ** 3) * value +
+        (101 * b ** 4 + 166 * a * b ** 3 + 186 * a ** 2 * b ** 2 + 166 * a ** 3 * b + 101 * a ** 4)
+    )
+
+
+for _ in range(NUMBER_OF_SEEDS):
+    _start = datetime.now()
     np.random.seed(seed=_)
 
     poisson_point_process = PoissonPointProcess(
@@ -39,15 +48,18 @@ for _ in range(NUMBER_OF_SEEDS):
 
     MARKS_TEST = [np.random.binomial(1, P_ALT) for _ in range(poisson_point_process.points.size)]
 
+    RADIUS_TEST = np.random.uniform(low=R_MIN, high=R_MAX)
     particles = [
         Particle(
-            germ=center, grain_type="ball", germ_inside_the_obs_window=True, grain=Circle(point=center, radius=RADIUS_TEST_MEAN),
+            germ=center, grain_type="ball", germ_inside_the_obs_window=True, grain=Circle(point=center, radius=RADIUS_TEST),
             mark=Mark(mark_type="discrete", mark_value=mark)
         ) for center, mark in zip(poisson_point_process.points, MARKS_TEST)]
     ball_process_test = BallProcess(
-        germ_intensity=LAMBDA_TEST, particles=particles, max_radius=RADIUS_TEST_MEAN, min_radius=RADIUS_TEST_MEAN, marked=True)
+        germ_intensity=LAMBDA_TEST, particles=particles, max_radius=R_MAX, min_radius=R_MIN, marked=True)
     ball_process_test.compute_the_f_mark_characteristics(set_of_f_mark_combinations=[('product', 'intersection')])
     f_mark_statistics.append(ball_process_test.f_mark_statistics)
+    _end = datetime.now()
+    print(f"Computation of f-mark stats for seed: {_} ended in {_end}.\n Runtime of this computation: {_end - _start}.")
 
 t_computed = list(f_mark_statistics[0][('product', 'intersection')].keys())
 f_mark_statistics_max = {}
@@ -71,11 +83,9 @@ inputs = sorted(f_mark_statistics_mean.keys())
 outputs_mean = [f_mark_statistics_mean[k] for k in inputs]
 outputs_min = [f_mark_statistics_min[k] for k in inputs]
 outputs_max = [f_mark_statistics_max[k] for k in inputs]
-if RADIUS_FIXED:
-    outputs_theoretical = [(LAMBDA_TEST * np.pi * 2 * RADIUS_TEST_MEAN * P_ALT) ** 2 * (RADIUS_TEST_MEAN + t) ** 2 for t in inputs]
-else:
-    # todo rewrite
-    outputs_theoretical = [(LAMBDA_TEST * np.pi * 2 * RADIUS_TEST_MEAN * P_ALT) ** 2 * (RADIUS_TEST_MEAN + t) ** 2 for t in inputs]
+outputs_theoretical = [
+    simple_pwfcf_for_uniform_distribution(value=t, lam=LAMBDA_TEST, p=P_ALT, a=R_MIN, b=R_MAX) for t in inputs
+]
 
 # Create a line plot
 plt.plot(inputs, outputs_mean, marker='o', label="mean")

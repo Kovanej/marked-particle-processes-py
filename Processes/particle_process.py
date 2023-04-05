@@ -121,7 +121,7 @@ class ParticleProcess(object):
                 "angle": self.angles_matrix
             }.get(weight_type)
             self.f_mark_statistics[f_type, weight_type] = {}
-            points_to_eval = np.round(np.arange(0.05, 1, 0.05, dtype=float), 2)
+            points_to_eval = np.round(np.arange(0.02, 1, 0.02, dtype=float), 2)
             for t in points_to_eval:
                 weight_matrix_r = weight_matrix.copy()
                 for k in range(len(self.particles)):
