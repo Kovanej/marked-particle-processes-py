@@ -56,11 +56,11 @@ class ParticleProcess(object):
         self.pairwise_shared_measure_matrix = self._compute_the_pairwise_shared_measure_matrix()
         # if needed following attributes are computed via executing ParticleProcess.compute_f_mark_statistics
         self.f_mark_normalization_constants: Dict[str, float] = {}
-        self.f_mark_statistics: Dict[Tuple[str, str], float] = {}
-        self.f_mark_statistics_permutations: Dict[Tuple[str, str], np.array] = {
+        self.f_mark_statistics: Dict[Tuple[str, str], Dict[float, float]] = {}
+        self.f_mark_statistics_permutations: Dict[Tuple[str, str], Dict[float, np.array]] = {
             val: np.array([]) for val in const.F_MARK_COMBINATIONS[self.grain_type]
         }
-        self.f_mark_statistics_quantiles: Dict[Tuple[str, str], float] = {}
+        self.f_mark_statistics_quantiles: Dict[Tuple[str, str],  Dict[float, float]] = {}
         if self.marked_aposteriori:
             self._compute_the_marks()
 
@@ -97,28 +97,42 @@ class ParticleProcess(object):
 
     def _compute_the_germs_distance_matrix(self):
         logging.info(f"{datetime.now()} :Germs distance computation start.")
-        grains_distance_matrix = pairwise_distances(
+        germs_distance_matrix = pairwise_distances(
                 [self.particles[k].germ for k in range(self.number_of_particles)]
             )
+        self.germs_distance_from_origin = np.array(
+            [self._norm(self.particles[k].germ) for k in range(self.number_of_particles)])
         logging.info(f"{datetime.now()} :Germs distance computation end.")
-        return grains_distance_matrix
+        return germs_distance_matrix
 
     def compute_the_statistics(self):
         pass
 
-    def compute_the_f_mark_characteristics(self):
+    def compute_the_f_mark_characteristics(self, set_of_f_mark_combinations=None):
         for f_type in const.F_MARK_TYPES:
             self._compute_the_f_mark_normalization_constants(f_type=f_type)
-        for (f_type, weight_type) in const.F_MARK_COMBINATIONS[self.grain_type]:
+        if not set_of_f_mark_combinations:
+            set_of_f_mark_combinations = const.F_MARK_COMBINATIONS[self.grain_type]
+        for (f_type, weight_type) in set_of_f_mark_combinations:
             weight_matrix = {
                 "intersection": self.particles_intersection_matrix,
                 "shared_area": self.pairwise_shared_measure_matrix,
                 "distance": self.particles_distance_matrix,
                 "angle": self.angles_matrix
             }.get(weight_type)
-            self.f_mark_statistics[f_type, weight_type] = self._compute_the_f_mark_correlation(
-                f_type=f_type, weight_matrix=weight_matrix
-            )
+            self.f_mark_statistics[f_type, weight_type] = {}
+            points_to_eval = np.round(np.arange(0.05, 1, 0.05, dtype=float), 2)
+            for t in points_to_eval:
+                weight_matrix_r = weight_matrix.copy()
+                for k in range(len(self.particles)):
+                    # TODO this works only for balls
+                    x_norm = self.germs_distance_from_origin[k]
+                    r = self.particles[k].grain.radius
+                    if x_norm > t + r:
+                        weight_matrix_r[k, :] = 0
+                self.f_mark_statistics[f_type, weight_type][np.round(t, 2)] = self._compute_the_f_mark_correlation(
+                    f_type=f_type, weight_matrix=weight_matrix_r
+                )
 
     def perform_the_permutation_test_for_f_mark_characteristics(self):
         for _ in range(const.PERMUTATION_TEST_REPEAT_COUNT):
@@ -144,7 +158,7 @@ class ParticleProcess(object):
             ).mean()
 
     def _compute_the_f_mark_correlation(
-            self, f_type: str, weight_matrix: np.array , marks_vector: Optional[np.array] = None
+            self, f_type: str, weight_matrix: np.array, marks_vector: Optional[np.array] = None
     ):
         # since we are working on a [0, 1]^d window -> not normed by its Lebesgue measure, since it is 1 (je to jedno)
         weight_matrix_zero_diagonal = weight_matrix.copy()

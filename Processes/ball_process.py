@@ -65,10 +65,8 @@ class BallProcess(ParticleProcess):
     def _compute_the_particles_distance_matrix(self):
         logging.info(f"{datetime.now()} :Circles distance computation start.")
         radii_to_subtract = np.array([
-            [
-                self.particles[k].grain.radius + self.particles[j].grain.radius
-                for j in range(self.number_of_particles)
-            ] for k in range(self.number_of_particles)
+            [self.particles[k].grain.radius + self.particles[j].grain.radius for j in range(self.number_of_particles)]
+            for k in range(self.number_of_particles)
         ])
         distance_matrix = np.where(
             self.germs_distance_matrix < radii_to_subtract, 0, self.germs_distance_matrix - radii_to_subtract
@@ -81,12 +79,15 @@ class BallProcess(ParticleProcess):
         max_alpha = 0
         for particle in self.particles:
             face_color, alpha = self._choose_face_color(particle=particle)
+            if np.isnan(alpha):
+                alpha = const.ALPHA
             edge_color = self._choose_edge_color()
             particle.grain.plot_2d(
                 ax, facecolor=face_color, linestyle="-", alpha=alpha, linewidth=1, edgecolor=edge_color,
                 label=particle.mark.mark_value
-                # alpha=0.5,
             )
+            # TODO not hardcoded
+            limits = plt.axis([-1, 1, -1, 1])
             min_alpha = alpha if min_alpha > alpha else min_alpha
             max_alpha = alpha if max_alpha < alpha else max_alpha
         self._add_legend(

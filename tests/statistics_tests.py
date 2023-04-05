@@ -1,0 +1,98 @@
+import logging
+from datetime import datetime
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+from skspatial.objects import Circle, Point
+
+from Geometry.grain import Grain, Segment
+from Processes.markings import Mark
+from Plotting.plotting import plot_the_grains
+from Geometry.particle import Particle
+from Processes.segment_process import SegmentProcess
+from Processes.ball_process import BallProcess
+from Processes.point_process import PoissonPointProcess
+import utils.const as const
+
+NUMBER_OF_SEEDS = 500
+LAMBDA_TEST = 40
+
+RADIUS_FIXED = FALSE
+RADIUS_TEST_MEAN = 0.2
+RADIUS_TEST_RANGE = 0.1
+
+R_MIN = RADIUS_TEST_MEAN - RADIUS_TEST_RANGE / 2
+R_MAX = RADIUS_TEST_MEAN + RADIUS_TEST_RANGE / 2
+
+P_ALT = 1/2
+win_edge_start_point, win_edge_end_point = - 1 - 3 * R_MAX, 1 + 3 * R_MAX
+
+f_mark_statistics = []
+
+for _ in range(NUMBER_OF_SEEDS):
+
+    np.random.seed(seed=_)
+
+    poisson_point_process = PoissonPointProcess(
+        intensity=LAMBDA_TEST, window_edge_start_point=win_edge_start_point,
+        window_edge_end_point=win_edge_end_point)
+
+    MARKS_TEST = [np.random.binomial(1, P_ALT) for _ in range(poisson_point_process.points.size)]
+
+    particles = [
+        Particle(
+            germ=center, grain_type="ball", germ_inside_the_obs_window=True, grain=Circle(point=center, radius=RADIUS_TEST_MEAN),
+            mark=Mark(mark_type="discrete", mark_value=mark)
+        ) for center, mark in zip(poisson_point_process.points, MARKS_TEST)]
+    ball_process_test = BallProcess(
+        germ_intensity=LAMBDA_TEST, particles=particles, max_radius=RADIUS_TEST_MEAN, min_radius=RADIUS_TEST_MEAN, marked=True)
+    ball_process_test.compute_the_f_mark_characteristics(set_of_f_mark_combinations=[('product', 'intersection')])
+    f_mark_statistics.append(ball_process_test.f_mark_statistics)
+
+t_computed = list(f_mark_statistics[0][('product', 'intersection')].keys())
+f_mark_statistics_max = {}
+f_mark_statistics_mean = {}
+f_mark_statistics_min = {}
+for t in t_computed:
+    val = 0
+    f_mark_statistics_min[t] = np.inf
+    f_mark_statistics_max[t] = 0
+    for dct in f_mark_statistics:
+        one_val = dct[('product', 'intersection')][t]
+        val += one_val
+        if one_val < f_mark_statistics_min[t]:
+            f_mark_statistics_min[t] = one_val
+        if one_val > f_mark_statistics_max[t]:
+            f_mark_statistics_max[t] = one_val
+    f_mark_statistics_mean[t] = val / len(f_mark_statistics)
+
+# Create a list of sorted inputs and outputs
+inputs = sorted(f_mark_statistics_mean.keys())
+outputs_mean = [f_mark_statistics_mean[k] for k in inputs]
+outputs_min = [f_mark_statistics_min[k] for k in inputs]
+outputs_max = [f_mark_statistics_max[k] for k in inputs]
+if RADIUS_FIXED:
+    outputs_theoretical = [(LAMBDA_TEST * np.pi * 2 * RADIUS_TEST_MEAN * P_ALT) ** 2 * (RADIUS_TEST_MEAN + t) ** 2 for t in inputs]
+else:
+    # todo rewrite
+    outputs_theoretical = [(LAMBDA_TEST * np.pi * 2 * RADIUS_TEST_MEAN * P_ALT) ** 2 * (RADIUS_TEST_MEAN + t) ** 2 for t in inputs]
+
+# Create a line plot
+plt.plot(inputs, outputs_mean, marker='o', label="mean")
+plt.plot(inputs, outputs_min, marker='o', label="min")
+plt.plot(inputs, outputs_max, marker='o', label="max")
+plt.plot(inputs, outputs_theoretical, marker='o', label="theoretical")
+
+plt.legend()
+
+# Add axis labels and a title
+plt.xlabel('Input')
+plt.ylabel('Output')
+plt.title('S_{w, f}(r)')
+
+# Show the plot
+plt.show()
+
+
+break_point_var=1
+

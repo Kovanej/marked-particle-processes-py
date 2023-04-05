@@ -6,7 +6,7 @@ GRAIN_TYPES_DIMENSIONS = {
     "ball": 2,
     "segment": 1
 }
-SAVE_PLOTS = False
+SAVE_PLOTS = True
 
 MAX_SEGMENT_ANGLE = np.pi
 MIN_SEGMENT_ANGLE = 0
