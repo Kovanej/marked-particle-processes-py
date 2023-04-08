@@ -86,7 +86,7 @@ for t in t_computed:
                 f_mark_statistics_min[t] = one_val
             if one_val > f_mark_statistics_max[t]:
                 f_mark_statistics_max[t] = one_val
-        f_mark_statistics_mean[t] = val / len(f_mark_statistics)
+        f_mark_statistics_mean[t] = val / len(f_mark_statistics[_])
 
 # Create a list of sorted inputs and outputs
 inputs = sorted(f_mark_statistics_mean.keys())
@@ -109,6 +109,8 @@ plt.legend()
 plt.xlabel('Input')
 plt.ylabel('Output')
 plt.title('S_{w, f}(r)')
+
+ball_process_test.plot_itself()
 
 # Show the plot
 plt.show()
