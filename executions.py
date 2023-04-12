@@ -1,6 +1,7 @@
 
 from datetime import datetime
 import logging
+import pandas as pd
 import numpy as np
 from skspatial.objects import Point, Vector, Circle
 
@@ -24,7 +25,8 @@ def execute_from_config(config_parser: ConfigParser):
         result_saver = config_parser.return_the_result_saver(seed=seed)
         result_savers.append(result_saver)
         print(f"Results computed for seed={seed}.")
-    return result_savers
+    result_savers_whole_df = pd.concat([r_s.results_all_df for r_s in result_savers])
+    return result_savers, result_savers_whole_df
 
 
 def overnight_computations():

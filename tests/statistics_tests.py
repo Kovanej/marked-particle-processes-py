@@ -28,7 +28,7 @@ R_MAX = RADIUS_TEST_MIN + RADIUS_TEST_RANGE
 P_ALT = 0.5
 win_edge_start_point, win_edge_end_point = - 1 - 3 * R_MAX, 1 + 3 * R_MAX
 
-#F_MARK_STATISTICS_TO_COMPUTE = const.F_MARK_COMBINATIONS
+# F_MARK_STATISTICS_TO_COMPUTE = const.F_MARK_COMBINATIONS
 F_MARK_STATISTICS_TO_COMPUTE = [('product', 'intersection')]
 
 f_mark_statistics = {k: [] for k in F_MARK_STATISTICS_TO_COMPUTE}

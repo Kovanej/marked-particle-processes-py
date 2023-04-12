@@ -78,7 +78,8 @@ class ConfigParser(object):
                 f"{process.model_name} with duration: {_end - _start}"
             )
             _start = datetime.now()
-            process.perform_the_permutation_test_for_f_mark_characteristics()
+            # legacy - tests on reshuffling
+            # process.perform_the_permutation_test_for_f_mark_characteristics()
             _end = datetime.now()
             logging.info(
                 f"{datetime.now()}: permutation test computation end for process "
@@ -88,9 +89,8 @@ class ConfigParser(object):
                 for f in fs:
                     result_saver.save_the_results(
                         model_name=key[0], grain_type=process.grain_type,
-                        permutations_count=const.PERMUTATION_TEST_REPEAT_COUNT,
-                        quantile_dict=process.f_mark_statistics_quantiles, value_dict=process.f_mark_statistics,
-                        seed=seed, intensity=process.germ_intensity
+                        seed=seed, intensity=process.germ_intensity, f_type=f, weight=weight,
+                        f_mark_statistics=process.f_mark_statistics[(f, weight)]
                     )
         result_saver.save_to_pandas(save_csv=self.save_results)
         return result_saver

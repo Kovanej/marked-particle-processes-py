@@ -1,6 +1,6 @@
 {
   "intensity":  100,
-  "process_type": "both",
+  "process_type": "ball",
   "marking_type": {
        "ball": [
           "radius_discrete", "radius_continuous", "nearest_neighbour_distance",
@@ -33,5 +33,5 @@
   "plot_realizations": false,
   "save_results": true,
   "initial_seed": 2214,
-  "number_of_realizations": 500
+  "number_of_realizations": 10
 }

@@ -93,7 +93,9 @@ CONFIG_OPTIONAL_VALUES = {
     "plot_realizations": True,
     "compute_f_mark_statistics": True,
     "f_mark_weights_and_statistics": {
-        "intersection": ["product"]
+        "intersection": ["product",  "square", "first_mark"],
+        "shared_area": ["product",  "square", "first_mark"],
+        "distance": ["product",  "square", "first_mark"]
     },
     "perform_permutation_test": False,
     "permutation_tests_parameters": {
