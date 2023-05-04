@@ -1,8 +1,9 @@
 
 from datetime import datetime
 import logging
-import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
+import matplotlib.patches as patches
+import matplotlib.pyplot as plt
 from typing import List, Optional, Union, Tuple, Dict
 import numpy as np
 import random
@@ -208,21 +209,27 @@ class ParticleProcess(object):
     def _plot_particles(self, ax, fig):
         pass
 
-    def plot_itself(self, show_germs: bool = False):
+    def plot_itself(self, show_germs: bool = False, win_min=-1, win_max=1, edge_effects = None):
         fig = plt.figure()
         ax = fig.add_subplot()
         ax.set_aspect('equal', adjustable='box')
-        ax.set_xlim(left=0, right=1)
-        ax.set_ylim(bottom=0, top=1)
+        ax.set_xlim(left=win_min, right=win_max)
+        ax.set_ylim(bottom=win_min, top=win_max)
         self._plot_particles(ax=ax, fig=fig)
         # levels = [str(lv) for lv in range(self.particles[0].mark.number_of_levels)]
         # cols = [const.PARTICLE_COLORS_CHOICE[level] for level in range(self.particles[0].mark.number_of_levels)]
         if show_germs:
             for particle in self.particles:
-                color, alpha = self._choose_face_color(particle=particle)
-                color = "#000000"
-                alpha = 1
-                particle.germ.plot_2d(ax, c=color, alpha=alpha, marker=".")
+                p_array = np.array([particle.germ])
+                # fig, ax = plt.subplots()
+                ax.scatter(p_array[:, 0], p_array[:, 1], color='black', marker=".")
+        plt.xlim(win_min, win_max)
+        plt.ylim(win_min, win_max)
+        if edge_effects:
+            length = win_max - win_min - 2 * edge_effects
+            square = patches.Rectangle(
+                (win_min + edge_effects, win_min + edge_effects), length, length, linewidth=1, edgecolor='r', facecolor='none')
+            ax.add_patch(square)
         if const.SAVE_PLOTS:
             plt.savefig(f"generated_pics/{str(datetime.now()).replace(':','-')}_plot.png", dpi=1000)
         plt.show()
