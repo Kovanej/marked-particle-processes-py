@@ -130,7 +130,7 @@ class ConfigParser(object):
             )
         else:
             raise ValueError(f"Unknown particle process type: {self.process_type}")
-        return - max_overlap, 1 + max_overlap
+        return -1 - max_overlap, 1 + max_overlap
 
     def _initialize_the_ball_processes(self, seed: int) -> List[ParticleProcess]:
         max_rad = self.particles_parameters["ball"]["max_radius"]

@@ -220,9 +220,8 @@ class ContinuousNNDistanceMarkBallProcess(BallProcess):
             marked_aposteriori=True, marks_aposteriori_type="nn_dist",
             model_name=f"ball_N_N_dist_alpha={self.alpha}", max_radius=max_radius, min_radius=min_radius
         )
-        self._mark_itself()
 
-    def _mark_itself(self):
+    def _compute_the_marks(self):
         part_dist_inf_diagonal = self.particles_distance_matrix.copy()
         np.fill_diagonal(part_dist_inf_diagonal, np.inf)
         nn_dist_per_particle = part_dist_inf_diagonal.min(axis=0)

@@ -256,11 +256,11 @@ class ParticleProcess(object):
             by_label_sorted = {k: by_label[k] for k in sorted(by_label)}
             plt.figlegend(by_label_sorted.values(), by_label_sorted.keys())
         else:
-            alphas = np.linspace(0, max_alpha, const.GRADIENT_SMOOTHNESS)
+            alphas = np.linspace(min_alpha, max_alpha, const.GRADIENT_SMOOTHNESS)
             r, g, b = tuple(int(face_color.lstrip('#')[i:i + 2], 16) / 256 for i in (0, 2, 4))
             cols = np.array([[r, g, b, alphas[k]] for k in range(const.GRADIENT_SMOOTHNESS)])
             psm = ax.pcolormesh(
-                [[0, 0], [1, 1]], cmap=ListedColormap(cols), rasterized=True, vmin=0, vmax=self.max_mark
+                [[0, 0], [1, 1]], cmap=ListedColormap(cols), rasterized=True, vmin=self.min_mark, vmax=self.max_mark
             )
             fig.colorbar(psm, ax=ax)
 
