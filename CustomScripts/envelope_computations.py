@@ -35,12 +35,18 @@ envelopes_df['Rank'] = envelopes_df.groupby([
 
 grouped_fw_types = envelopes_df.groupby(['Grain Type', 'Model', 'Intensity', 'f-Mark Type', 'Weight Type'])
 
+
+def assign_the_lexicographic_value(g_df):
+    breakpoint_val=1
+
+
 for g_n, g_df in grouped_fw_types:
     g_df.sort_values(["Grain Type", "Model", "Intensity", "f-Mark Type", "Weight Type", "Input Value", "PWFCF Value"])
     grouped = g_df.groupby(['Seed'])
     for group_name, group_df in grouped:
         plt.plot(group_df['Input Value'], group_df['PWFCF Value'], label=str(group_name), marker=".")
     plt.show()
-    plt.close()
+    plt.close() # TODO tyhle ploty by mohly byt zajimavy do DP
+    assign_the_lexicographic_value(g_df)
 envelopes_df.to_csv(f"./envelope_test_vals_{datetime.now().__str__().replace(':', '-')}.csv")
 a=1

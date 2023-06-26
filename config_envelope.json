@@ -23,14 +23,14 @@
         }
   },
   "marking_parameters": {
-    "alphas": [0, 0.25, 0.5, 0.75, 1]
+    "alphas": [0]
   },
   "permutation_tests_parameters": {
-        "number_of_permutations": 5000,
+        "number_of_permutations": 99,
         "plot_histograms": false
     },
-  "plot_realizations": true,
+  "plot_realizations": false,
   "save_results": true,
-  "initial_seed": 2214,
+  "initial_seed": 69,
   "number_of_realizations": 10
 }
