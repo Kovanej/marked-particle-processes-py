@@ -1,9 +1,10 @@
 {
   "intensity":  50,
-  "process_type": "ball",
+  "process_type": "segment",
   "marking_type": {
        "ball": [
-         "radius_discrete"
+         "radius_discrete", "radius_continuous", "nearest_neighbour_distance",
+         "max_shared_area_continuous", "max_shared_area_discrete",  "intersection_counting"
         ],
         "segment": [
             "angle_discrete", "angle_continuous", "length_discrete", "length_continuous", "nearest_neighbour_distance",
@@ -26,7 +27,7 @@
     "alphas": [0]
   },
   "permutation_tests_parameters": {
-        "number_of_permutations": 99,
+        "number_of_permutations": 5000,
         "plot_histograms": false
     },
   "plot_realizations": false,

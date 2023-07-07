@@ -10,7 +10,9 @@ from utils.config_parser import ConfigParser
 import utils.const as const
 from utils.results_saver import ResultSaver
 
-init_seed = 69
+print(datetime.now())
+
+init_seed = 5526
 
 with open("../config_envelope.json", "r") as json_data:
     config_json = json.loads(json_data.read())
@@ -36,17 +38,25 @@ envelopes_df['Rank'] = envelopes_df.groupby([
 grouped_fw_types = envelopes_df.groupby(['Grain Type', 'Model', 'Intensity', 'f-Mark Type', 'Weight Type'])
 
 
-def assign_the_lexicographic_value(g_df):
-    breakpoint_val=1
-
+def assign_the_lexicographic_value(g_df, envelope_count):
+    # assign the "rooftop" rank
+    g_df['Rank Reversed'] = envelope_count + 1 - g_df['Rank']
+    g_df['Both Sided Rank'] = g_df[['Rank', 'Rank Reversed']].min(axis=1)
+    g_df['Frequency'] = g_df.groupby(['Seed', 'Both Sided Rank'])['Seed'].transform('count')
+    g_df_frequency = g_df[['Seed', 'Both Sided Rank', 'Frequency']].drop_duplicates().sort_values(
+        ['Seed', 'Both Sided Rank', 'Frequency'])
+    breakpoint_val = 1
+    g_df_frequency.to_csv(f"./g_df_frequency_{datetime.now().__str__().replace(':', '-')}.csv")
 
 for g_n, g_df in grouped_fw_types:
     g_df.sort_values(["Grain Type", "Model", "Intensity", "f-Mark Type", "Weight Type", "Input Value", "PWFCF Value"])
     grouped = g_df.groupby(['Seed'])
     for group_name, group_df in grouped:
-        plt.plot(group_df['Input Value'], group_df['PWFCF Value'], label=str(group_name), marker=".")
-    plt.show()
-    plt.close() # TODO tyhle ploty by mohly byt zajimavy do DP
-    assign_the_lexicographic_value(g_df)
+        print(g_n)
+    #     plt.plot(group_df['Input Value'], group_df['PWFCF Value'], label=str(group_name), marker=".")
+    # plt.show()
+    # plt.close() # TODO tyhle ploty by mohly byt zajimavy do DP
+    assign_the_lexicographic_value(g_df, envelope_count)
 envelopes_df.to_csv(f"./envelope_test_vals_{datetime.now().__str__().replace(':', '-')}.csv")
+print(datetime.now())
 a=1

@@ -126,11 +126,22 @@ class ParticleProcess(object):
             for t in points_to_eval:
                 weight_matrix_r = weight_matrix.copy()
                 for k in range(len(self.particles)):
-                    # TODO this works only for balls
-                    x_norm = self.germs_distance_from_origin[k]
-                    r = self.particles[k].grain.radius
-                    if x_norm > t + r:
-                        weight_matrix_r[k, :] = 0
+                    if self.grain_type == "ball":
+                        x_norm = self.germs_distance_from_origin[k]
+                        r = self.particles[k].grain.radius
+                        if x_norm > t + r:
+                            weight_matrix_r[k, :] = 0
+                    elif self.grain_type == "segment":
+                        x = self.particles[k].grain.start_point
+                        y = self.particles[k].grain.end_point
+                        alpha_possible = (- y[0] * (x[0] - y[0]) - y[1] * (x[1] - y[1])) / (self._norm(x-y) ** 2)
+                        if 0 < alpha_possible < 1:
+                            z = alpha_possible * x + (1 - alpha_possible) * y
+                            segment_distance = np.min([self._norm(x), self._norm(y), self._norm(z)])
+                        else:
+                            segment_distance = np.min([self._norm(x), self._norm(y)])
+                        if segment_distance > t:
+                            weight_matrix[k, :] = 0
                 self.f_mark_statistics[f_type, weight_type][np.round(t, 2)] = self._compute_the_f_mark_correlation(
                     f_type=f_type, weight_matrix=weight_matrix_r
                 )
