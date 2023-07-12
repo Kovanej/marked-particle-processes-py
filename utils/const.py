@@ -44,14 +44,31 @@ F_MARK_COMBINATIONS = {
 }
 
 PARTICLE_COLORS_CHOICE = [
-    "#1B2784", "#F6AF5B", "#4DA58C", "#E16071", "#86007D", "#008018",
-    "#000000",
-    # "#448F58", "#90C26E", "#DE3657", "#6A559B",
+    "#F6AF5B", "#FF0000", "#4DA58C", "#0089FF", "#1B2784", "#000000",
+    "#000000", "#1B2784", "#F6AF5B", "#4DA58C", "#DE3657", "#FBD0C0",
+    "#E16071", "#86007D", "#008018",
+    # "#000000", "#FBD0C0",
+    "#448F58", "#90C26E", "#DE3657", "#6A559B",
     "#613A6B", "#77ABB5", "#FBD0C0",
     "#A6BC3E", "#92A43B",
     "#A2E0DB", "#F55E55", "#FF857A", "#61A8E8", "#4FDDC3",
     "#FF6D74", "#FFC562", "#476088",
-    "#1B8781", "#F61F51", "#4DF584", "#1CE784", "#04FF58", "#000000"
+    "#1B8781", "#F61F51", "#4DF584", "#1CE784", "#04FF58", "#000000",
+    "#448F58", "#90C26E", "#DE3657", "#6A559B",
+    "#613A6B", "#77ABB5", "#FBD0C0",
+    "#A6BC3E", "#92A43B",
+    "#A2E0DB", "#F55E55", "#FF857A", "#61A8E8", "#4FDDC3",
+    "#FF6D74", "#FFC562", "#476088",
+    "#448F58", "#90C26E", "#DE3657", "#6A559B",
+    "#613A6B", "#77ABB5", "#FBD0C0",
+    "#A6BC3E", "#92A43B",
+    "#A2E0DB", "#F55E55", "#FF857A", "#61A8E8", "#4FDDC3",
+    "#FF6D74", "#FFC562", "#476088",
+    "#448F58", "#90C26E", "#DE3657", "#6A559B",
+    "#613A6B", "#77ABB5", "#FBD0C0",
+    "#A6BC3E", "#92A43B",
+    "#A2E0DB", "#F55E55", "#FF857A", "#61A8E8", "#4FDDC3",
+    "#FF6D74", "#FFC562", "#476088",
 ]
 
 ALPHA = 0.85
@@ -94,7 +111,7 @@ CONFIG_OPTIONAL_VALUES = {
     "compute_f_mark_statistics": True,
     "f_mark_weights_and_statistics": {
         "intersection": ["product",  "square", "first_mark"],
-        "shared_area": ["product",  "square", "first_mark"],
+        "angle": ["product",  "square", "first_mark"],
         "distance": ["product",  "square", "first_mark"]
     },
     "perform_permutation_test": False,
