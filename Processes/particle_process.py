@@ -141,7 +141,7 @@ class ParticleProcess(object):
                         else:
                             segment_distance = np.min([self._norm(x), self._norm(y)])
                         if segment_distance > t:
-                            weight_matrix[k, :] = 0
+                            weight_matrix_r[k, :] = 0
                 self.f_mark_statistics[f_type, weight_type][np.round(t, 2)] = self._compute_the_f_mark_correlation(
                     f_type=f_type, weight_matrix=weight_matrix_r
                 )
@@ -172,7 +172,7 @@ class ParticleProcess(object):
     def _compute_the_f_mark_correlation(
             self, f_type: str, weight_matrix: np.array, marks_vector: Optional[np.array] = None
     ):
-        # since we are working on a [0, 1]^d window -> not normed by its Lebesgue measure, since it is 1 (je to jedno)
+        # since we are working on a [-1, 1]^d window -> not normed by its Lebesgue measure, since it is 1 (je to jedno)
         weight_matrix_zero_diagonal = weight_matrix.copy()
         np.fill_diagonal(weight_matrix_zero_diagonal, 0)
         if marks_vector is None:
@@ -184,19 +184,13 @@ class ParticleProcess(object):
             marks_square = (marks_vector[..., None] - marks_vector[None, ...]) ** 2 / 2
         if f_type == "product":
             f_nn = (marks_product * weight_matrix_zero_diagonal).sum()
-            norm_by = self.f_mark_normalization_constants[f_type] * (self.germ_intensity ** 2)
         elif f_type == "square":
             f_nn = (marks_square * weight_matrix_zero_diagonal).sum()
-            norm_by = self.f_mark_normalization_constants[f_type] * (self.germ_intensity ** 2)
         elif f_type == "first_mark":
             # TODO in my opinion we should not use the np.triu-ed matrix, only the zero-diagonal one
-            shared_area_zero_on_and_under_diagonal = np.triu(weight_matrix_zero_diagonal)
             f_nn = (marks_vector * weight_matrix_zero_diagonal).sum()
-            norm_by = self.f_mark_normalization_constants[f_type] * (self.germ_intensity ** 2)
         else:
             raise NotImplementedError(f"f-mark shared area correlation cannot be obtained for unknown f_type={f_type}")
-        # TODO for testing right now returning non-normed values
-        # return f_shared_nn / norm_by
         return f_nn
 
     def _compute_the_f_mark_normalization_constants(self, f_type: str):
