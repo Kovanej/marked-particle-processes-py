@@ -51,8 +51,9 @@ def assign_the_lexicographic_value(g_df, envelope_count):
     g_df['Frequency'] = g_df.groupby(['Seed', 'Both Sided Rank'])['Seed'].transform('count')
     g_df_frequency = g_df[['Seed', 'Both Sided Rank', 'Frequency']].drop_duplicates().sort_values(
         ['Seed', 'Both Sided Rank', 'Frequency'])
+    model_str = np.unique(g_df['Model'])[0]
     breakpoint_val = 1
-    g_df_frequency.to_csv(f"./g_df_frequency_{datetime.now().__str__().replace(':', '-')}.csv")
+    g_df_frequency.to_csv(f"./g_df_frequency_{model_str}_{datetime.now().__str__().replace(':', '-')}.csv")
 
 
 for g_n, g_df in grouped_fw_types:
