@@ -141,4 +141,5 @@ CustomScripts/some_csvs/
 CustomScripts/pvals
 CustomScripts/both_sided_ranks
 CustomScripts/ranks
+CustomScripts/results_per_model
 CustomScripts/envelopes_analyzer_R_file.R
