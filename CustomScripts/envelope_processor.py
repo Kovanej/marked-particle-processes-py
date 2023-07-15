@@ -25,7 +25,7 @@ class EnvelopeProcessor(object):
             self.dfs[path] = pd.concat(dfs_list)
 
     def load_the_whole_dataset(self):
-        df = pd.read_csv("./results/csvs/balls_69-7368/ball_envelope_df_whole.csv").drop_duplicates()
+        df = pd.read_csv("./results/csvs/balls_69-7368/df_whole_dataset_balls_new_dropped.csv")
         self.dfs["ball"] = df
 
 
@@ -36,12 +36,16 @@ envelope_processor = EnvelopeProcessor([
 envelope_processor.load_the_whole_dataset()
 
 envelopes_df = envelope_processor.dfs["ball"]
+
+# filter seeds so that we have 5000 permutations
+envelopes_df = envelopes_df[envelopes_df.Seed < 5068]
+# get rid of distance, it doesn't make sense
+envelopes_df = envelopes_df[envelopes_df['Weight Type'] != 'distance']
+envelope_count = np.unique(envelopes_df["Seed"]).shape[0]
+
 envelopes_df['Rank'] = envelopes_df.groupby([
     'Grain Type', 'Model', 'Intensity', 'f-Mark Type', 'Weight Type', 'Input Value'])['PWFCF Value'].rank()
-
 grouped_fw_types = envelopes_df.groupby(['Grain Type', 'Model', 'Intensity', 'f-Mark Type', 'Weight Type'])
-
-envelope_count = np.unique(envelope_processor.dfs["ball"]["Seed"]).shape[0]
 
 
 def assign_the_lexicographic_value(g_df, envelope_count):
@@ -49,11 +53,23 @@ def assign_the_lexicographic_value(g_df, envelope_count):
     g_df['Rank Reversed'] = envelope_count + 1 - g_df['Rank']
     g_df['Both Sided Rank'] = g_df[['Rank', 'Rank Reversed']].min(axis=1)
     g_df['Frequency'] = g_df.groupby(['Seed', 'Both Sided Rank'])['Seed'].transform('count')
-    g_df_frequency = g_df[['Seed', 'Both Sided Rank', 'Frequency']].drop_duplicates().sort_values(
-        ['Seed', 'Both Sided Rank', 'Frequency'])
+    g_df_frequency = g_df[['Seed', 'Both Sided Rank', 'Frequency']].sort_values(
+        ['Seed', 'Both Sided Rank', 'Frequency']).drop_duplicates()
+    # dfi = g_df_frequency.set_index(['Seed', 'Both Sided Rank'])[['Frequency']]
+    # long = dfi.unstack('Both Sided Rank', fill_value=0)
+    # long.columns = long.columns.droplevel(0)
+    # cols = list(long.columns)
+    # long.sort_values(by=cols, ascending=False)
     model_str = np.unique(g_df['Model'])[0]
-    breakpoint_val = 1
-    g_df_frequency.to_csv(f"./g_df_frequency_{model_str}_{datetime.now().__str__().replace(':', '-')}.csv")
+    intensity_str = np.unique(g_df['Intensity'])[0]
+    f_str = np.unique(g_df['f-Mark Type'])[0]
+    w_str = np.unique(g_df['Weight Type'])[0]
+    g_pure_ranks = g_df[['Seed', 'Rank', 'Frequency']].sort_values(
+        ['Seed', 'Rank', 'Frequency']).drop_duplicates()
+    g_pure_ranks.to_csv(
+        f"./ranks/g_df_pure_ranks_mod={model_str}_w={w_str}_f={f_str}_int={intensity_str}.csv",
+        index=False
+    )
 
 
 for g_n, g_df in grouped_fw_types:
@@ -65,6 +81,6 @@ for g_n, g_df in grouped_fw_types:
     # plt.show()
     # plt.close() # TODO tyhle ploty by mohly byt zajimavy do DP
     assign_the_lexicographic_value(g_df, envelope_count)
-envelopes_df.to_csv(f"./envelope_test_vals_{datetime.now().__str__().replace(':', '-')}.csv")
+# envelopes_df.to_csv(f"./envelope_test_vals_{datetime.now().__str__().replace(':', '-')}.csv")
 
 breakpoint_var=1

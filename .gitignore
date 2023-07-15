@@ -137,3 +137,8 @@ results_old/
 results/archive
 results/histograms
 results/
+CustomScripts/some_csvs/
+CustomScripts/pvals
+CustomScripts/both_sided_ranks
+CustomScripts/ranks
+CustomScripts/envelopes_analyzer_R_file.R
