@@ -1,4 +1,5 @@
 
+from datetime import datetime
 import json
 import os
 import pandas as pd
@@ -6,18 +7,6 @@ import numpy as np
 from typing import Dict
 
 from utils.config_parser import ConfigParser
-
-
-def sort_lexicographically(df: pd.DataFrame, seed_to_be_tested: int):
-    # df = pd.read_csv(csv_str)
-    dfi = df.set_index(['Seed', 'Both Sided Rank'])[['Frequency']]
-    long = dfi.unstack('Both Sided Rank', fill_value=0)
-    long.columns = long.columns.droplevel(0)
-    cols = list(long.columns)
-    df_final = long.sort_values(by=cols, ascending=False)
-    df_final[df_final['Seed'] == seed_to_be_tested]
-    df_seeds = df_final.head(250)
-    # df_seeds.to_csv(f"./pvals/new_{csv_str.split('.')[0]}_seeds_pvals.csv")
 
 
 def assign_the_lexicographic_value(g_df, envelope_count):
@@ -31,16 +20,31 @@ def assign_the_lexicographic_value(g_df, envelope_count):
     long = dfi.unstack('Both Sided Rank', fill_value=0)
     long.columns = long.columns.droplevel(0)
     cols = list(long.columns)
-    long.sort_values(by=cols, ascending=False)
-    long.to_csv(f"./g_df_frequency.csv")
+    df_final = long.sort_values(by=cols, ascending=False)
+    return df_final
 
+
+print(datetime.now())
+INIT_SEED = 69
+PERMUTATIONS = 4999
 
 model = "ball_bivariate_radius"
-f_type = "product"
-w_type = "intersection"
+F_TYPES = ["product", "first_mark", "square"]
+W_TYPES = ["shared_area", "intersection"]
+#F_TYPES = ["product"]
+#W_TYPES = ["shared_area"]
 
-null_model_permutation_base_df = pd.read_csv(
-    f"./results_per_model/results_splitted_mod={model}_alpha=0_w={w_type}_f={f_type}.csv")
+results_per_w_f = {}
+for f_type in F_TYPES:
+    for w_type in W_TYPES:
+        null_model_permutation_base_df = pd.read_csv(
+            f"./results_per_model/results_splitted_mod={model}_alpha=0_w={w_type}_f={f_type}.csv")
+        null_model_permutation_base_df = null_model_permutation_base_df[
+            null_model_permutation_base_df['Seed'] <= INIT_SEED + PERMUTATIONS][
+            ['Seed', 'Grain Type', 'Model', 'Intensity', 'f-Mark Type',
+             'Weight Type', 'Input Value', 'PWFCF Value']]
+        results_per_w_f[(w_type, f_type)] = null_model_permutation_base_df
+
 
 with open("../config_models.json", "r") as json_data:
     config_json = json.loads(json_data.read())
@@ -48,18 +52,47 @@ with open("../config_models.json", "r") as json_data:
 envelope_count = config_json["permutation_tests_parameters"]["number_of_permutations"]
 init_seed = config_json["initial_seed"]
 
+seed_inside_envelope = {}
+for f_type in F_TYPES:
+    for w_type in W_TYPES:
+        seed_inside_envelope[(w_type, f_type)] = {}
 
-seed_inside_envelope: Dict[str, bool] = {}
 config_parser = ConfigParser(config=config_json)
+
+df_list_to_save = list()
 
 for _ in range(envelope_count):
     seed = init_seed + _
-    # this is ugly, but needed now
-    if seed in range(69, 5068):
+    # this is ugly, but needed now for check
+    if seed in range(69, 5067):
         print("warning")
     config_parser.initialize_the_processes(seed=seed)
     result_saver = config_parser.return_the_result_saver(seed=seed)
-    
 
+    for f_type in F_TYPES:
+        for w_type in W_TYPES:
 
-a=1
+            null_model_permutation_base_df = results_per_w_f[(w_type, f_type)]
+            null_model_copy = null_model_permutation_base_df.copy()
+            df_to_concat = result_saver.results_all_df
+            df_to_concat = df_to_concat.loc[(df_to_concat['f-Mark Type'] == f_type) & (df_to_concat['Weight Type'] == w_type)]
+            df_to_evaluate = pd.concat([null_model_copy, df_to_concat])
+
+            df_to_evaluate['Rank'] = df_to_evaluate.groupby(['Input Value'])['PWFCF Value'].rank()
+            df_final = assign_the_lexicographic_value(g_df=df_to_evaluate, envelope_count=PERMUTATIONS + 1)
+            test_rank = np.where(df_final.index == seed)[0][0]
+            seed_inside_envelope[(w_type, f_type)][seed] = False if test_rank < np.ceil(0.05 * (PERMUTATIONS + 1)) else True
+    print(f"Computations done for seed: {seed}")
+
+for w_type in W_TYPES:
+    for f_type in F_TYPES:
+        df_list_to_save.append(
+            pd.DataFrame({
+                'Model': [model], 'Alpha': [config_json['marking_parameters']['alphas'][0]],
+                'f-Mark Type': [f_type], 'Weight Type': [w_type],
+                'Rejection Rate': [1 - np.mean(list(seed_inside_envelope[(w_type, f_type)].values()))]
+            }))
+
+df_to_save = pd.concat(df_list_to_save)
+df_to_save.to_csv(f"./rejection_rate_{datetime.now().__str__().replace(':', '-')}.csv", index=False)
+print(datetime.now())

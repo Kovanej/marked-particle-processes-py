@@ -25,17 +25,18 @@ class EnvelopeProcessor(object):
             self.dfs[path] = pd.concat(dfs_list)
 
     def load_the_whole_dataset(self):
-        df = pd.read_csv("./results/csvs/balls_69-7368/df_whole_dataset_balls_new_dropped.csv")
+        df = pd.read_csv("./results/csvs/balls_69-7368/df_whole_dataset_balls_new_dropped.csv", index_col=False)
         self.dfs["ball"] = df
 
 
 envelope_processor = EnvelopeProcessor([
-    #"./results/csvs/segment_69-5112",
-"./results/csvs/balls_69-7368"])
+    "./results/csvs/segment_69-5112",
+# "./results/csvs/balls_69-7368"
+])
 
-envelope_processor.load_the_whole_dataset()
+envelope_processor.load_the_data()
 
-envelopes_df = envelope_processor.dfs["ball"]
+envelopes_df = envelope_processor.dfs["./results/csvs/segment_69-5112"]
 
 # filter seeds so that we have 5000 permutations
 envelopes_df = envelopes_df[envelopes_df.Seed < 5068]
@@ -74,13 +75,17 @@ def assign_the_lexicographic_value(g_df, envelope_count):
 
 for g_n, g_df in grouped_fw_types:
     g_df.sort_values(["Grain Type", "Model", "Intensity", "f-Mark Type", "Weight Type", "Input Value", "PWFCF Value"])
-    grouped = g_df.groupby(['Seed'])
+    model = np.unique(g_df['Model'])[0]
+    f_type = np.unique(g_df['f-Mark Type'])[0]
+    w_type = np.unique(g_df['Weight Type'])[0]
+    g_df.to_csv(f"results_splitted_mod={model}_w={w_type}_f={f_type}.csv", index = False)
+    #grouped = g_df.groupby(['Seed'])
     # for group_name, group_df in grouped:
     #     print(g_n)
     #     plt.plot(group_df['Input Value'], group_df['PWFCF Value'], label=str(group_name), marker=".")
     # plt.show()
     # plt.close() # TODO tyhle ploty by mohly byt zajimavy do DP
-    assign_the_lexicographic_value(g_df, envelope_count)
+    #assign_the_lexicographic_value(g_df, envelope_count)
 # envelopes_df.to_csv(f"./envelope_test_vals_{datetime.now().__str__().replace(':', '-')}.csv")
 
 breakpoint_var=1

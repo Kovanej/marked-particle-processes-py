@@ -3,12 +3,16 @@
   "process_type": "ball",
   "marking_type": {
        "ball": [
-         "radius_continuous"
+         "radius_discrete"
         ],
         "segment": [
             "angle_discrete", "angle_continuous", "length_discrete", "length_continuous", "nearest_neighbour_distance",
             "intersection_counting"
         ]
+  },
+  "f_mark_weights_and_statistics": {
+        "intersection": ["product",  "square", "first_mark"],
+        "shared_area": ["product",  "square", "first_mark"]
   },
   "particles_parameters": {
         "ball": {
@@ -26,11 +30,11 @@
     "alphas": [0]
   },
   "permutation_tests_parameters": {
-        "number_of_permutations": 10,
+        "number_of_permutations": 1000,
         "plot_histograms": false
     },
   "plot_realizations": false,
   "save_results": false,
-  "initial_seed": 69,
+  "initial_seed": 5069,
   "number_of_realizations": 10
 }
