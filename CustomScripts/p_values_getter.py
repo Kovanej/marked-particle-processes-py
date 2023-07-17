@@ -28,8 +28,8 @@ print(datetime.now())
 INIT_SEED = 69
 PERMUTATIONS = 4999
 
-model = "ball_bivariate_radius"
-F_TYPES = ["product", "first_mark", "square"]
+model = "ball_max_shared_area_disc"
+F_TYPES = ["product", "first_mark"]
 W_TYPES = ["shared_area", "intersection"]
 #F_TYPES = ["product"]
 #W_TYPES = ["shared_area"]
@@ -48,6 +48,8 @@ for f_type in F_TYPES:
 
 with open("../config_models.json", "r") as json_data:
     config_json = json.loads(json_data.read())
+
+print("config loaded")
 
 envelope_count = config_json["permutation_tests_parameters"]["number_of_permutations"]
 init_seed = config_json["initial_seed"]
@@ -82,17 +84,21 @@ for _ in range(envelope_count):
             df_final = assign_the_lexicographic_value(g_df=df_to_evaluate, envelope_count=PERMUTATIONS + 1)
             test_rank = np.where(df_final.index == seed)[0][0]
             seed_inside_envelope[(w_type, f_type)][seed] = False if test_rank < np.ceil(0.05 * (PERMUTATIONS + 1)) else True
+            if seed % 100 == 0:
+                print(1 - np.mean(list(seed_inside_envelope[(w_type, f_type)].values())))
     print(f"Computations done for seed: {seed}")
+
 
 for w_type in W_TYPES:
     for f_type in F_TYPES:
         df_list_to_save.append(
             pd.DataFrame({
                 'Model': [model], 'Alpha': [config_json['marking_parameters']['alphas'][0]],
+                'Number of Permutations': envelope_count,
                 'f-Mark Type': [f_type], 'Weight Type': [w_type],
                 'Rejection Rate': [1 - np.mean(list(seed_inside_envelope[(w_type, f_type)].values()))]
             }))
 
 df_to_save = pd.concat(df_list_to_save)
-df_to_save.to_csv(f"./rejection_rate_{datetime.now().__str__().replace(':', '-')}.csv", index=False)
+df_to_save.to_csv(f"./rejection_rate{config_json['marking_parameters']['alphas'][0]}_{datetime.now().__str__().replace(':', '-')}.csv", index=False)
 print(datetime.now())
