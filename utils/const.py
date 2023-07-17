@@ -26,15 +26,22 @@ SAVE_RESULTS_TO_CSV = False
 PICKLE_RESULTS = False
 PLOT_THE_P_VALUES = True
 
+RADIUS_DISCRETE = "radius_discrete"
+RADIUS_CONTINUOUS = "radius_continuous"
+NND_DIST = "nearest_neighbour_distance"
+MAX_SHARED_AREA_DISCRETE = "max_shared_area_discrete"
+MAX_SHARED_AREA_CONTINUOUS = "max_shared_area_continuous"
+INTERSECTION_COUNTING = "intersection_counting"
+
 F_MARK_TYPES = [
     "product", "square", "first_mark",
 ]
 WEIGHT_TYPES = {
     "ball": [
-        "intersection", "shared_area", "distance"
+        "intersection", "shared_area"
     ],
     "segment": [
-        "intersection", "distance", "angle"
+        "intersection", "angle"
     ],
 }
 
@@ -110,9 +117,15 @@ CONFIG_OPTIONAL_VALUES = {
     "plot_realizations": True,
     "compute_f_mark_statistics": True,
     "f_mark_weights_and_statistics": {
-        "intersection": ["product",  "square", "first_mark"],
-        "angle": ["product",  "square", "first_mark"],
-        "distance": ["product",  "square", "first_mark"]
+        #"intersection": ["product"] #,  "square", "first_mark"]
+        #"shared_area": ["product",  "square", "first_mark"]
+
+        "shared_area": ["first_mark"],
+        #"shared_area": ["square"],
+        #"shared_area": ["product"],
+        #"intersection": ["square"],
+        #"intersection": ["first_mark"]
+        # "intersection": ["product"]
     },
     "perform_permutation_test": False,
     "permutation_tests_parameters": {
