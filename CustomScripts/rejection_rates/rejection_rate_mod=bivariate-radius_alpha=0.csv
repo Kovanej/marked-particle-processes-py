@@ -1,0 +1,7 @@
+Model,Alpha,f-Mark Type,Weight Type,Rejection Rate
+ball_bivariate_radius,0,product,shared_area,0.03700000000000003
+ball_bivariate_radius,0,first_mark,shared_area,0.03500000000000003
+ball_bivariate_radius,0,square,shared_area,0.039000000000000035
+ball_bivariate_radius,0,product,intersection,0.039000000000000035
+ball_bivariate_radius,0,first_mark,intersection,0.03400000000000003
+ball_bivariate_radius,0,square,intersection,0.03500000000000003
