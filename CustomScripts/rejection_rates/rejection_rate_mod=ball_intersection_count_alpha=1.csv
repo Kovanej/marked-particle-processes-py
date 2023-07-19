@@ -1,0 +1,7 @@
+Model,Alpha,Number of Permutations,f-Mark Type,Weight Type,Rejection Rate
+ball_intersection_count,1,1000,product,intersection,0.45199999999999996
+ball_intersection_count,1,1000,first_mark,intersection,0.20899999999999996
+ball_intersection_count,1,1000,square,intersection,0.785
+ball_intersection_count,1,1000,product,shared_area,0.52
+ball_intersection_count,1,1000,first_mark,shared_area,0.25
+ball_intersection_count,1,1000,square,shared_area,0.663

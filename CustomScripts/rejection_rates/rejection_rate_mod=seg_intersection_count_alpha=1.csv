@@ -1,0 +1,4 @@
+Model,Alpha,Number of Permutations,f-Mark Type,Weight Type,Rejection Rate
+seg_intersection_count,1,1000,product,intersection,0.953
+seg_intersection_count,1,1000,first_mark,intersection,0.768
+seg_intersection_count,1,1000,square,intersection,0.759
