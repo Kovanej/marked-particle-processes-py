@@ -38,7 +38,3 @@ plt.title('PWFCF for unif. dist. Boolean ball process')
 
 # Show the plot
 plt.show()
-
-
-break_point_var=1
-

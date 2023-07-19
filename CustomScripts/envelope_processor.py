@@ -87,5 +87,3 @@ for g_n, g_df in grouped_fw_types:
     # plt.close() # TODO tyhle ploty by mohly byt zajimavy do DP
     #assign_the_lexicographic_value(g_df, envelope_count)
 # envelopes_df.to_csv(f"./envelope_test_vals_{datetime.now().__str__().replace(':', '-')}.csv")
-
-breakpoint_var=1
