@@ -346,8 +346,8 @@ class CountingIntersectionNumberMarkSegmentProcess(SegmentProcess):
         tau = np.random.binomial(n=1, p=self.alpha, size=len(self.particles))
         # subtracting the one, since particles intersect themselves
         intersection_count = self.particles_intersection_matrix.sum(axis=0) - 1
-        # TODO compute properly
-        independent_poisson = np.random.poisson(intersection_count.mean(), size=intersection_count.size)
+        # TODO not hardcoded Poisson parameter!
+        independent_poisson = np.random.poisson(0.66, size=intersection_count.size)
         dependent_poisson = np.random.poisson(intersection_count)
         mark_values = np.where(tau == 0, independent_poisson, dependent_poisson)
         for k in range(len(self.particles)):

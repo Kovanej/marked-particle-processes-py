@@ -31,7 +31,6 @@ class BallProcess(ParticleProcess):
         )
 
     def _compute_the_pairwise_shared_measure_matrix(self):
-        # TODO subtract the area of circles outside the observational window
         # TODO vectorize
         logging.info(f"{datetime.now()} :Circles shared measure matrix computation start.")
         shared_areas_matrix = np.zeros(shape=self.particles_intersection_matrix.shape)
@@ -104,9 +103,8 @@ class BallProcess(ParticleProcess):
 class RadiusMarksBallProcess(BallProcess):
 
     def __init__(
-            self, germ_intensity: float, particles: List[Particle], model_name: Optional[str],max_radius: float,
+            self, germ_intensity: float, particles: List[Particle], model_name: Optional[str], max_radius: float,
             min_radius: float, seed: Optional[int] = None
-
     ):
         super().__init__(
             germ_intensity=germ_intensity, particles=particles, marked=True, model_name=model_name, seed=seed,
@@ -255,8 +253,8 @@ class CountingIntersectionNumberMarkBallProcess(BallProcess):
         tau = np.random.binomial(n=1, p=self.alpha, size=len(self.particles))
         # subtracting the one, since particles intersect themselves
         intersection_count = self.particles_intersection_matrix.sum(axis=0) - 1
-        # TODO compute properly
-        independent_poisson = np.random.poisson(intersection_count.mean(), size=intersection_count.size)
+        # TODO not hardcoded Poisson parameter!
+        independent_poisson = np.random.poisson(5.64, size=intersection_count.size)
         dependent_poisson = np.random.poisson(intersection_count)
         mark_values = np.where(tau == 0, independent_poisson, dependent_poisson)
         for k in range(len(self.particles)):
