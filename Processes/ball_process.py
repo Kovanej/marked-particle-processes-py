@@ -169,7 +169,7 @@ class BivariateMaximalSharedAreaMarkBallProcess(BallProcess):
     def _mark_itself(self):
         max_shared_per_particle = self.pairwise_shared_measure_matrix.max(axis=0)
         max_possible_shared_area = (self.max_radius ** 2) * np.pi
-        tau = np.random.binomial(n=1, p=self.alpha)
+        tau = np.random.binomial(n=1, p=self.alpha, size=len(self.particles))
         p_alt = np.where(tau == 0, 1 / 2, np.random.binomial(n=1, p=max_shared_per_particle / max_possible_shared_area))
         mark_values = np.random.binomial(n=1, p=p_alt)
         for k in range(len(self.particles)):
@@ -194,9 +194,11 @@ class ContinuousMaximalSharedAreaMarkBallProcess(BallProcess):
 
     def _mark_itself(self):
         max_shared_per_particle = self.pairwise_shared_measure_matrix.max(axis=0)
-        # TODO compute correctly
-        max_shared_area = self.pairwise_shared_measure_matrix.max()
-        min_shared_area = self.pairwise_shared_measure_matrix.min()
+        # TODO not hardcoded
+        max_shared_area = 0.07
+        min_shared_area = 0
+        # max_shared_area = self.pairwise_shared_measure_matrix.max()
+        # min_shared_area = self.pairwise_shared_measure_matrix.min()
         mark_values = self.alpha * max_shared_per_particle + (1 - self.alpha) * (
             min_shared_area + (max_shared_area - min_shared_area) * np.random.random(size=max_shared_per_particle.size)
         )

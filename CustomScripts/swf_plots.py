@@ -3,8 +3,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def simple_pwfcf_for_uniform_distribution(value: float, lam: float, p: float, a: float, b: float):
-    return (lam * p * np.pi) ** 2 * (1 / 180) * (
+def simple_pwfcf_for_uniform_distribution(value: float, lam: float, p: float, a: float, b: float, f_type="first_mark"):
+    if f_type == "product":
+        c_f = p ** 2
+    elif f_type == "square":
+        c_f = p * (1 - p)
+    else:
+        c_f = p
+    return (lam * c_f * np.pi) ** 2 * (1 / 180) * (
         (210 * b ** 2 + 300 * a * b + 210 * a ** 2) * value ** 2 +
         (270 * b ** 3 + 450 * a ** 2 * b + 450 * a * b ** 2 + 210 * a ** 3) * value +
         (101 * b ** 4 + 166 * a * b ** 3 + 186 * a ** 2 * b ** 2 + 166 * a ** 3 * b + 101 * a ** 4)
