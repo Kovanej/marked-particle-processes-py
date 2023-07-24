@@ -29,8 +29,8 @@ INIT_SEED = 69
 PERMUTATIONS = 4999
 
 model = "ball_max_shared_area_disc"
-F_TYPES = ["product", "first_mark"]
-W_TYPES = ["shared_area", "intersection"]
+F_TYPES = ["product", "square", "first_mark"]
+W_TYPES = ["intersection", "shared_area"]
 #F_TYPES = ["product"]
 #W_TYPES = ["shared_area"]
 
@@ -50,6 +50,7 @@ with open("../config_models.json", "r") as json_data:
     config_json = json.loads(json_data.read())
 
 print("config loaded")
+print(config_json)
 
 envelope_count = config_json["permutation_tests_parameters"]["number_of_permutations"]
 init_seed = config_json["initial_seed"]
