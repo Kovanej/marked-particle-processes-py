@@ -18,7 +18,7 @@ import utils.const as const
 os.chdir("../")
 
 
-TESTED_GRAIN_TYPE = "segment"
+TESTED_GRAIN_TYPE = "ball"
 TESTED_INTENSITY = 30
 MAX_SEGMENT_LENGTH = 0.3
 MIN_SEGMENT_LENGTH = 0.1

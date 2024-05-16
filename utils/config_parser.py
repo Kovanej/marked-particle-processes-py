@@ -70,15 +70,27 @@ class ConfigParser(object):
         for key, process in processes_to_save.items():
             if self.plot_realizations:
                 process.plot_itself()
+            _start = datetime.now()
             process.compute_the_f_mark_characteristics()
-            process.perform_the_permutation_test_for_f_mark_characteristics()
+            _end = datetime.now()
+            logging.info(
+                f"{datetime.now()}: f-mark characteristics computation end for process "
+                f"{process.model_name} with duration: {_end - _start}"
+            )
+            _start = datetime.now()
+            # legacy - tests on reshuffling
+            # process.perform_the_permutation_test_for_f_mark_characteristics()
+            _end = datetime.now()
+            logging.info(
+                f"{datetime.now()}: permutation test computation end for process "
+                f"{process.model_name} with duration: {_end - _start}"
+            )
             for weight, fs in self.f_mark_weights_and_statistics.items():
                 for f in fs:
                     result_saver.save_the_results(
                         model_name=key[0], grain_type=process.grain_type,
-                        permutations_count=const.PERMUTATION_TEST_REPEAT_COUNT,
-                        quantile_dict=process.f_mark_statistics_quantiles, value_dict=process.f_mark_statistics,
-                        seed=seed, intensity=process.germ_intensity
+                        seed=seed, intensity=process.germ_intensity, f_type=f, weight=weight,
+                        f_mark_statistics=process.f_mark_statistics[(f, weight)]
                     )
         result_saver.save_to_pandas(save_csv=self.save_results)
         return result_saver
@@ -118,7 +130,7 @@ class ConfigParser(object):
             )
         else:
             raise ValueError(f"Unknown particle process type: {self.process_type}")
-        return - max_overlap, 1 + max_overlap
+        return -1 - max_overlap, 1 + max_overlap
 
     def _initialize_the_ball_processes(self, seed: int) -> List[ParticleProcess]:
         max_rad = self.particles_parameters["ball"]["max_radius"]

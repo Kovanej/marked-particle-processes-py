@@ -18,6 +18,16 @@ class ResultSaver(object):
             "Intensity": [],
             "f-Mark Type": [],
             "Weight Type": [],
+            "Input Value": [],
+            "PWFCF Value": []
+        }
+        self.result_dict_reshuffle = {
+            "Seed": [],
+            "Grain Type": [],
+            "Model": [],
+            "Intensity": [],
+            "f-Mark Type": [],
+            "Weight Type": [],
             "Value": [],
             "Permutation Test Count": [],
             "Left p-value": [],
@@ -29,21 +39,34 @@ class ResultSaver(object):
         self.results_grouped_by_df = None
 
     def save_the_results(
-            self, model_name: str, grain_type: str, permutations_count: int, quantile_dict: Dict, value_dict: Dict,
-            intensity: float, seed: Optional[int] = None
-    ):
-        for (key, val) in quantile_dict.items():
+            self, model_name: str, grain_type: str, seed: int, intensity: float, f_mark_statistics: Dict, f_type: str,
+            weight: str):
+        for k, v in f_mark_statistics.items():
             self.result_dict["Seed"].append(seed)
             self.result_dict["Grain Type"].append(grain_type)
             self.result_dict["Model"].append(model_name)
             self.result_dict["Intensity"].append(intensity)
-            self.result_dict["f-Mark Type"].append(key[0])
-            self.result_dict["Weight Type"].append(key[1])
-            self.result_dict["Value"].append(value_dict[key])
-            self.result_dict["Permutation Test Count"].append(permutations_count)
-            self.result_dict["Left p-value"].append(val)
-            self.result_dict["Right p-value"].append(1 - val)
-            self.result_dict["Both Sided p-value"].append(2 * min(val, 1 - val))
+            self.result_dict["f-Mark Type"].append(f_type)
+            self.result_dict["Weight Type"].append(weight)
+            self.result_dict["Input Value"].append(k)
+            self.result_dict["PWFCF Value"].append(v)
+    
+    def save_the_results_reshuffle(
+            self, model_name: str, grain_type: str, permutations_count: int, quantile_dict: Dict, value_dict: Dict,
+            intensity: float, seed: Optional[int] = None
+    ):
+        for (key, val) in quantile_dict.items():
+            self.result_dict_reshuffle["Seed"].append(seed)
+            self.result_dict_reshuffle["Grain Type"].append(grain_type)
+            self.result_dict_reshuffle["Model"].append(model_name)
+            self.result_dict_reshuffle["Intensity"].append(intensity)
+            self.result_dict_reshuffle["f-Mark Type"].append(key[0])
+            self.result_dict_reshuffle["Weight Type"].append(key[1])
+            self.result_dict_reshuffle["Value"].append(value_dict[key])
+            self.result_dict_reshuffle["Permutation Test Count"].append(permutations_count)
+            self.result_dict_reshuffle["Left p-value"].append(val)
+            self.result_dict_reshuffle["Right p-value"].append(1 - val)
+            self.result_dict_reshuffle["Both Sided p-value"].append(2 * min(val, 1 - val))
 
     def save_to_pandas(self, save_csv: bool = const.SAVE_RESULTS_TO_CSV):
         self.results_all_df = pd.DataFrame(self.result_dict)

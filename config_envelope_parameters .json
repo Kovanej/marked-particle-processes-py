@@ -1,0 +1,37 @@
+{
+  "intensity":  50,
+  "process_type": "both",
+  "marking_type": {
+       "ball": [
+         "radius_discrete", "radius_continuous", "nearest_neighbour_distance",
+         "max_shared_area_continuous", "max_shared_area_discrete",  "intersection_counting"
+        ],
+        "segment": [
+            "angle_discrete", "angle_continuous", "length_discrete", "length_continuous", "nearest_neighbour_distance",
+            "intersection_counting"
+        ]
+  },
+  "particles_parameters": {
+        "ball": {
+          "max_radius": 0.15,
+          "min_radius": 0.05
+        },
+        "segment": {
+          "max_segment_length": 0.2,
+          "min_segment_length": 0.1,
+          "max_angle_in_degrees": 180,
+          "min_angle_in_degrees": 0
+        }
+  },
+  "marking_parameters": {
+    "alphas": [1]
+  },
+  "permutation_tests_parameters": {
+        "number_of_permutations": 5000,
+        "plot_histograms": false
+    },
+  "plot_realizations": false,
+  "save_results": true,
+  "initial_seed": 69,
+  "number_of_realizations": 10
+}

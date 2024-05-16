@@ -1,0 +1,7 @@
+Model,Alpha,Number of Permutations,f-Mark Type,Weight Type,Rejection Rate
+seg_continuous_angle,1,1000,product,intersection,0.029000000000000026
+seg_continuous_angle,1,1000,first_mark,intersection,0.040000000000000036
+seg_continuous_angle,1,1000,square,intersection,0.06799999999999995
+seg_continuous_angle,1,1000,product,angle,0.10199999999999998
+seg_continuous_angle,1,1000,first_mark,angle,0.05300000000000005
+seg_continuous_angle,1,1000,square,angle,0.952

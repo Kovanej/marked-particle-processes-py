@@ -1,0 +1,7 @@
+Model,Alpha,Number of Permutations,f-Mark Type,Weight Type,Rejection Rate
+ball_max_shared_area_cont,0,1000,product,intersection,0.03500000000000003
+ball_max_shared_area_cont,0,1000,square,intersection,0.040000000000000036
+ball_max_shared_area_cont,0,1000,first_mark,intersection,0.03700000000000003
+ball_max_shared_area_cont,0,1000,product,shared_area,0.038000000000000034
+ball_max_shared_area_cont,0,1000,square,shared_area,0.049000000000000044
+ball_max_shared_area_cont,0,1000,first_mark,shared_area,0.052000000000000046

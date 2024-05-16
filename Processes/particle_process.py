@@ -1,8 +1,9 @@
 
 from datetime import datetime
 import logging
-import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
+import matplotlib.patches as patches
+import matplotlib.pyplot as plt
 from typing import List, Optional, Union, Tuple, Dict
 import numpy as np
 import random
@@ -56,11 +57,11 @@ class ParticleProcess(object):
         self.pairwise_shared_measure_matrix = self._compute_the_pairwise_shared_measure_matrix()
         # if needed following attributes are computed via executing ParticleProcess.compute_f_mark_statistics
         self.f_mark_normalization_constants: Dict[str, float] = {}
-        self.f_mark_statistics: Dict[Tuple[str, str], float] = {}
-        self.f_mark_statistics_permutations: Dict[Tuple[str, str], np.array] = {
+        self.f_mark_statistics: Dict[Tuple[str, str], Dict[float, float]] = {}
+        self.f_mark_statistics_permutations: Dict[Tuple[str, str], Dict[float, np.array]] = {
             val: np.array([]) for val in const.F_MARK_COMBINATIONS[self.grain_type]
         }
-        self.f_mark_statistics_quantiles: Dict[Tuple[str, str], float] = {}
+        self.f_mark_statistics_quantiles: Dict[Tuple[str, str],  Dict[float, float]] = {}
         if self.marked_aposteriori:
             self._compute_the_marks()
 
@@ -97,25 +98,53 @@ class ParticleProcess(object):
 
     def _compute_the_germs_distance_matrix(self):
         logging.info(f"{datetime.now()} :Germs distance computation start.")
-        grains_distance_matrix = pairwise_distances(
+        germs_distance_matrix = pairwise_distances(
                 [self.particles[k].germ for k in range(self.number_of_particles)]
             )
+        self.germs_distance_from_origin = np.array(
+            [self._norm(self.particles[k].germ) for k in range(self.number_of_particles)])
         logging.info(f"{datetime.now()} :Germs distance computation end.")
-        return grains_distance_matrix
+        return germs_distance_matrix
 
-    def compute_the_f_mark_characteristics(self):
+    def compute_the_statistics(self):
+        pass
+
+    def compute_the_f_mark_characteristics(self, set_of_f_mark_combinations=None):
         for f_type in const.F_MARK_TYPES:
             self._compute_the_f_mark_normalization_constants(f_type=f_type)
-        for (f_type, weight_type) in const.F_MARK_COMBINATIONS[self.grain_type]:
+        if not set_of_f_mark_combinations:
+            set_of_f_mark_combinations = const.F_MARK_COMBINATIONS[self.grain_type]
+        for (f_type, weight_type) in set_of_f_mark_combinations:
             weight_matrix = {
                 "intersection": self.particles_intersection_matrix,
                 "shared_area": self.pairwise_shared_measure_matrix,
                 "distance": self.particles_distance_matrix,
                 "angle": self.angles_matrix
             }.get(weight_type)
-            self.f_mark_statistics[f_type, weight_type] = self._compute_the_f_mark_correlation(
-                f_type=f_type, weight_matrix=weight_matrix
-            )
+            self.f_mark_statistics[f_type, weight_type] = {}
+            points_to_eval = np.round(np.arange(0.01, 1, 0.01, dtype=float), 2)
+            for t in points_to_eval:
+                weight_matrix_r = weight_matrix.copy()
+                for k in range(len(self.particles)):
+                    if self.grain_type == "ball":
+                        x_norm = self.germs_distance_from_origin[k]
+                        r = self.particles[k].grain.radius
+                        if x_norm > t + r:
+                            weight_matrix_r[k, :] = 0
+                    elif self.grain_type == "segment":
+                        x = self.particles[k].grain.start_point
+                        y = self.particles[k].grain.end_point
+                        alpha_possible = (- y[0] * (x[0] - y[0]) - y[1] * (x[1] - y[1])) / (self._norm(x-y) ** 2)
+                        if 0 < alpha_possible < 1:
+                            z = alpha_possible * x + (1 - alpha_possible) * y
+                            segment_distance = np.min([self._norm(x), self._norm(y), self._norm(z)])
+                        else:
+                            segment_distance = np.min([self._norm(x), self._norm(y)])
+                        if segment_distance > t:
+                            weight_matrix_r[k, :] = 0
+                self.f_mark_statistics[f_type, weight_type][np.round(t, 2)] = self._compute_the_f_mark_correlation(
+                    f_type=f_type, weight_matrix=weight_matrix_r
+                )
 
     def perform_the_permutation_test_for_f_mark_characteristics(self):
         for _ in range(const.PERMUTATION_TEST_REPEAT_COUNT):
@@ -141,9 +170,9 @@ class ParticleProcess(object):
             ).mean()
 
     def _compute_the_f_mark_correlation(
-            self, f_type: str, weight_matrix: np.array , marks_vector: Optional[np.array] = None
+            self, f_type: str, weight_matrix: np.array, marks_vector: Optional[np.array] = None
     ):
-        # since we are working on a [0, 1]^d window -> not normed by its Lebesgue measure, since it is 1 (je to jedno)
+        # since we are working on a [-1, 1]^d window -> not normed by its Lebesgue measure, since it is 1 (je to jedno)
         weight_matrix_zero_diagonal = weight_matrix.copy()
         np.fill_diagonal(weight_matrix_zero_diagonal, 0)
         if marks_vector is None:
@@ -155,19 +184,13 @@ class ParticleProcess(object):
             marks_square = (marks_vector[..., None] - marks_vector[None, ...]) ** 2 / 2
         if f_type == "product":
             f_nn = (marks_product * weight_matrix_zero_diagonal).sum()
-            norm_by = self.f_mark_normalization_constants[f_type] * (self.germ_intensity ** 2)
         elif f_type == "square":
             f_nn = (marks_square * weight_matrix_zero_diagonal).sum()
-            norm_by = self.f_mark_normalization_constants[f_type] * (self.germ_intensity ** 2)
         elif f_type == "first_mark":
             # TODO in my opinion we should not use the np.triu-ed matrix, only the zero-diagonal one
-            shared_area_zero_on_and_under_diagonal = np.triu(weight_matrix_zero_diagonal)
             f_nn = (marks_vector * weight_matrix_zero_diagonal).sum()
-            norm_by = self.f_mark_normalization_constants[f_type] * (self.germ_intensity ** 2)
         else:
             raise NotImplementedError(f"f-mark shared area correlation cannot be obtained for unknown f_type={f_type}")
-        # TODO for testing right now returning non-normed values
-        # return f_shared_nn / norm_by
         return f_nn
 
     def _compute_the_f_mark_normalization_constants(self, f_type: str):
@@ -191,21 +214,27 @@ class ParticleProcess(object):
     def _plot_particles(self, ax, fig):
         pass
 
-    def plot_itself(self, show_germs: bool = False):
+    def plot_itself(self, show_germs: bool = False, win_min=-1, win_max=1, edge_effects = None):
         fig = plt.figure()
         ax = fig.add_subplot()
         ax.set_aspect('equal', adjustable='box')
-        ax.set_xlim(left=0, right=1)
-        ax.set_ylim(bottom=0, top=1)
+        ax.set_xlim(left=win_min, right=win_max)
+        ax.set_ylim(bottom=win_min, top=win_max)
         self._plot_particles(ax=ax, fig=fig)
         # levels = [str(lv) for lv in range(self.particles[0].mark.number_of_levels)]
         # cols = [const.PARTICLE_COLORS_CHOICE[level] for level in range(self.particles[0].mark.number_of_levels)]
         if show_germs:
             for particle in self.particles:
-                color, alpha = self._choose_face_color(particle=particle)
-                color = "#000000"
-                alpha = 1
-                particle.germ.plot_2d(ax, c=color, alpha=alpha, marker=".")
+                p_array = np.array([particle.germ])
+                # fig, ax = plt.subplots()
+                ax.scatter(p_array[:, 0], p_array[:, 1], color='black', marker=".")
+        plt.xlim(win_min, win_max)
+        plt.ylim(win_min, win_max)
+        if edge_effects:
+            length = win_max - win_min - 2 * edge_effects
+            square = patches.Rectangle(
+                (win_min + edge_effects, win_min + edge_effects), length, length, linewidth=1, edgecolor='r', facecolor='none')
+            ax.add_patch(square)
         if const.SAVE_PLOTS:
             plt.savefig(f"generated_pics/{str(datetime.now()).replace(':','-')}_plot.png", dpi=1000)
         plt.show()
@@ -232,11 +261,11 @@ class ParticleProcess(object):
             by_label_sorted = {k: by_label[k] for k in sorted(by_label)}
             plt.figlegend(by_label_sorted.values(), by_label_sorted.keys())
         else:
-            alphas = np.linspace(0, max_alpha, const.GRADIENT_SMOOTHNESS)
+            alphas = np.linspace(min_alpha, max_alpha, const.GRADIENT_SMOOTHNESS)
             r, g, b = tuple(int(face_color.lstrip('#')[i:i + 2], 16) / 256 for i in (0, 2, 4))
             cols = np.array([[r, g, b, alphas[k]] for k in range(const.GRADIENT_SMOOTHNESS)])
             psm = ax.pcolormesh(
-                [[0, 0], [1, 1]], cmap=ListedColormap(cols), rasterized=True, vmin=0, vmax=self.max_mark
+                [[0, 0], [1, 1]], cmap=ListedColormap(cols), rasterized=True, vmin=self.min_mark, vmax=self.max_mark
             )
             fig.colorbar(psm, ax=ax)
 

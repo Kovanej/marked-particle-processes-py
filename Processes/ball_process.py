@@ -31,7 +31,6 @@ class BallProcess(ParticleProcess):
         )
 
     def _compute_the_pairwise_shared_measure_matrix(self):
-        # TODO subtract the area of circles outside the observational window
         # TODO vectorize
         logging.info(f"{datetime.now()} :Circles shared measure matrix computation start.")
         shared_areas_matrix = np.zeros(shape=self.particles_intersection_matrix.shape)
@@ -65,10 +64,8 @@ class BallProcess(ParticleProcess):
     def _compute_the_particles_distance_matrix(self):
         logging.info(f"{datetime.now()} :Circles distance computation start.")
         radii_to_subtract = np.array([
-            [
-                self.particles[k].grain.radius + self.particles[j].grain.radius
-                for j in range(self.number_of_particles)
-            ] for k in range(self.number_of_particles)
+            [self.particles[k].grain.radius + self.particles[j].grain.radius for j in range(self.number_of_particles)]
+            for k in range(self.number_of_particles)
         ])
         distance_matrix = np.where(
             self.germs_distance_matrix < radii_to_subtract, 0, self.germs_distance_matrix - radii_to_subtract
@@ -81,12 +78,15 @@ class BallProcess(ParticleProcess):
         max_alpha = 0
         for particle in self.particles:
             face_color, alpha = self._choose_face_color(particle=particle)
+            if np.isnan(alpha):
+                alpha = const.ALPHA
             edge_color = self._choose_edge_color()
             particle.grain.plot_2d(
                 ax, facecolor=face_color, linestyle="-", alpha=alpha, linewidth=1, edgecolor=edge_color,
                 label=particle.mark.mark_value
-                # alpha=0.5,
             )
+            # TODO not hardcoded
+            limits = plt.axis([-1, 1, -1, 1])
             min_alpha = alpha if min_alpha > alpha else min_alpha
             max_alpha = alpha if max_alpha < alpha else max_alpha
         self._add_legend(
@@ -103,9 +103,8 @@ class BallProcess(ParticleProcess):
 class RadiusMarksBallProcess(BallProcess):
 
     def __init__(
-            self, germ_intensity: float, particles: List[Particle], model_name: Optional[str],max_radius: float,
+            self, germ_intensity: float, particles: List[Particle], model_name: Optional[str], max_radius: float,
             min_radius: float, seed: Optional[int] = None
-
     ):
         super().__init__(
             germ_intensity=germ_intensity, particles=particles, marked=True, model_name=model_name, seed=seed,
@@ -170,7 +169,7 @@ class BivariateMaximalSharedAreaMarkBallProcess(BallProcess):
     def _mark_itself(self):
         max_shared_per_particle = self.pairwise_shared_measure_matrix.max(axis=0)
         max_possible_shared_area = (self.max_radius ** 2) * np.pi
-        tau = np.random.binomial(n=1, p=self.alpha)
+        tau = np.random.binomial(n=1, p=self.alpha, size=len(self.particles))
         p_alt = np.where(tau == 0, 1 / 2, np.random.binomial(n=1, p=max_shared_per_particle / max_possible_shared_area))
         mark_values = np.random.binomial(n=1, p=p_alt)
         for k in range(len(self.particles)):
@@ -195,9 +194,11 @@ class ContinuousMaximalSharedAreaMarkBallProcess(BallProcess):
 
     def _mark_itself(self):
         max_shared_per_particle = self.pairwise_shared_measure_matrix.max(axis=0)
-        # TODO compute correctly
-        max_shared_area = self.pairwise_shared_measure_matrix.max()
-        min_shared_area = self.pairwise_shared_measure_matrix.min()
+        # TODO not hardcoded
+        max_shared_area = 0.07
+        min_shared_area = 0
+        # max_shared_area = self.pairwise_shared_measure_matrix.max()
+        # min_shared_area = self.pairwise_shared_measure_matrix.min()
         mark_values = self.alpha * max_shared_per_particle + (1 - self.alpha) * (
             min_shared_area + (max_shared_area - min_shared_area) * np.random.random(size=max_shared_per_particle.size)
         )
@@ -219,9 +220,8 @@ class ContinuousNNDistanceMarkBallProcess(BallProcess):
             marked_aposteriori=True, marks_aposteriori_type="nn_dist",
             model_name=f"ball_N_N_dist_alpha={self.alpha}", max_radius=max_radius, min_radius=min_radius
         )
-        self._mark_itself()
 
-    def _mark_itself(self):
+    def _compute_the_marks(self):
         part_dist_inf_diagonal = self.particles_distance_matrix.copy()
         np.fill_diagonal(part_dist_inf_diagonal, np.inf)
         nn_dist_per_particle = part_dist_inf_diagonal.min(axis=0)
@@ -255,8 +255,8 @@ class CountingIntersectionNumberMarkBallProcess(BallProcess):
         tau = np.random.binomial(n=1, p=self.alpha, size=len(self.particles))
         # subtracting the one, since particles intersect themselves
         intersection_count = self.particles_intersection_matrix.sum(axis=0) - 1
-        # TODO compute properly
-        independent_poisson = np.random.poisson(intersection_count.mean(), size=intersection_count.size)
+        # TODO not hardcoded Poisson parameter!
+        independent_poisson = np.random.poisson(5.64, size=intersection_count.size)
         dependent_poisson = np.random.poisson(intersection_count)
         mark_values = np.where(tau == 0, independent_poisson, dependent_poisson)
         for k in range(len(self.particles)):

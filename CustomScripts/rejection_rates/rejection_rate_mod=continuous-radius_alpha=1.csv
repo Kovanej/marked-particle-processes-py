@@ -1,0 +1,7 @@
+Model,Alpha,f-Mark Type,Weight Type,Rejection Rate
+ball_continuous_radius,1,product,shared_area,0.30900000000000005
+ball_continuous_radius,1,first_mark,shared_area,0.10599999999999998
+ball_continuous_radius,1,square,shared_area,0.129
+ball_continuous_radius,1,product,intersection,0.129
+ball_continuous_radius,1,first_mark,intersection,0.05900000000000005
+ball_continuous_radius,1,square,intersection,0.027000000000000024

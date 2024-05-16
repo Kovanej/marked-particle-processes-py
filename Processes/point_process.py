@@ -27,7 +27,7 @@ class PointProcess(object):
         else:
             self.points = points
         self.point_inside_the_obs_window = np.array(
-            [all([(0 <= point[j] <= 1) for j in range(point.size)]) for point in self.points]
+            [all([(window_edge_start_point <= point[j] <= window_edge_end_point) for j in range(point.size)]) for point in self.points]
         )
 
     def _generate_itself(self):
